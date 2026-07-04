@@ -37,6 +37,7 @@
   }
 }
 * { box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
 body {
   margin:0; background:var(--page); color:var(--ink-1);
   font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -151,7 +152,7 @@ footer { color:var(--ink-3); font-size:11.5px; margin-top:24px; }
 footer li { margin:3px 0; }
 
 /* unlock */
-#lock { max-width:360px; margin:18vh auto; text-align:center; }
+#lock { max-width:360px; width:calc(100% - 32px); margin:18vh auto; text-align:center; }
 #lock input {
   width:100%; padding:10px 12px; font:inherit; border:1px solid var(--border);
   border-radius:8px; background:var(--surface-1); color:var(--ink-1); margin:14px 0 10px;
@@ -161,7 +162,29 @@ footer li { margin:3px 0; }
 #lock .err { color:var(--st-crit); font-size:12.5px; min-height:18px; }
 #app { display:none; }
 .maturity-note { font-size:11.5px; color:var(--ink-3); margin-top:4px; }
-@media (max-width:720px){ td.name{max-width:180px;} .tile .val{font-size:22px;} }
+.tscroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+@media (max-width:720px){
+  .wrap { padding:12px max(12px, env(safe-area-inset-right)) 48px max(12px, env(safe-area-inset-left)); }
+  input.search, #lock input { font-size:16px; }  /* prevent iOS focus zoom */
+  .card { padding:12px; border-radius:8px; }
+  h1 { font-size:17px; }
+  .hdr { gap:6px 8px; margin-bottom:10px; }
+  .chip { font-size:11px; padding:2px 8px; }
+  .tiles { grid-template-columns:repeat(2, 1fr); gap:8px; }
+  .tile { padding:10px 12px; }
+  .tile .val { font-size:21px; }
+  .tile svg { max-width:100%; }
+  td.name { max-width:160px; }
+  th, td { padding:6px 6px; font-size:12px; }
+  input.search { width:100%; }
+  .seg button { padding:6px 10px; }
+  /* sticky first column inside scrolling tables so names stay visible */
+  .tscroll th:first-child, .tscroll td:first-child {
+    position:sticky; left:0; background:var(--surface-1); z-index:2;
+  }
+  .tscroll tr:hover td { background:var(--surface-1); }
+  .insights { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
@@ -232,6 +255,12 @@ async function go() {
     document.getElementById("pwerr").textContent = "Wrong passphrase (or data missing).";
   }
 }
+let lastW = window.innerWidth;
+window.addEventListener("resize", () => {
+  if (!DATA || Math.abs(window.innerWidth - lastW) < 40) return;
+  lastW = window.innerWidth;
+  render();
+});
 (async () => {
   const saved = localStorage.getItem("mp_pass");
   if (saved) {
@@ -292,8 +321,11 @@ function sparkline(vals, w, h, goal) {
 /* ---------- main trend chart: two panels, shared x ---------- */
 function trendChart(days) {
   const box = el("div", "chartbox");
-  const W = Math.min(1180, Math.max(640, (document.getElementById("app").clientWidth || 1000) - 40));
-  const H1 = 150, H2 = 130, GAP = 26, padL = 44, padR = 14, AXH = 20;
+  const appW = document.getElementById("app").clientWidth || 1000;
+  const W = Math.min(1180, Math.max(300, appW - 40));
+  const narrow = W < 520;
+  const H1 = narrow ? 120 : 150, H2 = narrow ? 100 : 130, GAP = 26,
+        padL = narrow ? 34 : 44, padR = narrow ? 8 : 14, AXH = 20;
   const H = H1 + GAP + H2 + AXH;
   const svg = sv("svg", {width:"100%", height:H, viewBox:`0 0 ${W} ${H}`, style:"display:block"});
   const n = days.length;
@@ -330,7 +362,8 @@ function trendChart(days) {
     vt.textContent = days[lastIdx].roas.toFixed(2); svg.appendChild(vt);
   }
   const p1t = sv("text", {x:padL, y:14, fill:"var(--ink-2)", "font-size":11, "font-weight":600});
-  p1t.textContent = "Core NB ROAS by day (clicks + det. views, 7d, accrual)"; svg.appendChild(p1t);
+  p1t.textContent = narrow ? "Core NB ROAS by day" : "Core NB ROAS by day (clicks + det. views, 7d, accrual)";
+  svg.appendChild(p1t);
 
   /* panel 2: stacked spend bars by channel */
   const top2 = H1 + GAP;
@@ -360,7 +393,7 @@ function trendChart(days) {
   p2t.textContent = "Daily spend by channel"; svg.appendChild(p2t);
 
   /* x axis labels */
-  const step = Math.ceil(n / 8);
+  const step = Math.ceil(n / (narrow ? 5 : 8));
   days.forEach((d, i) => {
     if (i % step !== 0 && i !== n - 1) return;
     if (i !== n - 1 && x(n - 1) - x(i) < 34) return;  // avoid colliding with the last label
@@ -454,6 +487,11 @@ function renderTable(container) {
     rev: e => e.windows[W].rev7 || 0,
     txns: e => e.windows[W].txns || 0,
     proas: e => e.windows[W].p_roas ?? -1,
+    hook: e => {
+      const w = e.windows[W];
+      return (w.impressions || 0) >= 1000 && (w.video3s || 0) > 0
+        ? w.video3s / w.impressions : -1;
+    },
     delta: e => {
       const a = e.windows.L7.roas7, b = e.windows.P7.roas7;
       return (a != null && b) ? (a - b) / b : -99;
@@ -466,12 +504,15 @@ function renderTable(container) {
 
   const cols = [
     ["name", "Name"], ["spend", "Spend"], ["roas", "NB ROAS"], ["rev", "NB Rev"],
-    ["txns", "Txns"], ["proas", "Platform ROAS"], ["delta", "Δ WoW"], ["trend", "14d trend"], ["st", "Status"],
+    ["txns", "Txns"], ["proas", "Platform ROAS"],
+    ...(levelSel === "ad" ? [["hook", "Hook"]] : []),
+    ["delta", "Δ WoW"], ["trend", "14d trend"], ["st", "Status"],
   ];
   const table = el("table");
   const thead = el("thead"); const trh = el("tr");
   cols.forEach(([id, label]) => {
     const th = el("th", sortCol === id ? "sorted" : null, label + (sortCol === id ? (sortDir < 0 ? " ↓" : " ↑") : ""));
+    if (id === "hook") th.title = "Meta hook rate: 3-second video plays / impressions. <20% = weak opening, >=30% = strong.";
     if (!["trend", "st"].includes(id)) th.addEventListener("click", () => {
       if (sortCol === id) sortDir *= -1; else { sortCol = id; sortDir = -1; }
       renderTable(container);
@@ -498,7 +539,17 @@ function renderTable(container) {
     tr.appendChild(rc);
     tr.appendChild(el("td", "num", fm$(w.rev7 || 0)));
     tr.appendChild(el("td", "num", String(w.txns || 0)));
-    tr.appendChild(el("td", "num muted", e.platform === "google" ? fmR(w.p_roas) : "–"));
+    tr.appendChild(el("td", "num muted", fmR(w.p_roas)));
+    if (levelSel === "ad") {
+      const imp = w.impressions || 0, v3 = w.video3s || 0;
+      const htd = el("td", "num muted", imp >= 1000 && v3 > 0 ? Math.round(v3 / imp * 100) + "%" : "–");
+      if (imp >= 5000 && v3 > 0) {
+        const hr = v3 / imp;
+        if (hr < 0.2) { htd.className = "num delta down"; }
+        else if (hr >= 0.3) { htd.className = "num delta up"; }
+      }
+      tr.appendChild(htd);
+    }
     const dv = get.delta(e);
     const dtd = el("td", "num", dv <= -90 ? "–" : (dv > 0 ? "+" : "") + Math.round(dv * 100) + "%");
     if (dv > -90) dtd.className += dv >= 0 ? " delta up" : " delta down";
@@ -564,7 +615,9 @@ function channelSummary() {
     tr.appendChild(el("td", "num muted", l7.proas ? fmR(l7.proas) : "–"));
     table.appendChild(tr);
   }
-  card.appendChild(table);
+  const cscroll = el("div", "tscroll");
+  cscroll.appendChild(table);
+  card.appendChild(cscroll);
   const n = el("div", "maturity-note");
   n.textContent = "TOF, Brand, and App/Amazon support are excluded from core ROAS — they serve goals this metric doesn't measure. TikTok NB attribution is currently broken (understates) — judge TikTok on model views / MER.";
   card.appendChild(n);
@@ -717,7 +770,7 @@ function render() {
     ? "Yesterday view: accrual revenue for yesterday is largely unmatured — use for spend/delivery checks, not ROAS judgments. Status badges always judge on the 7-day window."
     : "Status badges judge NB ROAS on the ≥7-day window with a $250 minimum spend. No kill/scale calls on <72h of data.";
   tcard.appendChild(note);
-  const twrap = el("div"); twrap.style.overflowX = "auto";
+  const twrap = el("div", "tscroll");
   tcard.appendChild(twrap);
   renderTable(twrap);
   app.appendChild(tcard);
@@ -727,7 +780,7 @@ function render() {
   f.appendChild(el("div", null, "Definitions & data rules"));
   const ful = el("ul");
   (m.notes || []).forEach(nt => ful.appendChild(el("li", null, nt)));
-  ful.appendChild(el("li", null, "Generated " + m.generated_at + " · Sources: Northbeam export API (attribution), Google Ads API (platform). Meta platform metrics land when the Meta connector is added."));
+  ful.appendChild(el("li", null, "Generated " + m.generated_at + " · Sources: Northbeam export API (attribution + Meta platform-reported at 7d-click/1d-view), Google Ads API (platform)."));
   f.appendChild(ful);
   app.appendChild(f);
 }
