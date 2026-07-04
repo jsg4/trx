@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>TRX Testing — Lower Cross</title>
+<title>TRX LTV — Lower Cross</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Geist:wght@400;500;650&display=swap" rel="stylesheet">
@@ -384,7 +384,7 @@ async function decryptEnvelope(env, pass) {
 
 /* ---------- state ---------- */
 let DATA = null;
-const PAGE = "testing";
+const PAGE = "ltv";
 let winSel = "L7", platSel = PAGE === "creative" ? "meta" : "all",
     levelSel = PAGE === "creative" ? "ad" : "campaign";
 let sortCol = "spend", sortDir = -1, query = "", showZero = false;
@@ -402,7 +402,7 @@ function el(tag, cls, text) {
 
 /* ---------- boot ---------- */
 async function tryUnlock(pass) {
-  const res = await fetch("../data.enc", {cache:"no-store"});
+  const res = await fetch("data.enc", {cache:"no-store"});
   if (!res.ok) throw new Error("data.enc not found");
   DATA = await decryptEnvelope(JSON.parse(await res.text()), pass);
 }
@@ -648,7 +648,9 @@ function entitySub(e) {
 function renderTable(container) {
   container.replaceChildren();
   const goal = DATA.meta.goal_roas;
-  let rows = DATA.levels[levelSel].filter(e => platSel === "all" || e.platform === platSel);
+  /* App/Amazon: budget managed per the client sheet, performance not judged here */
+  let rows = DATA.levels[levelSel].filter(e => e.bucket !== "other")
+    .filter(e => platSel === "all" || e.platform === platSel);
   if (query) {
     const q = query.toLowerCase();
     rows = rows.filter(e => (entityName(e) + " " + entitySub(e)).toLowerCase().includes(q));
@@ -774,7 +776,6 @@ function channelSummary() {
     "Google Brand":     e => e.platform === "google" && e.bucket === "brand",
     "Demand Gen (TOF)": e => e.bucket === "tof",
     "TikTok":           e => e.platform === "tiktok",
-    "App / Amazon (support)": e => e.bucket === "other",
   };
   const card = el("div", "card");
   card.appendChild(el("h2", null, "Channel allocation — where the next dollar goes"));
@@ -784,7 +785,8 @@ function channelSummary() {
     const th = el("th", null, h); if (i === 0 || i === 7) th.style.textAlign = "left"; trh.appendChild(th);
   });
   table.appendChild(trh);
-  const camps = DATA.levels.campaign;
+  /* judged spend only — App/Amazon is managed off the client sheet, not allocated here */
+  const camps = DATA.levels.campaign.filter(c => c.bucket !== "other");
   const totalL7 = camps.reduce((s, c) => s + (c.windows.L7.spend || 0), 0);
   const rowsAgg = [];
   for (const [label, pred] of Object.entries(groups)) {
@@ -838,7 +840,7 @@ function channelSummary() {
 function creativeHealth() {
   const goal = DATA.meta.goal_roas;
   const vids = DATA.levels.ad.filter(a => {
-    if (a.platform !== "meta") return false;
+    if (a.platform !== "meta" || a.bucket === "other") return false;
     if (/static|image|carousel/i.test(a.ad_name || "")) return false;
     const w = a.windows.L7;
     return (w.impressions || 0) >= 5000 && (w.video3s || 0) >= 100;
@@ -992,7 +994,7 @@ function creativeIntelligence() {
       const thumbs = el("div", "comp-thumbs");
       let anyThumb = false;
       (c.proven_ads || []).forEach(p => {
-        if (p.thumb) { const img = document.createElement("img"); img.src = "../" + p.thumb; img.alt = p.headline || ""; img.title = (p.headline || "") + " — " + (p.gist || "") + " (" + (p.running || "") + ")"; img.loading = "lazy"; thumbs.appendChild(img); anyThumb = true; }
+        if (p.thumb) { const img = document.createElement("img"); img.src = p.thumb; img.alt = p.headline || ""; img.title = (p.headline || "") + " — " + (p.gist || "") + " (" + (p.running || "") + ")"; img.loading = "lazy"; thumbs.appendChild(img); anyThumb = true; }
       });
       if (anyThumb) cc.appendChild(thumbs);
       (c.proven_ads || []).slice(0, 2).forEach(p => {
@@ -1087,7 +1089,7 @@ function pageHead() {
 function spendMixCard() {
   const s0 = DATA.insights.summary;
   const parts = [["Core", s0.core_spend_l7, "var(--s-meta)"], ["TOF", s0.tof_spend_l7, "var(--s-google)"],
-                 ["Brand", s0.brand_spend_l7, "var(--s-tiktok)"], ["App/Amazon", s0.other_spend_l7, "var(--s-other)"]]
+                 ["Brand", s0.brand_spend_l7, "var(--s-tiktok)"], ["App/Amazon — managed", s0.other_spend_l7, "var(--s-other)"]]
     .filter(p => p[1] > 0);
   const tot = s0.total_spend_l7 || 1;
   const w = el("div", "widget");
@@ -1417,7 +1419,7 @@ function decideMini() {
 function navCards() {
   const s = DATA.insights.summary, pac = DATA.insights.pacing || {};
   const cr = DATA.creative || {}, t = (cr.testing || {counts: {}}).counts;
-  const camps = DATA.levels.campaign.filter(c => (c.windows.L7.spend || 0) > 0).length;
+  const camps = DATA.levels.campaign.filter(c => c.bucket !== "other" && (c.windows.L7.spend || 0) > 0).length;
   const dec = DATA.insights.decide || {do_now: []};
   const weakHooks = (cr.fix_body || []).length;
   const leanIn = (cr.lean_in || []).length;
@@ -1609,7 +1611,7 @@ function render() {
     // lower CAC is better: arrow shows direction, color shows goodness
     tiles.appendChild(mk("New-customer CAC — L7", fm$(s.cac_new_l7),
       (dd == null ? "" : (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs prior 7d · ")
-        + (s.new_txns_l7 || 0) + " new customers (NB paid)",
+        + (s.new_txns_l7 || 0) + " new customers (NB paid, ex-App/Amazon)",
       dd == null ? null : (dd <= 0 ? "up" : "down"),
       null, dd == null ? "na" : dd <= 0 ? "good" : dd <= 0.15 ? "warn" : "bad"));
   }
