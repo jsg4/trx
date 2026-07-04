@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>TRX Creative — Lower Cross</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Geist:wght@400;500;650&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Lower Cross design system — light: ink on cream, white cards */
+  --lc-green:#123524; --lc-green-dark:#0F2A1D; --lc-lime:#DAFF00;
+  --surface-1:#FFFFFF; --page:#F8F6F4;
+  --ink-1:#0B1015; --ink-2:rgba(11,16,21,0.70); --ink-3:rgba(11,16,21,0.45);
+  --grid:rgba(11,16,21,0.08); --axis:rgba(11,16,21,0.28); --border:rgba(11,16,21,0.16);
+  --s-meta:#2a78d6; --s-google:#eda100; --s-tiktok:#1baf7a; --s-other:#4a3aa7;
+  --seq-250:#86b6ef;
+  --st-good:#0ca30c; --st-warn:#fab219; --st-serious:#ec835a; --st-crit:#d03b3b;
+  --delta-good:#0a5c22; --delta-bad:#d03b3b;
+  --wash:rgba(18,53,36,0.06);
+  --wash-bad:rgba(208,59,59,0.06); --wash-good:rgba(18,53,36,0.06); --wash-warn:rgba(250,178,25,0.10);
+  --accent:#DAFF00; --on-accent:#123524;
+}
+:root[data-theme="dark"] {
+  /* Lower Cross dark: white + lime on deep green */
+  --surface-1:#123524; --page:#0F2A1D;
+  --ink-1:#FFFFFF; --ink-2:rgba(255,255,255,0.72); --ink-3:rgba(255,255,255,0.45);
+  --grid:rgba(255,255,255,0.09); --axis:rgba(255,255,255,0.30); --border:rgba(255,255,255,0.16);
+  --s-meta:#3987e5; --s-google:#c98500; --s-tiktok:#199e70; --s-other:#9085e9;
+  --seq-250:#5598e7;
+  --st-good:#2fbf4f; --st-warn:#fab219; --st-serious:#ec835a; --st-crit:#ff7a76;
+  --delta-good:#DAFF00; --delta-bad:#ff9b98;
+  --wash:rgba(218,255,0,0.08);
+  --wash-bad:rgba(255,122,118,0.12); --wash-good:rgba(218,255,0,0.08); --wash-warn:rgba(250,178,25,0.12);
+  --accent:#DAFF00; --on-accent:#123524;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface-1:#123524; --page:#0F2A1D;
+    --ink-1:#FFFFFF; --ink-2:rgba(255,255,255,0.72); --ink-3:rgba(255,255,255,0.45);
+    --grid:rgba(255,255,255,0.09); --axis:rgba(255,255,255,0.30); --border:rgba(255,255,255,0.16);
+    --s-meta:#3987e5; --s-google:#c98500; --s-tiktok:#199e70; --s-other:#9085e9;
+    --seq-250:#5598e7;
+    --st-good:#2fbf4f; --st-warn:#fab219; --st-serious:#ec835a; --st-crit:#ff7a76;
+    --delta-good:#DAFF00; --delta-bad:#ff9b98;
+    --wash:rgba(218,255,0,0.08);
+    --wash-bad:rgba(255,122,118,0.12); --wash-good:rgba(218,255,0,0.08); --wash-warn:rgba(250,178,25,0.12);
+    --accent:#DAFF00; --on-accent:#123524;
+  }
+}
+* { box-sizing:border-box; }
+html { -webkit-text-size-adjust:100%; }
+body {
+  margin:0; background:var(--page); color:var(--ink-1);
+  font:14px/1.5 "Geist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+}
+.wrap { max-width:1240px; margin:0 auto; padding:20px 20px 60px; }
+.card {
+  background:var(--surface-1); border:1px solid var(--border);
+  border-radius:24px; padding:20px 22px; margin-bottom:16px;
+}
+h1 { font-family:"Space Grotesk", sans-serif; font-size:21px; margin:0; font-weight:700; letter-spacing:-0.02em; }
+h2 { font-family:"Space Grotesk", sans-serif; font-size:12px; margin:0 0 10px; font-weight:600; color:var(--ink-2); text-transform:uppercase; letter-spacing:0.06em; }
+.sub { color:var(--ink-2); font-size:12.5px; }
+.muted { color:var(--ink-3); }
+
+/* header */
+.hdr { display:flex; flex-wrap:wrap; align-items:baseline; gap:10px 16px; margin-bottom:0; }
+.brandline { height:3px; background:var(--accent); border-radius:2px; margin:10px 0 16px; }
+.wordmark { font-family:"Space Grotesk", sans-serif; font-size:10px; letter-spacing:0.22em; color:var(--ink-3); text-transform:uppercase; font-weight:700; margin-bottom:2px; }
+.chip {
+  display:inline-flex; align-items:center; gap:6px; padding:3px 10px;
+  border:1px solid var(--border); border-radius:100px; font-size:12px; color:var(--ink-2);
+  background:var(--surface-1);
+}
+.chip b { color:var(--ink-1); }
+.chip.stale { border-color:var(--st-crit); color:var(--st-crit); font-weight:650; }
+.spacer { flex:1; }
+button.ghost {
+  background:none; border:1px solid var(--border); border-radius:100px; color:var(--ink-2);
+  padding:4px 12px; font:inherit; font-size:12px; cursor:pointer;
+}
+button.ghost:hover { color:var(--ink-1); }
+
+/* decide card */
+.decide { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
+.dcol { border:1px solid var(--border); border-radius:14px; padding:12px 14px; }
+.dcol h3 { margin:0 0 8px; font-size:12px; letter-spacing:0.4px; display:flex; align-items:center; gap:6px; }
+.dcol h3 .dot { width:9px; height:9px; border-radius:50%; }
+.d-now { background:var(--wash-bad); } .d-now h3 { color:var(--st-crit); } .d-now .dot { background:var(--st-crit); }
+.d-scale { background:var(--wash-good); } .d-scale h3 { color:var(--st-good); } .d-scale .dot { background:var(--st-good); }
+.d-watch { background:var(--wash-warn); } .d-watch h3 { color:#9a6b00; } .d-watch .dot { background:var(--st-warn); }
+:root[data-theme="dark"] .d-watch h3 { color:var(--st-warn); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .d-watch h3 { color:var(--st-warn); } }
+.ditem { padding:7px 0; border-top:1px solid var(--border); font-size:12.5px; }
+.ditem:first-of-type { border-top:none; }
+.ditem .w { font-weight:600; }
+.ditem .a { color:var(--ink-2); margin-top:2px; }
+.ditem .a::before { content:"→ "; color:var(--ink-3); }
+.dempty { color:var(--ink-3); font-size:12.5px; padding:6px 0; }
+.dkids { margin-top:5px; }
+.dkid { display:flex; align-items:baseline; gap:6px; font-size:11.5px; color:var(--ink-2); padding:2px 0 2px 14px; }
+.dkid .kdot { width:7px; height:7px; border-radius:50%; flex:none; align-self:center; }
+.dkid.k-pause .kdot { background:var(--st-crit); }
+.dkid.k-keep .kdot { background:var(--st-good); }
+.dkid.k-best .kdot { background:var(--st-warn); }
+.dkid .knm { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:60%; }
+.dkid .kv { margin-left:auto; font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+/* stat tiles */
+.tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px,1fr)); gap:12px; margin-bottom:16px; }
+.tile { background:var(--surface-1); border:1px solid var(--border); border-radius:20px; padding:16px 18px; }
+.tile .lbl { font-size:10.5px; color:var(--ink-3); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em; font-weight:600; }
+.tile .val { font-family:"Space Grotesk", sans-serif; font-size:27px; font-weight:700; letter-spacing:-0.02em; }
+.tile .delta { font-size:12px; margin-top:2px; }
+.delta.up { color:var(--delta-good); } .delta.down { color:var(--delta-bad); }
+.tile svg { display:block; margin-top:6px; }
+
+/* routine */
+.routine { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+.routine ol { margin:6px 0 0; padding-left:20px; font-size:12.5px; color:var(--ink-2); }
+.routine li { margin:4px 0; }
+.routine b { color:var(--ink-1); }
+
+/* charts */
+.chartbox { position:relative; }
+.crosshair { position:absolute; top:0; width:1px; background:var(--axis); pointer-events:none; display:none; }
+.tooltip {
+  position:absolute; pointer-events:none; display:none; z-index:5;
+  background:var(--surface-1); border:1px solid var(--border); border-radius:8px;
+  padding:8px 10px; font-size:12px; box-shadow:0 4px 14px rgba(0,0,0,0.18); min-width:150px;
+}
+.tooltip .tt-date { color:var(--ink-3); margin-bottom:4px; }
+.tooltip .row { display:flex; align-items:center; gap:6px; margin:2px 0; }
+.tooltip .key { width:12px; height:2px; border-radius:1px; flex:none; }
+.tooltip .v { font-weight:650; margin-left:auto; padding-left:12px; }
+.legend { display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--ink-2); margin-top:6px; }
+.legend .key { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:5px; vertical-align:-2px; }
+.legend .keyline { display:inline-block; width:14px; height:2px; border-radius:1px; margin-right:5px; vertical-align:3px; }
+.legend .keyline.thick { height:3px; }
+
+/* tables */
+table { width:100%; border-collapse:collapse; font-size:12.5px; }
+th, td { text-align:right; padding:7px 8px; border-bottom:1px solid var(--grid); white-space:nowrap; }
+th:first-child, td:first-child { text-align:left; }
+th {
+  color:var(--ink-3); font-weight:500; font-size:11.5px; cursor:pointer; user-select:none;
+  position:sticky; top:0; background:var(--surface-1);
+}
+th.sorted { color:var(--ink-1); font-weight:650; }
+td.name { max-width:340px; overflow:hidden; text-overflow:ellipsis; text-align:left; }
+td .pdot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+tr:hover td { background:var(--wash); }
+td.num { font-variant-numeric:tabular-nums; }
+td.guide { text-align:left; color:var(--ink-2); font-size:12px; white-space:normal; min-width:150px; }
+.badge {
+  display:inline-flex; align-items:center; gap:4px; font-size:11px; padding:2px 8px;
+  border-radius:999px; border:1px solid var(--border); color:var(--ink-2); font-weight:600;
+}
+.badge .dot { width:7px; height:7px; border-radius:50%; }
+.b-scale .dot { background:var(--st-good); } .b-scale { color:var(--st-good); }
+.b-goal .dot { background:var(--st-good); }
+.b-watch .dot { background:var(--st-warn); }
+.b-fix .dot { background:var(--st-crit); } .b-fix { color:var(--st-crit); }
+.b-na .dot { background:var(--ink-3); }
+.roascell { font-weight:650; }
+.tscroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+/* section divider */
+.section-h { display:flex; align-items:baseline; gap:10px; margin:26px 0 12px; }
+.section-h h2 { font-family:"Space Grotesk", sans-serif; font-size:15px; margin:0; letter-spacing:0.05em; }
+.section-h .sub { font-size:12px; }
+
+/* insights lists */
+.insights { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; }
+.insights ul, ul.insights { margin:0; padding-left:0; list-style:none; }
+.insights li, ul.insights li { padding:7px 0 7px 22px; position:relative; border-bottom:1px solid var(--grid); font-size:13px; }
+.insights li:last-child, ul.insights li:last-child { border-bottom:none; }
+.insights li::before, ul.insights li::before {
+  content:""; position:absolute; left:4px; top:13px; width:8px; height:8px; border-radius:50%;
+}
+li.sev-good::before { background:var(--st-good); }
+li.sev-warn::before { background:var(--st-warn); }
+li.sev-bad::before { background:var(--st-crit); }
+li.sev-info::before { background:var(--s-other); }
+.ctx li::before { background:var(--ink-3); }
+.ctx .d { color:var(--ink-3); font-size:11px; margin-right:6px; }
+details summary { cursor:pointer; color:var(--ink-2); font-size:13px; font-weight:600; padding:4px 0; }
+footer { color:var(--ink-3); font-size:11.5px; margin-top:24px; }
+footer li { margin:3px 0; }
+
+/* cockpit */
+.navcards { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin-bottom:16px; }
+.ncard { display:block; background:var(--surface-1); border:1px solid var(--border); border-radius:20px; padding:18px; text-decoration:none; color:var(--ink-1); transition:border-color .15s; }
+.ncard:hover { border-color:var(--accent); }
+.nc-title { font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:14px; letter-spacing:-0.01em; }
+.nc-teaser { color:var(--ink-3); font-size:11.5px; margin-top:5px; }
+.morelink { display:block; margin-top:8px; font-size:12px; font-weight:650; color:inherit; }
+/* testing monitor */
+.tchip { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; padding:2px 10px; border-radius:100px; border:1px solid var(--border); font-weight:650; text-transform:uppercase; letter-spacing:0.04em; white-space:nowrap; }
+.tchip .dot { width:7px; height:7px; border-radius:50%; }
+.t-graduate { color:var(--st-good); border-color:var(--st-good); } .t-graduate .dot { background:var(--st-good); }
+.t-kill { color:var(--st-crit); border-color:var(--st-crit); } .t-kill .dot { background:var(--st-crit); }
+.t-final_stretch { color:#9a6b00; } .t-final_stretch .dot { background:var(--st-warn); }
+:root[data-theme="dark"] .t-final_stretch { color:var(--st-warn); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .t-final_stretch { color:var(--st-warn); } }
+.t-early_signal { color:var(--st-good); } .t-early_signal .dot { background:var(--st-good); }
+.t-in_test { color:var(--ink-2); } .t-in_test .dot { background:var(--ink-3); }
+.meter { width:120px; height:8px; border-radius:100px; background:var(--grid); overflow:hidden; }
+.meter > div { height:100%; border-radius:100px; }
+td.action { text-align:left; white-space:normal; min-width:220px; max-width:330px; color:var(--ink-2); font-size:12px; }
+/* page nav */
+.pagenav { display:flex; max-width:max-content; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; border:1px solid var(--border); border-radius:100px; overflow:hidden; background:var(--surface-1); margin-bottom:16px; }
+.pagenav a { padding:7px 18px; font-size:12.5px; font-weight:650; color:var(--ink-2); text-decoration:none; border-right:1px solid var(--border); font-family:"Space Grotesk",sans-serif; letter-spacing:0.03em; }
+.pagenav a:last-child { border-right:none; }
+.pagenav a.on { color:var(--on-accent); background:var(--accent); }
+/* creative intelligence */
+.vchip { display:inline-flex; align-items:center; gap:4px; font-size:10px; padding:1px 8px; border-radius:100px; border:1px solid var(--border); font-weight:650; text-transform:uppercase; letter-spacing:0.04em; }
+.vchip.lean_in { color:var(--st-good); border-color:var(--st-good); }
+.vchip.cut { color:var(--st-crit); border-color:var(--st-crit); }
+.vchip.iterate { color:var(--ink-2); }
+.vchip.low_data { color:var(--ink-3); }
+.ci-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px; }
+.ci-lists { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; margin-top:16px; }
+.comp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:12px; }
+.comp-card { border:1px solid var(--border); border-radius:14px; padding:12px 14px; }
+.comp-card h4 { margin:0 0 2px; font-family:"Space Grotesk",sans-serif; font-size:13.5px; }
+.comp-card .cat { color:var(--ink-3); font-size:11px; margin-bottom:6px; }
+.comp-card .angles { display:flex; flex-wrap:wrap; gap:4px; margin:6px 0; }
+.comp-card .angles span { font-size:10.5px; border:1px solid var(--border); border-radius:100px; padding:1px 8px; color:var(--ink-2); }
+.comp-card .mirror { font-size:12px; color:var(--ink-1); margin-top:6px; }
+.comp-card .mirror::before { content:"Mirror: "; font-weight:650; color:var(--ink-2); }
+.comp-thumbs { display:flex; gap:6px; margin-top:8px; }
+.comp-thumbs img { height:74px; border-radius:8px; border:1px solid var(--border); object-fit:cover; }
+.comp-proven { font-size:11px; color:var(--ink-3); margin-top:4px; }
+.gapbox { border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:10px; padding:12px 14px; margin-top:14px; }
+.gapbox ul { margin:4px 0 0; padding-left:18px; font-size:12.5px; color:var(--ink-2); }
+.gapbox li { margin:5px 0; }
+/* creative health */
+.creative { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+
+/* filters */
+.filters { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:14px; }
+.seg { display:inline-flex; border:1px solid var(--border); border-radius:100px; overflow:hidden; background:var(--surface-1); }
+.seg button {
+  background:none; border:none; padding:6px 14px; font:inherit; font-size:12.5px;
+  color:var(--ink-2); cursor:pointer; border-right:1px solid var(--border);
+}
+.seg button:last-child { border-right:none; }
+.seg button[aria-pressed="true"] { color:var(--ink-1); font-weight:650; background:var(--wash); }
+input.search {
+  background:var(--surface-1); color:var(--ink-1); border:1px solid var(--border);
+  border-radius:100px; padding:6px 14px; font:inherit; font-size:12.5px; width:220px;
+}
+.maturity-note { font-size:11.5px; color:var(--ink-3); margin-top:4px; }
+
+/* unlock */
+#lock { max-width:360px; width:calc(100% - 32px); margin:18vh auto; text-align:center; }
+#lock input {
+  width:100%; padding:10px 12px; font:inherit; border:1px solid var(--border);
+  border-radius:8px; background:var(--surface-1); color:var(--ink-1); margin:14px 0 10px;
+}
+#lock button { width:100%; padding:11px; font:inherit; font-weight:650; border:none; border-radius:100px;
+  background:var(--accent); color:var(--on-accent); cursor:pointer; }
+#lock .err { color:var(--st-crit); font-size:12.5px; min-height:18px; }
+#app { display:none; }
+
+@media (max-width:720px){
+  .wrap { padding:12px max(12px, env(safe-area-inset-right)) 48px max(12px, env(safe-area-inset-left)); }
+  input.search, #lock input { font-size:16px; }
+  .card { padding:12px; border-radius:8px; }
+  h1 { font-size:17px; }
+  .hdr { gap:6px 8px; margin-bottom:10px; }
+  .chip { font-size:11px; padding:2px 8px; }
+  .tiles { grid-template-columns:repeat(2, 1fr); gap:8px; }
+  .tile { padding:10px 12px; }
+  .tile .val { font-size:21px; }
+  .tile svg { max-width:100%; }
+  td.name { max-width:160px; }
+  th, td { padding:6px 6px; font-size:12px; }
+  .seg button { padding:6px 10px; }
+  .tscroll th:first-child, .tscroll td:first-child {
+    position:sticky; left:0; background:var(--surface-1); z-index:2;
+  }
+  .tscroll tr:hover td { background:var(--surface-1); }
+  .insights { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="lock" class="card">
+  <div class="wordmark" style="text-align:center">Lower Cross</div>
+  <h1>TRX Dashboard</h1>
+  <p class="sub">Enter the team passphrase to unlock.</p>
+  <input id="pw" type="password" placeholder="Passphrase" autocomplete="current-password">
+  <div class="err" id="pwerr"></div>
+  <button id="unlock">Unlock</button>
+</div>
+
+<div id="app" class="wrap"></div>
+
+<script>
+"use strict";
+/* ---------- crypto ---------- */
+async function deriveKey(pass, salt, iter) {
+  const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2", salt, iterations:iter, hash:"SHA-256"}, km,
+    {name:"AES-GCM", length:256}, false, ["decrypt"]);
+}
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function decryptEnvelope(env, pass) {
+  const key = await deriveKey(pass, b64(env.salt), env.iter);
+  const pt = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(env.iv)}, key, b64(env.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+/* ---------- state ---------- */
+let DATA = null;
+const PAGE = "creative";
+let winSel = "L7", platSel = PAGE === "creative" ? "meta" : "all",
+    levelSel = PAGE === "creative" ? "ad" : "campaign";
+let sortCol = "spend", sortDir = -1, query = "", showZero = false;
+const PLAT_COLOR = { meta:"var(--s-meta)", google:"var(--s-google)", tiktok:"var(--s-tiktok)" };
+const PLAT_LABEL = { meta:"Meta", google:"Google", tiktok:"TikTok" };
+const fm$ = v => "$" + Math.round(v).toLocaleString("en-US");
+const fmK = v => v >= 10000 ? "$" + (v/1000).toFixed(0) + "K" : fm$(v);
+const fmR = v => v == null ? "–" : v.toFixed(2);
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+
+/* ---------- boot ---------- */
+async function tryUnlock(pass) {
+  const res = await fetch("../data.enc", {cache:"no-store"});
+  if (!res.ok) throw new Error("data.enc not found");
+  DATA = await decryptEnvelope(JSON.parse(await res.text()), pass);
+}
+document.getElementById("unlock").addEventListener("click", go);
+document.getElementById("pw").addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+async function go() {
+  const pass = document.getElementById("pw").value.trim();
+  if (!pass) return;
+  try {
+    await tryUnlock(pass);
+    localStorage.setItem("mp_pass", pass);
+    document.getElementById("lock").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    render();
+  } catch (e) {
+    document.getElementById("pwerr").textContent = "Wrong passphrase (or data missing).";
+  }
+}
+let lastW = window.innerWidth;
+window.addEventListener("resize", () => {
+  if (!DATA || Math.abs(window.innerWidth - lastW) < 40) return;
+  lastW = window.innerWidth;
+  render();
+});
+(async () => {
+  const saved = localStorage.getItem("mp_pass");
+  if (saved) {
+    try {
+      await tryUnlock(saved);
+      document.getElementById("lock").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      render();
+    } catch (e) { localStorage.removeItem("mp_pass"); }
+  }
+})();
+
+/* ---------- derived series ---------- */
+function dailySeries() {
+  const by = {};
+  for (const c of DATA.levels.campaign) {
+    for (const d of c.daily) {
+      const o = by[d.date] || (by[d.date] = {meta:0, google:0, tiktok:0, coreSpend:0, coreRev:0});
+      if (o[c.platform] != null) o[c.platform] += d.spend || 0;
+      if (c.bucket === "core") { o.coreSpend += d.spend || 0; o.coreRev += d.rev7 || 0; }
+    }
+  }
+  const days = Object.keys(by).sort().map(date => ({date, ...by[date],
+    roas: by[date].coreSpend > 0 ? by[date].coreRev / by[date].coreSpend : null}));
+  // spend-weighted 7-day rolling core ROAS — the line a buyer should read
+  for (let i = 0; i < days.length; i++) {
+    let s = 0, r = 0;
+    for (let j = Math.max(0, i - 6); j <= i; j++) { s += days[j].coreSpend; r += days[j].coreRev; }
+    days[i].roll = i >= 6 && s > 0 ? r / s : null;
+  }
+  return days;
+}
+
+/* ---------- svg helpers ---------- */
+const SVG = "http://www.w3.org/2000/svg";
+function sv(tag, attrs) {
+  const n = document.createElementNS(SVG, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+}
+function sparkline(vals, w, h, goal) {
+  const svg = sv("svg", {width:w, height:h, viewBox:`0 0 ${w} ${h}`});
+  const nums = vals.filter(v => v != null);
+  if (nums.length < 2) return svg;
+  const max = Math.max(...nums, goal || 0) * 1.1 || 1;
+  const pts = vals.map((v, i) => v == null ? null :
+    [i / (vals.length - 1) * (w - 6) + 3, h - 3 - v / max * (h - 8)]);
+  if (goal != null) {
+    const gy = h - 3 - goal / max * (h - 8);
+    svg.appendChild(sv("line", {x1:0, x2:w, y1:gy, y2:gy, stroke:"var(--axis)", "stroke-width":1, "stroke-dasharray":"3,3"}));
+  }
+  let d = "", st = false;
+  pts.forEach(p => { if (!p) { st = false; return; }
+    d += (st ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); st = true; });
+  svg.appendChild(sv("path", {d, fill:"none", stroke:"var(--seq-250)", "stroke-width":2, "stroke-linecap":"round", "stroke-linejoin":"round"}));
+  const last = [...pts].reverse().find(p => p);
+  if (last) svg.appendChild(sv("circle", {cx:last[0], cy:last[1], r:4, fill:"var(--s-meta)", stroke:"var(--surface-1)", "stroke-width":2}));
+  return svg;
+}
+
+/* ---------- main trend chart ---------- */
+function trendChart(days) {
+  const box = el("div", "chartbox");
+  const appW = document.getElementById("app").clientWidth || 1000;
+  const W = Math.min(1180, Math.max(300, appW - 40));
+  const narrow = W < 520;
+  const H1 = narrow ? 130 : 160, H2 = narrow ? 100 : 130, GAP = 26,
+        padL = narrow ? 34 : 44, padR = narrow ? 8 : 14, AXH = 20;
+  const H = H1 + GAP + H2 + AXH;
+  const svg = sv("svg", {width:"100%", height:H, viewBox:`0 0 ${W} ${H}`, style:"display:block"});
+  const n = days.length;
+  const x = i => padL + (n === 1 ? 0 : i / (n - 1) * (W - padL - padR));
+  const goal = DATA.meta.goal_roas;
+
+  /* panel 1: daily (light) + rolling (bold) core ROAS */
+  const allVals = days.flatMap(d => [d.roas, d.roll]).filter(v => v != null);
+  const rmax = Math.max(goal * 1.3, ...allVals) * 1.08;
+  const ry = v => H1 - 8 - (v / rmax) * (H1 - 22);
+  [0, goal].forEach(v => {
+    svg.appendChild(sv("line", {x1:padL, x2:W - padR, y1:ry(v), y2:ry(v), stroke:"var(--grid)", "stroke-width":1}));
+    const t = sv("text", {x:padL - 6, y:ry(v) + 4, "text-anchor":"end", fill:"var(--ink-3)", "font-size":10.5});
+    t.textContent = v.toFixed(1); svg.appendChild(t);
+  });
+  svg.appendChild(sv("line", {x1:padL, x2:W - padR, y1:ry(goal), y2:ry(goal), stroke:"var(--axis)", "stroke-width":1.5, "stroke-dasharray":"5,4"}));
+  const gt = sv("text", {x:W - padR, y:ry(goal) - 5, "text-anchor":"end", fill:"var(--ink-2)", "font-size":10.5, "font-weight":600});
+  gt.textContent = "goal " + goal.toFixed(1); svg.appendChild(gt);
+  if (n > 7) {
+    svg.appendChild(sv("rect", {x:x(n - 7), y:8, width:x(n - 1) - x(n - 7), height:H1 - 16, fill:"var(--wash)"}));
+  }
+  const path = (get, stroke, width) => {
+    let d = "", st = false;
+    days.forEach((dd, i) => { const v = get(dd); if (v == null) { st = false; return; }
+      d += (st ? "L" : "M") + x(i).toFixed(1) + "," + ry(v).toFixed(1); st = true; });
+    svg.appendChild(sv("path", {d, fill:"none", stroke, "stroke-width":width, "stroke-linecap":"round", "stroke-linejoin":"round"}));
+  };
+  path(d => d.roas, "var(--seq-250)", 1.5);
+  path(d => d.roll, "var(--s-meta)", 2.5);
+  const lastRollIdx = (() => { for (let i = n - 1; i >= 0; i--) if (days[i].roll != null) return i; return -1; })();
+  if (lastRollIdx >= 0) {
+    const v = days[lastRollIdx].roll;
+    svg.appendChild(sv("circle", {cx:x(lastRollIdx), cy:ry(v), r:4.5, fill:"var(--s-meta)", stroke:"var(--surface-1)", "stroke-width":2}));
+    const vt = sv("text", {x:x(lastRollIdx) - 8, y:ry(v) - 9, "text-anchor":"end", fill:"var(--ink-1)", "font-size":11.5, "font-weight":650});
+    vt.textContent = v.toFixed(2); svg.appendChild(vt);
+  }
+  const p1t = sv("text", {x:padL, y:14, fill:"var(--ink-2)", "font-size":11, "font-weight":600});
+  p1t.textContent = narrow ? "Core NB ROAS" : "Core NB ROAS by day — read the bold 7-day line, not the daily wiggle";
+  svg.appendChild(p1t);
+
+  /* panel 2: stacked spend bars by channel */
+  const top2 = H1 + GAP;
+  const smax = Math.max(...days.map(d => d.meta + d.google + d.tiktok)) * 1.12 || 1;
+  const sy = v => top2 + (H2 - 14) - (v / smax) * (H2 - 26);
+  [Math.round(smax / 2000) * 1000].filter(v => v > 0).forEach(v => {
+    svg.appendChild(sv("line", {x1:padL, x2:W - padR, y1:sy(v), y2:sy(v), stroke:"var(--grid)", "stroke-width":1}));
+    const t = sv("text", {x:padL - 6, y:sy(v) + 4, "text-anchor":"end", fill:"var(--ink-3)", "font-size":10.5});
+    t.textContent = "$" + (v / 1000) + "K"; svg.appendChild(t);
+  });
+  const bw = Math.min(24, Math.max(3, (W - padL - padR) / n - 2));
+  const order = ["meta", "google", "tiktok"];
+  days.forEach((d, i) => {
+    let acc = 0;
+    order.forEach(p => {
+      const v = d[p]; if (!v) return;
+      const y1 = sy(acc + v), y0 = sy(acc);
+      svg.appendChild(sv("rect", {x:x(i) - bw / 2, y:y1 + (acc ? 1 : 0), width:bw,
+        height:Math.max(0, y0 - y1 - 1), rx:3, fill:`var(--s-${p})`}));
+      acc += v;
+    });
+  });
+  svg.appendChild(sv("line", {x1:padL, x2:W - padR, y1:sy(0), y2:sy(0), stroke:"var(--axis)", "stroke-width":1}));
+  const p2t = sv("text", {x:padL, y:top2 + 4, fill:"var(--ink-2)", "font-size":11, "font-weight":600});
+  p2t.textContent = narrow ? "Daily spend (all buckets)" : "Daily spend by channel — all buckets (core + TOF + brand + support)";
+  svg.appendChild(p2t);
+
+  const step = Math.ceil(n / (narrow ? 5 : 8));
+  days.forEach((d, i) => {
+    if (i % step !== 0 && i !== n - 1) return;
+    if (i !== n - 1 && x(n - 1) - x(i) < 34) return;
+    const t = sv("text", {x:x(i), y:H - 4, "text-anchor":"middle", fill:"var(--ink-3)", "font-size":10.5});
+    t.textContent = d.date.slice(5).replace("-", "/"); svg.appendChild(t);
+  });
+
+  box.appendChild(svg);
+  const leg = el("div", "legend");
+  const mkKey = (cls, color, label) => {
+    const s = el("span"); const k = el("span", cls); k.style.background = color;
+    s.appendChild(k); s.appendChild(document.createTextNode(label)); return s;
+  };
+  leg.appendChild(mkKey("keyline thick", "var(--s-meta)", "7-day rolling ROAS"));
+  leg.appendChild(mkKey("keyline", "var(--seq-250)", "Daily ROAS"));
+  order.forEach(p => leg.appendChild(mkKey("key", `var(--s-${p})`, PLAT_LABEL[p] + " spend")));
+  const mw = el("span", "muted"); mw.textContent = "shaded = accrual still maturing"; leg.appendChild(mw);
+  box.appendChild(leg);
+
+  /* crosshair + tooltip */
+  const ch = el("div", "crosshair"); ch.style.height = (H - AXH) + "px"; box.appendChild(ch);
+  const tt = el("div", "tooltip"); box.appendChild(tt);
+  svg.addEventListener("pointermove", ev => {
+    const rect = svg.getBoundingClientRect();
+    const scale = W / rect.width;
+    const px = (ev.clientX - rect.left) * scale;
+    let best = 0, bd = 1e9;
+    for (let i = 0; i < n; i++) { const dd = Math.abs(x(i) - px); if (dd < bd) { bd = dd; best = i; } }
+    const d = days[best];
+    ch.style.left = (x(best) / scale) + "px"; ch.style.display = "block";
+    tt.replaceChildren();
+    tt.appendChild(el("div", "tt-date", d.date));
+    const addRow = (color, label, val, line) => {
+      const r = el("div", "row");
+      const k = el("span", "key"); k.style.background = color; if (!line) { k.style.height = "8px"; k.style.borderRadius = "2px"; }
+      r.appendChild(k); r.appendChild(el("span", null, label)); r.appendChild(el("span", "v", val));
+      tt.appendChild(r);
+    };
+    addRow("var(--s-meta)", "7d rolling", d.roll == null ? "–" : d.roll.toFixed(2), true);
+    addRow("var(--seq-250)", "Daily ROAS", d.roas == null ? "–" : d.roas.toFixed(2), true);
+    order.forEach(p => addRow(`var(--s-${p})`, PLAT_LABEL[p], fm$(d[p] || 0)));
+    addRow("var(--axis)", "Total spend", fm$(d.meta + d.google + d.tiktok));
+    tt.style.display = "block";
+    const ttw = tt.offsetWidth;
+    const lx = x(best) / scale;
+    tt.style.left = Math.min(Math.max(lx + 12, 0), rect.width - ttw - 4) + "px";
+    tt.style.top = "30px";
+    if (lx + 12 + ttw > rect.width) tt.style.left = (lx - ttw - 12) + "px";
+  });
+  svg.addEventListener("pointerleave", () => { ch.style.display = "none"; tt.style.display = "none"; });
+  return box;
+}
+
+/* ---------- tables (shared with v1) ---------- */
+function statusBadge(e) {
+  const goal = DATA.meta.goal_roas;
+  if (e.platform === "tiktok") return ["b-na", "TikTok — NB broken"];
+  if (e.bucket === "tof") return ["b-na", "TOF"];
+  if (e.bucket === "brand") return ["b-na", "Brand"];
+  if (e.bucket === "other") return ["b-na", "App / Amazon"];
+  if (/zombie/i.test(e.campaign_name || "")) return ["b-na", "Zombie pen"];
+  const w = e.windows[winSel === "L1" ? "L7" : winSel];
+  if (!w || (w.spend || 0) < 250 || w.roas7 == null) return ["b-na", "Low data"];
+  if (w.roas7 >= goal * 1.2) return ["b-scale", "Scale ↑"];
+  if (w.roas7 >= goal) return ["b-goal", "On goal"];
+  if (w.roas7 >= 1.5) return ["b-watch", "Watch"];
+  return ["b-fix", "Fix / cut"];
+}
+function entityName(e) {
+  if (levelSel === "campaign") return e.campaign_name || e.campaign_id;
+  if (levelSel === "adset") return (e.adset_name || e.adset_id);
+  return (e.ad_name || e.ad_id);
+}
+function entitySub(e) {
+  if (levelSel === "campaign") return "";
+  if (levelSel === "adset") return e.campaign_name;
+  return e.campaign_name + " · " + (e.adset_name || "");
+}
+function renderTable(container) {
+  container.replaceChildren();
+  const goal = DATA.meta.goal_roas;
+  let rows = DATA.levels[levelSel].filter(e => platSel === "all" || e.platform === platSel);
+  if (query) {
+    const q = query.toLowerCase();
+    rows = rows.filter(e => (entityName(e) + " " + entitySub(e)).toLowerCase().includes(q));
+  }
+  const W = winSel;
+  const preZero = rows.length;
+  if (!showZero) rows = rows.filter(e => (e.windows[W].spend || 0) > 0);
+  const zeroHidden = preZero - rows.length;
+  const get = {
+    name: e => entityName(e).toLowerCase(),
+    spend: e => e.windows[W].spend || 0,
+    roas: e => e.windows[W].roas7 ?? -1,
+    rev: e => e.windows[W].rev7 || 0,
+    txns: e => e.windows[W].txns || 0,
+    proas: e => e.windows[W].p_roas ?? -1,
+    hook: e => {
+      const w = e.windows[W];
+      const isVideo = !/static|image|carousel/i.test(e.ad_name || "");
+      return isVideo && (w.impressions || 0) >= 1000 && (w.video3s || 0) >= 100
+        ? w.video3s / w.impressions : -1;
+    },
+    delta: e => {
+      const a = e.windows.L7.roas7, b = e.windows.P7.roas7;
+      return (a != null && b) ? (a - b) / b : -99;
+    },
+  };
+  rows.sort((a, b) => {
+    const va = get[sortCol](a), vb = get[sortCol](b);
+    return (va < vb ? -1 : va > vb ? 1 : 0) * sortDir;
+  });
+  const cols = [
+    ["name", "Name"], ["spend", "Spend"], ["roas", "NB ROAS"], ["rev", "NB Rev"],
+    ["txns", "Txns"], ["proas", "Platform ROAS"],
+    ...(levelSel === "ad" ? [["hook", "Hook"]] : []),
+    ["delta", "Δ WoW"], ["trend", "14d trend"], ["st", "Status"],
+  ];
+  const table = el("table");
+  const thead = el("thead"); const trh = el("tr");
+  cols.forEach(([id, label]) => {
+    const th = el("th", sortCol === id ? "sorted" : null, label + (sortCol === id ? (sortDir < 0 ? " ↓" : " ↑") : ""));
+    if (id === "hook") th.title = "Meta hook rate: 3-second video plays / impressions. <20% = weak opening, >=30% = strong.";
+    if (id === "roas" || id === "rev") th.title = "Northbeam attributed — Clicks + Deterministic Views, 7-day window, accrual. Recent days still maturing.";
+    if (id === "proas") th.title = "Platform-reported (Google Ads API; Meta via NB's Meta integration at 7d-click/1d-view). Direction only.";
+    if (!["trend", "st"].includes(id)) th.addEventListener("click", () => {
+      if (sortCol === id) sortDir *= -1; else { sortCol = id; sortDir = -1; }
+      renderTable(container);
+    });
+    trh.appendChild(th);
+  });
+  thead.appendChild(trh); table.appendChild(thead);
+  const tbody = el("tbody");
+  const shown = rows.slice(0, 60);
+  for (const e of shown) {
+    const w = e.windows[W];
+    const tr = el("tr");
+    const nameTd = el("td", "name");
+    const pd = el("span", "pdot"); pd.style.background = PLAT_COLOR[e.platform] || "var(--s-other)";
+    nameTd.appendChild(pd);
+    nameTd.appendChild(document.createTextNode(entityName(e)));
+    if (entitySub(e)) { const s = el("div", "muted"); s.style.fontSize = "11px"; s.textContent = entitySub(e); nameTd.appendChild(s); }
+    nameTd.title = entityName(e) + (entitySub(e) ? " — " + entitySub(e) : "");
+    tr.appendChild(nameTd);
+    tr.appendChild(el("td", "num", fm$(w.spend || 0)));
+    const rc = el("td", "num roascell", fmR(w.roas7));
+    if (w.roas7 != null && (w.spend || 0) >= 100 && e.bucket === "core" && e.platform !== "tiktok")
+      rc.style.color = w.roas7 >= goal ? "var(--st-good)" : (w.roas7 >= 1.5 ? "inherit" : "var(--st-crit)");
+    tr.appendChild(rc);
+    tr.appendChild(el("td", "num", fm$(w.rev7 || 0)));
+    tr.appendChild(el("td", "num", String(w.txns || 0)));
+    tr.appendChild(el("td", "num muted", fmR(w.p_roas)));
+    if (levelSel === "ad") {
+      const imp = w.impressions || 0, v3 = w.video3s || 0;
+      const isVideo = !/static|image|carousel/i.test(e.ad_name || "");
+      const show = isVideo && imp >= 1000 && v3 >= 100;
+      const htd = el("td", "num muted", show ? Math.round(v3 / imp * 100) + "%" : "–");
+      if (show && imp >= 5000) {
+        const hr = v3 / imp;
+        if (hr < 0.2) htd.className = "num delta down";
+        else if (hr >= 0.3) htd.className = "num delta up";
+      }
+      tr.appendChild(htd);
+    }
+    const dv = get.delta(e);
+    const dtd = el("td", "num", dv <= -90 ? "–" : (dv > 0 ? "+" : "") + Math.round(dv * 100) + "%");
+    if (dv > -90) dtd.className += dv >= 0 ? " delta up" : " delta down";
+    tr.appendChild(dtd);
+    const sp = el("td");
+    sp.appendChild(sparkline(e.daily.slice(-14).map(d => d.spend > 0 ? (d.rev7 || 0) / d.spend : null), 90, 26, goal));
+    tr.appendChild(sp);
+    const [bc, bl] = statusBadge(e);
+    const btd = el("td");
+    const b = el("span", "badge " + bc); b.appendChild(el("span", "dot")); b.appendChild(document.createTextNode(bl));
+    btd.appendChild(b); tr.appendChild(btd);
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  container.appendChild(table);
+  const notes = [];
+  if (rows.length > shown.length) notes.push(`Showing top ${shown.length} of ${rows.length} by current sort — use search to narrow.`);
+  if (zeroHidden > 0) notes.push(`${zeroHidden} rows with $0 spend in this window hidden — use "Show $0 rows" to include them.`);
+  if (notes.length) container.appendChild(el("div", "muted", notes.join(" ")));
+}
+
+/* ---------- channel summary with guidance ---------- */
+function channelGuidance(label, roas, goal) {
+  if (label.includes("Brand")) return "Judge on incrementality, not this ROAS. Pullback in flight — watch capture.";
+  if (label.includes("TOF")) return "TOF: judge on MER + first-touch over 2-4 wks, never 7d clicks.";
+  if (label.includes("TikTok")) return "NB attribution broken — decide on model views / MER.";
+  if (label.includes("App")) return "Separate goals (installs / Amazon rev) — not ecom ROAS.";
+  if (roas == null) return "";
+  if (roas >= goal * 1.2) return "Scale in 15-20% steps; watch marginal ROAS.";
+  if (roas >= goal) return "Hold. Next dollar goes to the scale rows.";
+  if (roas >= 1.5) return "Fix creative/bids first — no new budget.";
+  return "Cut to winners before adding anything.";
+}
+function channelSummary() {
+  const goal = DATA.meta.goal_roas;
+  const groups = {
+    "Meta (core)":      e => e.platform === "meta" && e.bucket === "core",
+    "Google (core)":    e => e.platform === "google" && e.bucket === "core",
+    "Google Brand":     e => e.platform === "google" && e.bucket === "brand",
+    "Demand Gen (TOF)": e => e.bucket === "tof",
+    "TikTok":           e => e.platform === "tiktok",
+    "App / Amazon (support)": e => e.bucket === "other",
+  };
+  const card = el("div", "card");
+  card.appendChild(el("h2", null, "Channel allocation — where the next dollar goes"));
+  const table = el("table");
+  const trh = el("tr");
+  ["Bucket", "L7 spend", "share", "L7 NB ROAS", "Δ WoW", "L14 NB ROAS", "Platform ROAS", "What to do"].forEach((h, i) => {
+    const th = el("th", null, h); if (i === 0 || i === 7) th.style.textAlign = "left"; trh.appendChild(th);
+  });
+  table.appendChild(trh);
+  const camps = DATA.levels.campaign;
+  const totalL7 = camps.reduce((s, c) => s + (c.windows.L7.spend || 0), 0);
+  for (const [label, pred] of Object.entries(groups)) {
+    const g = camps.filter(pred);
+    if (!g.length) continue;
+    const agg = w => {
+      const s = g.reduce((a, c) => a + (c.windows[w].spend || 0), 0);
+      const r = g.reduce((a, c) => a + (c.windows[w].rev7 || 0), 0);
+      const pv = g.reduce((a, c) => a + (c.windows[w].p_value || 0), 0);
+      const ps = g.reduce((a, c) => a + (c.windows[w].p_spend || 0), 0);
+      return {s, roas: s > 0 ? r / s : null, proas: ps > 0 ? pv / ps : null};
+    };
+    const l7 = agg("L7"), p7 = agg("P7"), l14 = agg("L14");
+    const tr = el("tr");
+    const nt = el("td", null, label); nt.style.textAlign = "left"; nt.style.fontWeight = "600"; tr.appendChild(nt);
+    tr.appendChild(el("td", "num", fm$(l7.s)));
+    tr.appendChild(el("td", "num muted", totalL7 ? Math.round(l7.s / totalL7 * 100) + "%" : "–"));
+    tr.appendChild(el("td", "num roascell", fmR(l7.roas)));
+    const d = (l7.roas != null && p7.roas) ? (l7.roas - p7.roas) / p7.roas : null;
+    const dtd = el("td", "num", d == null ? "–" : (d > 0 ? "+" : "") + Math.round(d * 100) + "%");
+    // color WoW only where 7d click ROAS is a valid judgment (core rows)
+    const judgeable = label.includes("core");
+    if (d != null && judgeable) dtd.className += d >= 0 ? " delta up" : " delta down";
+    else dtd.className += " muted";
+    tr.appendChild(dtd);
+    tr.appendChild(el("td", "num", fmR(l14.roas)));
+    tr.appendChild(el("td", "num muted", l7.proas ? fmR(l7.proas) : "–"));
+    tr.appendChild(el("td", "guide", channelGuidance(label, l7.roas, goal)));
+    table.appendChild(tr);
+  }
+  const scroll = el("div", "tscroll");
+  scroll.appendChild(table);
+  card.appendChild(scroll);
+  return card;
+}
+
+/* ---------- creative health (Meta video, L7) ---------- */
+function creativeHealth() {
+  const goal = DATA.meta.goal_roas;
+  const vids = DATA.levels.ad.filter(a => {
+    if (a.platform !== "meta") return false;
+    if (/static|image|carousel/i.test(a.ad_name || "")) return false;
+    const w = a.windows.L7;
+    return (w.impressions || 0) >= 5000 && (w.video3s || 0) >= 100;
+  }).map(a => {
+    const w = a.windows.L7;
+    return {name: a.ad_name, campaign: a.campaign_name, hook: w.video3s / w.impressions,
+            spend: w.spend || 0, roas: w.roas7, imp: w.impressions};
+  });
+  const card = el("div", "card");
+  card.appendChild(el("h2", null, "Creative health — Meta video, last 7 days"));
+  if (!vids.length) {
+    card.appendChild(el("div", "muted", "No video ads with enough delivery this week."));
+    return card;
+  }
+  const grid = el("div", "creative");
+  const mkTable = (title, rows) => {
+    const d = el("div");
+    d.appendChild(el("h2", null, title));
+    const t = el("table");
+    const trh = el("tr");
+    ["Ad", "Hook", "Spend", "NB ROAS"].forEach((h, i) => {
+      const th = el("th", null, h); if (i === 0) th.style.textAlign = "left"; th.style.cursor = "default"; trh.appendChild(th);
+    });
+    t.appendChild(trh);
+    rows.forEach(r => {
+      const tr = el("tr");
+      const nt = el("td", "name"); nt.style.maxWidth = "230px"; nt.textContent = r.name; nt.title = r.name + " — " + r.campaign;
+      tr.appendChild(nt);
+      const hk = el("td", "num", Math.round(r.hook * 100) + "%");
+      hk.className += r.hook >= 0.3 ? " delta up" : (r.hook < 0.2 ? " delta down" : " num");
+      tr.appendChild(hk);
+      tr.appendChild(el("td", "num", fm$(r.spend)));
+      const rc = el("td", "num roascell", fmR(r.roas));
+      if (r.roas != null) rc.style.color = r.roas >= goal ? "var(--st-good)" : (r.roas < 1.5 ? "var(--st-crit)" : "inherit");
+      tr.appendChild(rc);
+      t.appendChild(tr);
+    });
+    const sc = el("div", "tscroll"); sc.appendChild(t); d.appendChild(sc);
+    return d;
+  };
+  const top = [...vids].sort((a, b) => b.hook - a.hook).slice(0, 5);
+  const weak = vids.filter(v => v.hook < 0.2).sort((a, b) => b.spend - a.spend).slice(0, 5);
+  grid.appendChild(mkTable("Strongest hooks — iterate on these angles", top));
+  grid.appendChild(mkTable("Weak hooks — money on ads nobody stops for", weak));
+  card.appendChild(grid);
+  card.appendChild(el("div", "maturity-note",
+    "Hook = 3-second plays / impressions. >=30% strong, <20% kill-or-rehook after $500-1,000 spend. Statics excluded. " +
+    "A strong hook with weak ROAS means the opening works but the body/offer doesn't — iterate the back half, keep the hook."));
+  return card;
+}
+
+/* ---------- creative intelligence ---------- */
+function ciTable(title, rows, cols) {
+  const d = el("div");
+  d.appendChild(el("h2", null, title));
+  const t = el("table");
+  const trh = el("tr");
+  cols.forEach(([_, label], i) => {
+    const th = el("th", null, label); th.style.cursor = "default";
+    if (i === 0) th.style.textAlign = "left";
+    trh.appendChild(th);
+  });
+  t.appendChild(trh);
+  rows.forEach(r => {
+    const tr = el("tr");
+    cols.forEach(([key], i) => {
+      let v = r[key];
+      let td;
+      if (key === "verdict") {
+        td = el("td");
+        if (v) { const c = el("span", "vchip " + v,
+          v === "lean_in" ? "Lean in" : v === "cut" ? "Cut" : v === "iterate" ? "Iterate" : "Low data");
+          td.appendChild(c); }
+      } else if (key === "spend") { td = el("td", "num", fmK(v)); }
+      else if (key === "roas") {
+        td = el("td", "num roascell", fmR(v));
+        if (v != null) td.style.color = v >= (DATA.creative.account_avg_roas || 1) * 1.25 ? "var(--st-good)" : (v <= (DATA.creative.account_avg_roas || 1) * 0.6 ? "var(--st-crit)" : "inherit");
+      }
+      else if (key === "hook_rate") { td = el("td", "num muted", v != null ? Math.round(v * 100) + "%" : "–"); }
+      else if (key === "creatives") { td = el("td", "num muted", String(v)); }
+      else { td = el("td", null, String(v)); td.style.textAlign = "left"; td.className = "name"; td.style.maxWidth = "150px"; td.title = String(v); }
+      tr.appendChild(td);
+    });
+    t.appendChild(tr);
+  });
+  const sc = el("div", "tscroll"); sc.appendChild(t); d.appendChild(sc);
+  return d;
+}
+function ciList(title, rows, mode) {
+  const d = el("div", "dcol " + (mode === "good" ? "d-scale" : mode === "warn" ? "d-watch" : "d-now"));
+  const h = el("h3"); h.appendChild(el("span", "dot")); h.appendChild(document.createTextNode(title));
+  d.appendChild(h);
+  if (!rows || !rows.length) d.appendChild(el("div", "dempty", "Nothing at current thresholds."));
+  (rows || []).forEach(r => {
+    const it = el("div", "ditem");
+    const w = el("div", "w", r.name.length > 64 ? r.name.slice(0, 64) + "…" : r.name);
+    w.title = r.name; it.appendChild(w);
+    const bits = [r.angle, r.product !== "Unspecified" ? r.product : null,
+      fm$(r.spend_l14) + " L14", "ROAS " + fmR(r.roas_l14),
+      r.hook_rate != null ? "hook " + Math.round(r.hook_rate * 100) + "%" : null].filter(Boolean);
+    it.appendChild(el("div", "a", bits.join(" · ")));
+    d.appendChild(it);
+  });
+  return d;
+}
+function creativeIntelligence() {
+  const cr = DATA.creative;
+  const card = el("div", "card");
+  card.appendChild(el("h2", null, "Creative intelligence — what to make next"));
+  const sub = el("div", "maturity-note");
+  sub.textContent = `Meta creative, last 14 days, NB-attributed (clicks + det. views 7d). ${cr.n_creatives} creatives live; account-average creative ROAS ${fmR(cr.account_avg_roas)} vs ${DATA.meta.goal_roas.toFixed(1)} goal. Verdicts steer production (relative to account average); budget calls stay upstream in Decide today.`;
+  card.appendChild(sub);
+  const grid = el("div", "ci-grid"); grid.style.marginTop = "12px";
+  const cols = [["key", ""], ["creatives", "#"], ["spend", "Spend"], ["roas", "NB ROAS"], ["hook_rate", "Hook"], ["verdict", "Verdict"]];
+  grid.appendChild(ciTable("By angle", cr.angles.slice(0, 8), cols));
+  grid.appendChild(ciTable("By hook theme", cr.hooks.slice(0, 8), cols));
+  grid.appendChild(ciTable("By format", cr.formats, cols));
+  card.appendChild(grid);
+  const lists = el("div", "ci-lists");
+  lists.appendChild(ciList("Make variations of these", cr.lean_in, "good"));
+  lists.appendChild(ciList("Strong hook, fix the body/offer", cr.fix_body, "warn"));
+  lists.appendChild(ciList("Cut or rework", cr.cut, "bad"));
+  card.appendChild(lists);
+
+  const comp = cr.competitors;
+  if (comp && comp.competitors) {
+    const sh = el("div", "section-h"); sh.style.margin = "20px 0 10px";
+    sh.appendChild(el("h2", null, "Competitor watch"));
+    sh.appendChild(el("span", "sub", (comp.source || "") + " · snapshot " + comp.as_of));
+    card.appendChild(sh);
+    const cg = el("div", "comp-grid");
+    comp.competitors.forEach(c => {
+      if (c.active_meta_ads == null) return;  // unresolved brands live in data_notes
+      const cc = el("div", "comp-card");
+      cc.appendChild(el("h4", null, c.name));
+      cc.appendChild(el("div", "cat", c.category + (c.active_meta_ads != null ? " · " + c.active_meta_ads + " active Meta ads" : "") + (c.format_mix ? " · " + c.format_mix : "")));
+      const an = el("div", "angles");
+      (c.dominant_angles || []).forEach(a => an.appendChild(el("span", null, a)));
+      cc.appendChild(an);
+      const thumbs = el("div", "comp-thumbs");
+      let anyThumb = false;
+      (c.proven_ads || []).forEach(p => {
+        if (p.thumb) { const img = document.createElement("img"); img.src = "../" + p.thumb; img.alt = p.headline || ""; img.title = (p.headline || "") + " — " + (p.gist || "") + " (" + (p.running || "") + ")"; img.loading = "lazy"; thumbs.appendChild(img); anyThumb = true; }
+      });
+      if (anyThumb) cc.appendChild(thumbs);
+      (c.proven_ads || []).slice(0, 2).forEach(p => {
+        cc.appendChild(el("div", "comp-proven", "▸ " + (p.headline || "") + " — " + (p.gist || "") + (p.running ? " (" + p.running + ")" : "")));
+      });
+      if (c.mirror) cc.appendChild(el("div", "mirror", c.mirror));
+      cg.appendChild(cc);
+    });
+    card.appendChild(cg);
+    if (comp.gaps && comp.gaps.length) {
+      const gb = el("div", "gapbox");
+      const gt = el("div"); gt.style.fontWeight = "650"; gt.style.fontSize = "13px";
+      gt.textContent = "Whitespace — angles the market is proving that TRX isn't running";
+      gb.appendChild(gt);
+      const ul = el("ul");
+      comp.gaps.forEach(g => { const li = el("li"); li.textContent = g; ul.appendChild(li); });
+      gb.appendChild(ul);
+      card.appendChild(gb);
+    }
+    if (comp.next_steps && comp.next_steps.length) {
+      const gb = el("div", "gapbox");
+      const gt = el("div"); gt.style.fontWeight = "650"; gt.style.fontSize = "13px";
+      gt.textContent = "Creative next steps";
+      gb.appendChild(gt);
+      const ul = el("ul");
+      comp.next_steps.forEach(g => { const li = el("li"); li.textContent = g; ul.appendChild(li); });
+      gb.appendChild(ul);
+      card.appendChild(gb);
+    }
+    if (comp.data_notes && comp.data_notes.length) {
+      card.appendChild(el("div", "maturity-note", "Data notes: " + comp.data_notes.join(" ")));
+    }
+  }
+  return card;
+}
+
+/* ---------- creative testing monitor ---------- */
+const T_LABEL = { graduate: "Graduate", kill: "Kill", final_stretch: "Final stretch",
+                  early_signal: "Early signal", in_test: "In test" };
+function testingMonitor() {
+  const t = DATA.creative.testing;
+  const g = t.gate;
+  const card = el("div", "card");
+  card.appendChild(el("h2", null, "Creative testing monitor — " + (t.campaigns.join(", ") || "testing campaign")));
+  const note = el("div", "maturity-note");
+  note.textContent = `Framework: every test ad set must spend ${g.mult_min}-${g.mult_max}x its estimated CPA before a verdict. ` +
+    `Est. CPA = AOV ÷ ${g.grad_roas} (the acquisition cost at exactly the graduation bar; ad set's own AOV when it has 3+ purchases, else account avg $${Math.round(t.account_aov)}). ` +
+    `Graduate at ≥ ${g.grad_roas} NB ROAS into a scaling campaign; zero purchases through the gate = kill. Spend counted over last ${t.window_days} days.`;
+  card.appendChild(note);
+  if (!t.rows.length) {
+    card.appendChild(el("div", "dempty", "No ad sets with spend in the testing campaign right now."));
+    return card;
+  }
+  const chips = el("div", "filters"); chips.style.margin = "10px 0 4px";
+  ["graduate", "kill", "final_stretch", "early_signal", "in_test"].forEach(k => {
+    if (!t.counts[k]) return;
+    const c = el("span", "tchip t-" + k);
+    c.appendChild(el("span", "dot"));
+    c.appendChild(document.createTextNode(t.counts[k] + " " + T_LABEL[k]));
+    chips.appendChild(c);
+  });
+  card.appendChild(chips);
+  const table = el("table");
+  const trh = el("tr");
+  ["Ad set", "Ads", "Days", "Test spend vs gate", "Txns", "NB ROAS", "Est. CPA", "Status", "Action"].forEach((h, i) => {
+    const th = el("th", null, h); th.style.cursor = "default";
+    if (i === 0 || i === 8) th.style.textAlign = "left";
+    trh.appendChild(th);
+  });
+  table.appendChild(trh);
+  t.rows.forEach(r => {
+    const tr = el("tr");
+    const nt = el("td", "name"); nt.style.maxWidth = "230px";
+    nt.textContent = r.adset_name; nt.title = r.adset_name + " — " + r.campaign_name;
+    tr.appendChild(nt);
+    tr.appendChild(el("td", "num muted", String(r.ads || "–")));
+    tr.appendChild(el("td", "num muted", String(r.days_active)));
+    const st = el("td", "num");
+    const wrap = el("div"); wrap.style.display = "flex"; wrap.style.alignItems = "center"; wrap.style.gap = "8px"; wrap.style.justifyContent = "flex-end";
+    const label = el("span", null, fm$(r.spend) + " / " + fm$(r.required));
+    const meter = el("div", "meter");
+    const fill = el("div");
+    const pct = Math.min(1, r.progress || 0);
+    fill.style.width = (pct * 100) + "%";
+    fill.style.background = r.status === "kill" ? "var(--st-crit)"
+      : r.status === "graduate" ? "var(--st-good)"
+      : pct >= 1 ? "var(--st-warn)" : "var(--accent)";
+    meter.appendChild(fill);
+    wrap.appendChild(label); wrap.appendChild(meter);
+    st.appendChild(wrap); tr.appendChild(st);
+    tr.appendChild(el("td", "num", String(r.txns)));
+    const rc = el("td", "num roascell", fmR(r.roas));
+    if (r.roas != null && r.spend >= r.required * 0.6)
+      rc.style.color = r.roas >= g.grad_roas ? "var(--st-good)" : (r.roas < g.grad_roas * 0.6 ? "var(--st-crit)" : "inherit");
+    tr.appendChild(rc);
+    const ct = el("td", "num muted", fm$(r.est_cpa));
+    ct.title = "AOV $" + r.aov + " (" + r.aov_src + ") ÷ " + g.grad_roas;
+    tr.appendChild(ct);
+    const stt = el("td");
+    const chip = el("span", "tchip t-" + r.status);
+    chip.appendChild(el("span", "dot"));
+    chip.appendChild(document.createTextNode(T_LABEL[r.status]));
+    stt.appendChild(chip); tr.appendChild(stt);
+    const at = el("td", "action", r.action);
+    tr.appendChild(at);
+    table.appendChild(tr);
+  });
+  const sc = el("div", "tscroll"); sc.appendChild(table); card.appendChild(sc);
+  return card;
+}
+
+function pageNav(cur) {
+  const n = el("div", "pagenav");
+  [["cockpit", "Home", "index.html"], ["pacing", "Pacing", "pacing.html"],
+   ["performance", "Performance", "performance.html"], ["creative", "Creative", "creative.html"],
+   ["testing", "Testing", "testing.html"], ["reference", "Reference", "reference.html"]
+  ].forEach(([id, label, href]) => {
+    const a = document.createElement("a");
+    a.textContent = label; a.href = href;
+    if (id === cur) a.className = "on";
+    n.appendChild(a);
+  });
+  return n;
+}
+
+/* ---------- cockpit builders ---------- */
+function decideMini() {
+  const dec = DATA.insights.decide || {do_now: [], scale: [], watch: []};
+  const card = el("div", "card");
+  card.appendChild(el("h2", null, "Decide today"));
+  const grid = el("div", "decide");
+  [["d-now", "DO NOW", dec.do_now, "Nothing bleeding."],
+   ["d-scale", "SCALE", dec.scale, "No campaign meets the scale gate."],
+   ["d-watch", "WATCH", dec.watch, "Nothing deteriorating."]].forEach(([cls, title, items, empty]) => {
+    const c = el("div", "dcol " + cls);
+    const h = el("h3"); h.appendChild(el("span", "dot"));
+    h.appendChild(document.createTextNode(title + " (" + items.length + ")"));
+    c.appendChild(h);
+    if (!items.length) c.appendChild(el("div", "dempty", empty));
+    items.slice(0, 3).forEach(it => {
+      const d = el("div", "ditem");
+      d.appendChild(el("div", "w", it.what));
+      c.appendChild(d);
+    });
+    if (items.length > 3) {
+      const more = document.createElement("a");
+      more.href = "performance.html"; more.className = "morelink";
+      more.textContent = "+" + (items.length - 3) + " more with actions →";
+      c.appendChild(more);
+    } else if (items.length) {
+      const more = document.createElement("a");
+      more.href = "performance.html"; more.className = "morelink";
+      more.textContent = "Open actions →";
+      c.appendChild(more);
+    }
+    grid.appendChild(c);
+  });
+  card.appendChild(grid);
+  return card;
+}
+function navCards() {
+  const s = DATA.insights.summary, pac = DATA.insights.pacing || {};
+  const cr = DATA.creative || {}, t = (cr.testing || {counts: {}}).counts;
+  const camps = DATA.levels.campaign.filter(c => (c.windows.L7.spend || 0) > 0).length;
+  const dec = DATA.insights.decide || {do_now: []};
+  const weakHooks = (cr.fix_body || []).length;
+  const leanIn = (cr.lean_in || []).length;
+  const cards = [
+    ["pacing.html", "Pacing & trend",
+     (pac.pace != null ? Math.round(pac.pace * 100) + "% vs plan MTD" : "") +
+     (pac.yday && pac.yday.mer ? " · MER " + pac.yday.mer.toFixed(2) + " y'day" : "")],
+    ["performance.html", "Performance & allocation",
+     dec.do_now.length + " do-now · " + camps + " campaigns live"],
+    ["creative.html", "Creative studio",
+     leanIn + " variation candidates · " + weakHooks + " hooks to fix"],
+    ["testing.html", "Testing lab",
+     (t.graduate ? t.graduate + " graduate · " : "") + (t.kill || 0) + " kill · " + (t.in_test || 0) + " in test"],
+    ["reference.html", "Reference",
+     "routines · playbook · definitions"],
+  ];
+  const g = el("div", "navcards");
+  cards.forEach(([href, title, teaser]) => {
+    const a = document.createElement("a");
+    a.href = href; a.className = "ncard";
+    a.appendChild(el("div", "nc-title", title + " →"));
+    a.appendChild(el("div", "nc-teaser", teaser));
+    g.appendChild(a);
+  });
+  return g;
+}
+function miniFooter() {
+  const f = el("footer");
+  const a = document.createElement("a");
+  a.href = "reference.html"; a.style.color = "inherit";
+  a.textContent = "definitions & data rules →";
+  f.appendChild(document.createTextNode("Data through " + DATA.meta.data_through + " · " + DATA.meta.attribution_label + " · "));
+  f.appendChild(a);
+  return f;
+}
+
+/* ---------- render ---------- */
+function render() {
+  const app = document.getElementById("app");
+  app.replaceChildren();
+  const m = DATA.meta;
+  document.title = m.client + " — " + (PAGE === "cockpit" ? "Home" : PAGE[0].toUpperCase() + PAGE.slice(1));
+
+  /* header */
+  app.appendChild(el("div", "wordmark", "Lower Cross — Media Performance"));
+  const hdr = el("div", "hdr");
+  hdr.appendChild(el("h1", null, m.client));
+  const gc = el("span", "chip"); gc.appendChild(document.createTextNode("Goal "));
+  gc.appendChild(el("b", null, m.goal_roas.toFixed(1) + " NB ROAS")); hdr.appendChild(gc);
+  hdr.appendChild(el("span", "chip", m.attribution_label));
+  const yesterday = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+  const fresh = m.data_through >= yesterday;
+  const fc = el("span", "chip" + (fresh ? "" : " stale"),
+    (fresh ? "Data through " : "STALE — data through ") + m.data_through);
+  hdr.appendChild(fc);
+  hdr.appendChild(el("span", "spacer"));
+  const th = el("button", "ghost", "Theme");
+  th.addEventListener("click", () => {
+    const r = document.documentElement;
+    const cur = r.getAttribute("data-theme") ||
+      (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    r.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+    render();
+  });
+  hdr.appendChild(th);
+  app.appendChild(hdr);
+  app.appendChild(el("div", "brandline"));
+  app.appendChild(pageNav(PAGE));
+
+  const ins = DATA.insights;
+  const dec = ins.decide || {do_now: [], scale: [], watch: []};
+  /* decide today (rendered after tiles + trend) */
+  const dcard = el("div", "card");
+  dcard.appendChild(el("h2", null, "Decide today"));
+  const dgrid = el("div", "decide");
+  const mkCol = (cls, title, items, empty) => {
+    const c = el("div", "dcol " + cls);
+    const h = el("h3"); h.appendChild(el("span", "dot")); h.appendChild(document.createTextNode(title));
+    c.appendChild(h);
+    if (!items || !items.length) c.appendChild(el("div", "dempty", empty));
+    (items || []).forEach(it => {
+      const d = el("div", "ditem");
+      d.appendChild(el("div", "w", it.what));
+      d.appendChild(el("div", "a", it.action));
+      if (it.detail && it.detail.length) {
+        const kids = el("div", "dkids");
+        it.detail.forEach(k => {
+          const row = el("div", "dkid k-" + k.kind);
+          row.appendChild(el("span", "kdot"));
+          const prefix = k.kind === "pause" ? "pause: " : (k.kind === "best" ? "best inside: " : "winner: ");
+          const nm = el("span", "knm", prefix + k.name);
+          nm.title = k.name;
+          row.appendChild(nm);
+          row.appendChild(el("span", "kv", "$" + Math.round(k.spend).toLocaleString() + " · " + k.roas.toFixed(2)));
+          kids.appendChild(row);
+        });
+        d.appendChild(kids);
+      }
+      c.appendChild(d);
+    });
+    return c;
+  };
+  dgrid.appendChild(mkCol("d-now", "DO NOW", dec.do_now, "Nothing bleeding. Good."));
+  dgrid.appendChild(mkCol("d-scale", "SCALE", dec.scale, "No campaign meets the scale gate this week (needs " + (m.goal_roas * 1.2).toFixed(1) + "+ on $250+ L7)."));
+  dgrid.appendChild(mkCol("d-watch", "WATCH", dec.watch, "Nothing deteriorating."));
+  dcard.appendChild(dgrid);
+
+  /* tiles */
+  const s = ins.summary;
+  const pacing = ins.pacing;
+  const goal = m.goal_roas;
+  const days = dailySeries();
+  const tiles = el("div", "tiles");
+  const mk = (lbl, val, deltaTxt, deltaCls, spark) => {
+    const t = el("div", "tile");
+    t.appendChild(el("div", "lbl", lbl));
+    t.appendChild(el("div", "val", val));
+    if (deltaTxt) t.appendChild(el("div", "delta " + (deltaCls || ""), deltaTxt));
+    if (spark) t.appendChild(spark);
+    return t;
+  };
+  const p7roas = (() => {
+    const c = DATA.levels.campaign.filter(x => x.bucket === "core");
+    const sp = c.reduce((a, x) => a + (x.windows.P7.spend || 0), 0);
+    const rv = c.reduce((a, x) => a + (x.windows.P7.rev7 || 0), 0);
+    return sp > 0 ? rv / sp : null;
+  })();
+  const coreRoas = s.core_roas_l7;
+  let dTxt = null, dCls = null;
+  if (coreRoas != null && p7roas) {
+    const dd = (coreRoas - p7roas) / p7roas;
+    dTxt = (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs prior 7d";
+    dCls = dd >= 0 ? "up" : "down";
+  }
+  const t1 = mk("Core NB ROAS — last 7 days", coreRoas == null ? "–" : coreRoas.toFixed(2), dTxt, dCls,
+    sparkline(days.map(d => d.roll).slice(-14), 160, 34, goal));
+  t1.querySelector(".val").style.color = coreRoas != null && coreRoas >= goal ? "var(--st-good)" : (coreRoas != null && coreRoas < 1.5 ? "var(--st-crit)" : "inherit");
+  tiles.appendChild(t1);
+  const ydayFromSheet = pacing && pacing.yday && pacing.yday.spend;
+  if (ydayFromSheet) {
+    const plan = pacing.yday.plan;
+    const dd = plan ? (pacing.yday.spend - plan) / plan : null;
+    tiles.appendChild(mk("Spend yesterday (workbook)", fmK(pacing.yday.spend),
+      plan ? (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs " + fmK(plan) + " plan" : null,
+      dd != null && Math.abs(dd) > 0.1 ? "down" : "up"));
+  } else if (s.yday_spend != null) {
+    const dd = s.avg7_daily_spend ? (s.yday_spend - s.avg7_daily_spend) / s.avg7_daily_spend : null;
+    tiles.appendChild(mk("Spend yesterday (platforms)", fmK(s.yday_spend),
+      dd == null ? null : (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs 7-day avg",
+      dd != null && Math.abs(dd) > 0.25 ? "down" : null));
+  }
+  if (pacing && pacing.pace != null) {
+    const pc = pacing.pace;
+    const cls = Math.abs(pc - 1) <= 0.1 ? "up" : "down";
+    const est = pacing.estimated_days ? ` (${pacing.estimated_days}d est.)` : "";
+    const t = mk("MTD spend vs plan", Math.round(pc * 100) + "%",
+      fmK(pacing.mtd_spend) + " vs " + fmK(pacing.mtd_plan) + " plan" + est, cls);
+    t.title = pacing.source || "";
+    t.querySelector(".val").style.color = Math.abs(pc - 1) <= 0.1 ? "var(--st-good)"
+      : (Math.abs(pc - 1) <= 0.2 ? "inherit" : "var(--st-crit)");
+    tiles.appendChild(t);
+  }
+  if (pacing && pacing.yday && pacing.yday.mer) {
+    const merT = DATA.meta.mer_target || 2.5;
+    const t = mk("Blended MER yesterday", pacing.yday.mer.toFixed(2),
+      "rev " + fmK(pacing.yday.rev || 0) + " · target " + merT.toFixed(1) + " · pacing workbook");
+    t.querySelector(".val").style.color = pacing.yday.mer >= merT ? "var(--st-good)"
+      : (pacing.yday.mer < merT * 0.75 ? "var(--st-crit)" : "inherit");
+    tiles.appendChild(t);
+  }
+  tiles.appendChild(mk("TOF / Demand Gen L7", fmK(s.tof_spend_l7),
+    s.total_spend_l7 ? Math.round(s.tof_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "", null));
+  tiles.appendChild(mk("Brand L7", fmK(s.brand_spend_l7),
+    s.total_spend_l7 ? Math.round(s.brand_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "", null));
+  if (PAGE === "pacing" || PAGE === "cockpit") app.appendChild(tiles);
+
+  /* trend */
+  const tc = el("div", "card");
+  tc.appendChild(el("h2", null, "30-day trend"));
+  tc.appendChild(trendChart(days));
+  if (PAGE === "pacing") app.appendChild(tc);
+
+  /* decide today — after the numbers, before allocation */
+  if (PAGE === "performance") app.appendChild(dcard);
+
+  /* channel allocation */
+  if (PAGE === "performance") app.appendChild(channelSummary());
+
+  /* routine */
+  const rc = el("div", "card");
+  rc.appendChild(el("h2", null, "How to run this dashboard"));
+  const rgrid = el("div", "routine");
+  const mkRoutine = (title, steps) => {
+    const d = el("div");
+    d.appendChild(el("h2", null, title));
+    const ol = el("ol");
+    steps.forEach(([b, rest]) => {
+      const li = el("li");
+      li.appendChild(el("b", null, b + " "));
+      li.appendChild(document.createTextNode(rest));
+      ol.appendChild(li);
+    });
+    d.appendChild(ol);
+    return d;
+  };
+  rgrid.appendChild(mkRoutine("Daily — 5 minutes", [
+    ["Freshness:", "the chip up top must say data through yesterday. If STALE, fix the pipeline before trusting anything."],
+    ["Clear DO NOW:", "act on every red item, today. That's the whole daily job."],
+    ["Pacing:", "spend yesterday + MTD vs plan. Off by >10%, adjust budgets."],
+    ["Don't judge ROAS daily:", "recent accrual is still maturing (shaded zone). No kill/scale calls on <72h."],
+  ]));
+  rgrid.appendChild(mkRoutine("Weekly — Monday, 30 minutes", [
+    ["Scale & cut:", "work the SCALE and WATCH queues plus campaign badges on L7/L14 windows."],
+    ["Creative:", "kill weak hooks after $500-1K spend, brief iterations on the strongest angles."],
+    ["Allocation:", "move the next dollar where the LAST dollar returned most (channel table guidance)."],
+    ["Reconcile:", "platform vs NB divergence — decide on NB, use platform for direction only."],
+  ]));
+  rc.appendChild(rgrid);
+  if (PAGE === "reference") app.appendChild(rc);
+
+  /* weekly section */
+  const sh = el("div", "section-h");
+  sh.appendChild(el("h2", null, "Creative review"));
+  sh.appendChild(el("span", "sub", "Meta creative on NB numbers · kill/scale creatives only after $500-1K spend"));
+  if (PAGE === "creative") app.appendChild(sh);
+
+  if (PAGE === "testing" && DATA.creative && DATA.creative.testing) app.appendChild(testingMonitor());
+  if (PAGE === "creative") app.appendChild(creativeHealth());
+  if (PAGE === "creative" && DATA.creative) app.appendChild(creativeIntelligence());
+
+  /* detail tables */
+  const tcard = el("div", "card");
+  tcard.appendChild(el("h2", null, "Ad-level detail"));
+  const filters = el("div", "filters");
+  const mkSeg = (options, cur, cb) => {
+    const seg = el("div", "seg");
+    options.forEach(([id, label]) => {
+      const b = el("button", null, label);
+      b.setAttribute("aria-pressed", String(id === cur));
+      b.addEventListener("click", () => cb(id));
+      seg.appendChild(b);
+    });
+    return seg;
+  };
+  filters.appendChild(mkSeg([["campaign", "Campaigns"], ["adset", "Ad sets"], ["ad", "Ads"]], levelSel,
+    id => { levelSel = id; render(); }));
+  filters.appendChild(mkSeg([["L1", "Yesterday"], ["L7", "Last 7"], ["L14", "Last 14"]], winSel,
+    id => { winSel = id; render(); }));
+  filters.appendChild(mkSeg([["all", "All"], ["meta", "Meta"], ["google", "Google"], ["tiktok", "TikTok"]], platSel,
+    id => { platSel = id; render(); }));
+  const se = el("input", "search"); se.placeholder = "Search name…"; se.value = query;
+  se.addEventListener("input", () => { query = se.value; renderTable(twrap); });
+  filters.appendChild(se);
+  const zt = el("button", "ghost", showZero ? "Hide $0 rows" : "Show $0 rows");
+  zt.setAttribute("aria-pressed", String(showZero));
+  zt.addEventListener("click", () => { showZero = !showZero; render(); });
+  filters.appendChild(zt);
+  tcard.appendChild(filters);
+  const note = el("div", "maturity-note");
+  note.textContent = winSel === "L1"
+    ? "Yesterday view: accrual revenue for yesterday is largely unmatured — use for spend/delivery checks, not ROAS judgments. Status badges always judge on the 7-day window."
+    : "Status badges judge NB ROAS on the ≥7-day window with a $250 minimum spend. No kill/scale calls on <72h of data.";
+  tcard.appendChild(note);
+  const twrap = el("div", "tscroll");
+  tcard.appendChild(twrap);
+  renderTable(twrap);
+  if (PAGE === "performance" || PAGE === "creative") app.appendChild(tcard);
+  if (PAGE === "cockpit") { app.appendChild(decideMini()); app.appendChild(navCards()); }
+
+  /* working / attention (weekly evidence) */
+  const insWrap = el("div", "card");
+  insWrap.appendChild(el("h2", null, "Evidence — what's working / what needs attention"));
+  const grid = el("div", "insights");
+  const mkList = (title, items) => {
+    const d = el("div");
+    d.appendChild(el("h2", null, title));
+    const ul = el("ul");
+    (items || []).forEach(it => {
+      const li = el("li", "sev-" + (it.sev || "info"));
+      li.textContent = it.text;
+      ul.appendChild(li);
+    });
+    if (!items || !items.length) ul.appendChild(el("li", "muted", "Nothing at current thresholds."));
+    d.appendChild(ul);
+    return d;
+  };
+  grid.appendChild(mkList("Working", ins.working));
+  grid.appendChild(mkList("Needs attention", ins.issues));
+  insWrap.appendChild(grid);
+  if (PAGE === "performance") app.appendChild(insWrap);
+
+  /* context + playbook */
+  const cx = el("div", "card ctx");
+  cx.appendChild(el("h2", null, "Context — what's in flight"));
+  const cul = el("ul", "insights");
+  (m.context || []).forEach(c => {
+    const li = el("li");
+    li.appendChild(el("span", "d", c.date));
+    li.appendChild(document.createTextNode(c.text));
+    cul.appendChild(li);
+  });
+  cx.appendChild(cul);
+  const det = el("details");
+  det.appendChild(el("summary", null, "Playbook rules this dashboard applies"));
+  const pul = el("ul");
+  (m.playbook || []).forEach(p => { const li = el("li"); li.style.margin = "6px 0"; li.style.fontSize = "12.5px"; li.textContent = p; pul.appendChild(li); });
+  det.appendChild(pul);
+  cx.appendChild(det);
+  if (PAGE === "pacing") app.appendChild(cx);
+
+  /* footer */
+  const f = el("footer");
+  f.appendChild(el("div", null, "Definitions & data rules"));
+  const ful = el("ul");
+  (m.notes || []).forEach(nt => ful.appendChild(el("li", null, nt)));
+  ful.appendChild(el("li", null, "Generated " + m.generated_at + " · Sources: Northbeam export API (attribution + Meta platform-reported at 7d-click/1d-view), Google Ads API (platform)."));
+  f.appendChild(ful);
+  if (PAGE === "reference") app.appendChild(f);
+  else app.appendChild(miniFooter());
+}
+</script>
+</body>
+</html>
