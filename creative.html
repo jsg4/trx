@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>TRX Performance — Lower Cross</title>
+<title>TRX Creative — Lower Cross</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Geist:wght@400;500;650&display=swap" rel="stylesheet">
@@ -343,7 +343,7 @@ async function decryptEnvelope(env, pass) {
 
 /* ---------- state ---------- */
 let DATA = null;
-const PAGE = "performance";
+const PAGE = "creative";
 let winSel = "L7", platSel = PAGE === "creative" ? "meta" : "all",
     levelSel = PAGE === "creative" ? "ad" : "campaign";
 let sortCol = "spend", sortDir = -1, query = "", showZero = false;
@@ -361,7 +361,7 @@ function el(tag, cls, text) {
 
 /* ---------- boot ---------- */
 async function tryUnlock(pass) {
-  const res = await fetch("../data.enc", {cache:"no-store"});
+  const res = await fetch("data.enc", {cache:"no-store"});
   if (!res.ok) throw new Error("data.enc not found");
   DATA = await decryptEnvelope(JSON.parse(await res.text()), pass);
 }
@@ -946,7 +946,7 @@ function creativeIntelligence() {
       const thumbs = el("div", "comp-thumbs");
       let anyThumb = false;
       (c.proven_ads || []).forEach(p => {
-        if (p.thumb) { const img = document.createElement("img"); img.src = "../" + p.thumb; img.alt = p.headline || ""; img.title = (p.headline || "") + " — " + (p.gist || "") + " (" + (p.running || "") + ")"; img.loading = "lazy"; thumbs.appendChild(img); anyThumb = true; }
+        if (p.thumb) { const img = document.createElement("img"); img.src = p.thumb; img.alt = p.headline || ""; img.title = (p.headline || "") + " — " + (p.gist || "") + " (" + (p.running || "") + ")"; img.loading = "lazy"; thumbs.appendChild(img); anyThumb = true; }
       });
       if (anyThumb) cc.appendChild(thumbs);
       (c.proven_ads || []).slice(0, 2).forEach(p => {
