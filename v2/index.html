@@ -818,11 +818,20 @@ function render() {
   if (pacing && pacing.pace != null) {
     const pc = pacing.pace;
     const cls = Math.abs(pc - 1) <= 0.1 ? "up" : "down";
+    const est = pacing.estimated_days ? ` (${pacing.estimated_days}d est.)` : "";
     const t = mk("MTD spend vs plan", Math.round(pc * 100) + "%",
-      fmK(pacing.mtd_spend) + " vs " + fmK(pacing.mtd_plan) + " plan", cls);
-    t.title = pacing.note || "";
+      fmK(pacing.mtd_spend) + " vs " + fmK(pacing.mtd_plan) + " plan" + est, cls);
+    t.title = pacing.source || "";
     t.querySelector(".val").style.color = Math.abs(pc - 1) <= 0.1 ? "var(--st-good)"
       : (Math.abs(pc - 1) <= 0.2 ? "inherit" : "var(--st-crit)");
+    tiles.appendChild(t);
+  }
+  if (pacing && pacing.yday && pacing.yday.mer) {
+    const merT = DATA.meta.mer_target || 2.5;
+    const t = mk("Blended MER yesterday", pacing.yday.mer.toFixed(2),
+      "rev " + fmK(pacing.yday.rev || 0) + " · target " + merT.toFixed(1) + " · pacing workbook");
+    t.querySelector(".val").style.color = pacing.yday.mer >= merT ? "var(--st-good)"
+      : (pacing.yday.mer < merT * 0.75 ? "var(--st-crit)" : "inherit");
     tiles.appendChild(t);
   }
   tiles.appendChild(mk("TOF / Demand Gen L7", fmK(s.tof_spend_l7),
