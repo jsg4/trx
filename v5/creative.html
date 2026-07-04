@@ -13,8 +13,9 @@
   /* Lower Cross design system — light: ink on cream, white cards */
   --lc-green:#123524; --lc-green-dark:#0F2A1D; --lc-lime:#DAFF00;
   --surface-1:#FFFFFF; --page:#F8F6F4;
-  --ink-1:#0B1015; --ink-2:rgba(11,16,21,0.70); --ink-3:rgba(11,16,21,0.45);
+  --ink-1:#0B1015; --ink-2:rgba(11,16,21,0.70); --ink-3:rgba(11,16,21,0.55);
   --grid:rgba(11,16,21,0.08); --axis:rgba(11,16,21,0.28); --border:rgba(11,16,21,0.16);
+  /* legibility: muted ink lifted from 0.45 for small labels on cream */
   --s-meta:#2a78d6; --s-google:#eda100; --s-tiktok:#1baf7a; --s-other:#4a3aa7;
   --seq-250:#86b6ef;
   --st-good:#0ca30c; --st-warn:#fab219; --st-serious:#ec835a; --st-crit:#d03b3b;
@@ -26,7 +27,7 @@
 :root[data-theme="dark"] {
   /* Lower Cross dark: white + lime on deep green */
   --surface-1:#123524; --page:#0F2A1D;
-  --ink-1:#FFFFFF; --ink-2:rgba(255,255,255,0.72); --ink-3:rgba(255,255,255,0.45);
+  --ink-1:#FFFFFF; --ink-2:rgba(255,255,255,0.72); --ink-3:rgba(255,255,255,0.55);
   --grid:rgba(255,255,255,0.09); --axis:rgba(255,255,255,0.30); --border:rgba(255,255,255,0.16);
   --s-meta:#3987e5; --s-google:#c98500; --s-tiktok:#199e70; --s-other:#9085e9;
   --seq-250:#5598e7;
@@ -39,7 +40,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --surface-1:#123524; --page:#0F2A1D;
-    --ink-1:#FFFFFF; --ink-2:rgba(255,255,255,0.72); --ink-3:rgba(255,255,255,0.45);
+    --ink-1:#FFFFFF; --ink-2:rgba(255,255,255,0.72); --ink-3:rgba(255,255,255,0.55);
     --grid:rgba(255,255,255,0.09); --axis:rgba(255,255,255,0.30); --border:rgba(255,255,255,0.16);
     --s-meta:#3987e5; --s-google:#c98500; --s-tiktok:#199e70; --s-other:#9085e9;
     --seq-250:#5598e7;
@@ -191,6 +192,29 @@ details summary { cursor:pointer; color:var(--ink-2); font-size:13px; font-weigh
 footer { color:var(--ink-3); font-size:11.5px; margin-top:24px; }
 footer li { margin:3px 0; }
 
+/* verdict + takeaways + indicators */
+.verdict { border-radius:20px; padding:16px 20px; margin-bottom:16px; border:1px solid var(--border); border-left:6px solid; }
+.verdict.v-good { background:var(--wash-good); border-left-color:var(--st-good); }
+.verdict.v-warn { background:var(--wash-warn); border-left-color:var(--st-warn); }
+.verdict.v-bad { background:var(--wash-bad); border-left-color:var(--st-crit); }
+.verdict .vh { font-family:"Space Grotesk",sans-serif; font-weight:700; font-size:16px; letter-spacing:-0.01em; }
+.verdict.v-bad .vh { color:var(--st-crit); } .verdict.v-good .vh { color:var(--st-good); }
+.verdict.v-warn .vh { color:#9a6b00; }
+:root[data-theme="dark"] .verdict.v-warn .vh { color:var(--st-warn); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .verdict.v-warn .vh { color:var(--st-warn); } }
+.verdict .vs { color:var(--ink-2); font-size:13px; margin-top:4px; }
+.verdict .vs b { color:var(--ink-1); }
+.takeaway { display:flex; gap:8px; align-items:baseline; font-size:12.5px; font-weight:600; color:var(--ink-1); margin:-4px 0 10px; }
+.takeaway::before { content:""; width:8px; height:8px; border-radius:50%; flex:none; align-self:center; background:var(--ink-3); }
+.takeaway.tk-good::before { background:var(--st-good); }
+.takeaway.tk-warn::before { background:var(--st-warn); }
+.takeaway.tk-bad::before { background:var(--st-crit); }
+.tile { position:relative; }
+.tile .sdot { position:absolute; top:14px; right:14px; width:10px; height:10px; border-radius:50%; }
+.sdot.s-good { background:var(--st-good); } .sdot.s-warn { background:var(--st-warn); }
+.sdot.s-bad { background:var(--st-crit); } .sdot.s-na { background:var(--grid); }
+.roasbar { display:inline-block; width:44px; height:5px; border-radius:100px; background:var(--grid); margin-left:7px; vertical-align:2px; overflow:hidden; }
+.roasbar > i { display:block; height:100%; border-radius:100px; }
 /* testing monitor */
 .tchip { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; padding:2px 10px; border-radius:100px; border:1px solid var(--border); font-weight:650; text-transform:uppercase; letter-spacing:0.04em; white-space:nowrap; }
 .tchip .dot { width:7px; height:7px; border-radius:50%; }
@@ -634,8 +658,10 @@ function renderTable(container) {
     tr.appendChild(nameTd);
     tr.appendChild(el("td", "num", fm$(w.spend || 0)));
     const rc = el("td", "num roascell", fmR(w.roas7));
-    if (w.roas7 != null && (w.spend || 0) >= 100 && e.bucket === "core" && e.platform !== "tiktok")
+    if (w.roas7 != null && (w.spend || 0) >= 100 && e.bucket === "core" && e.platform !== "tiktok") {
       rc.style.color = w.roas7 >= goal ? "var(--st-good)" : (w.roas7 >= 1.5 ? "inherit" : "var(--st-crit)");
+      rc.appendChild(roasBar(w.roas7, goal));
+    }
     tr.appendChild(rc);
     tr.appendChild(el("td", "num", fm$(w.rev7 || 0)));
     tr.appendChild(el("td", "num", String(w.txns || 0)));
@@ -705,6 +731,7 @@ function channelSummary() {
   table.appendChild(trh);
   const camps = DATA.levels.campaign;
   const totalL7 = camps.reduce((s, c) => s + (c.windows.L7.spend || 0), 0);
+  const rowsAgg = [];
   for (const [label, pred] of Object.entries(groups)) {
     const g = camps.filter(pred);
     if (!g.length) continue;
@@ -716,11 +743,14 @@ function channelSummary() {
       return {s, roas: s > 0 ? r / s : null, proas: ps > 0 ? pv / ps : null};
     };
     const l7 = agg("L7"), p7 = agg("P7"), l14 = agg("L14");
+    rowsAgg.push({label, roas: l7.roas, s: l7.s});
     const tr = el("tr");
     const nt = el("td", null, label); nt.style.textAlign = "left"; nt.style.fontWeight = "600"; tr.appendChild(nt);
     tr.appendChild(el("td", "num", fm$(l7.s)));
     tr.appendChild(el("td", "num muted", totalL7 ? Math.round(l7.s / totalL7 * 100) + "%" : "–"));
-    tr.appendChild(el("td", "num roascell", fmR(l7.roas)));
+    const rcell = el("td", "num roascell", fmR(l7.roas));
+    if (label.includes("core") && l7.roas != null) rcell.appendChild(roasBar(l7.roas, goal));
+    tr.appendChild(rcell);
     const d = (l7.roas != null && p7.roas) ? (l7.roas - p7.roas) / p7.roas : null;
     const dtd = el("td", "num", d == null ? "–" : (d > 0 ? "+" : "") + Math.round(d * 100) + "%");
     // color WoW only where 7d click ROAS is a valid judgment (core rows)
@@ -732,6 +762,16 @@ function channelSummary() {
     tr.appendChild(el("td", "num muted", l7.proas ? fmR(l7.proas) : "–"));
     tr.appendChild(el("td", "guide", channelGuidance(label, l7.roas, goal)));
     table.appendChild(tr);
+  }
+  // takeaway: best and worst judgeable bucket
+  const judge = rowsAgg.filter(r => r.label.includes("core") && r.roas != null);
+  if (judge.length) {
+    judge.sort((a, b) => b.roas - a.roas);
+    const best = judge[0], worst = judge[judge.length - 1];
+    card.insertBefore(takeaway(
+      best.label + " leads at " + best.roas.toFixed(2) +
+      (judge.length > 1 ? " — " + worst.label + " drags at " + worst.roas.toFixed(2) + " on " + fmK(worst.s) + " L7." : "."),
+      best.roas >= goal ? "good" : "warn"), card.children[1]);
   }
   const scroll = el("div", "tscroll");
   scroll.appendChild(table);
@@ -856,6 +896,17 @@ function creativeIntelligence() {
   const sub = el("div", "maturity-note");
   sub.textContent = `Meta creative, last 14 days, NB-attributed (clicks + det. views 7d). ${cr.n_creatives} creatives live; account-average creative ROAS ${fmR(cr.account_avg_roas)} vs ${DATA.meta.goal_roas.toFixed(1)} goal. Verdicts steer production (relative to account average); budget calls stay upstream in Decide today.`;
   card.appendChild(sub);
+  {
+    const leanHooks = cr.hooks.filter(h => h.verdict === "lean_in").map(h => h.key);
+    const cutHooks = cr.hooks.filter(h => h.verdict === "cut").map(h => h.key);
+    const vf = cr.formats.find(f => f.key === "video"), sf = cr.formats.find(f => f.key === "static");
+    const bits = [];
+    if (vf && sf && vf.roas != null && sf.roas != null)
+      bits.push("Video (" + vf.roas.toFixed(2) + ") beats static (" + sf.roas.toFixed(2) + ")");
+    if (leanHooks.length) bits.push("lean into " + leanHooks.slice(0, 3).join(", "));
+    if (cutHooks.length) bits.push("stop making " + cutHooks.slice(0, 2).join(", ") + " creative");
+    if (bits.length) card.appendChild(takeaway(bits.join(" · ") + ".", leanHooks.length ? "good" : "warn"));
+  }
   const grid = el("div", "ci-grid"); grid.style.marginTop = "12px";
   const cols = [["key", ""], ["creatives", "#"], ["spend", "Spend"], ["roas", "NB ROAS"], ["hook_rate", "Hook"], ["verdict", "Verdict"]];
   grid.appendChild(ciTable("By angle", cr.angles.slice(0, 8), cols));
@@ -923,6 +974,52 @@ function creativeIntelligence() {
   return card;
 }
 
+/* ---------- verdict + takeaway helpers ---------- */
+function takeaway(text, sev) {
+  return el("div", "takeaway tk-" + (sev || "na"), text);
+}
+function roasBar(v, goal) {
+  const bar = el("span", "roasbar");
+  const fill = document.createElement("i");
+  const pct = v == null ? 0 : Math.min(1, v / (goal * 1.25));
+  fill.style.width = (pct * 100) + "%";
+  fill.style.background = v == null ? "var(--grid)" :
+    v >= goal ? "var(--st-good)" : v >= goal * 0.75 ? "var(--st-warn)" : "var(--st-crit)";
+  bar.appendChild(fill);
+  bar.title = v == null ? "" : v.toFixed(2) + " vs " + goal.toFixed(2) + " goal";
+  return bar;
+}
+function verdictBanner() {
+  const m = DATA.meta, s = DATA.insights.summary, pac = DATA.insights.pacing || {};
+  const dec = DATA.insights.decide || {do_now: [], scale: []};
+  const goal = m.goal_roas;
+  const roas = s.core_roas_l7;
+  const paceOff = pac.pace != null ? Math.abs(pac.pace - 1) : 0;
+  let sev = "good";
+  if ((roas != null && roas < goal * 0.75) || dec.do_now.length >= 3 || paceOff > 0.2) sev = "bad";
+  else if ((roas != null && roas < goal) || dec.do_now.length >= 1 || paceOff > 0.1) sev = "warn";
+  const bits = [];
+  if (roas != null) bits.push("core ROAS " + roas.toFixed(2) + " vs " + goal.toFixed(1) + " goal");
+  if (pac.pace != null) bits.push("spend " + Math.round(pac.pace * 100) + "% of plan");
+  if (dec.do_now.length) bits.push(dec.do_now.length + " campaign" + (dec.do_now.length > 1 ? "s" : "") + " need action today");
+  const head = sev === "bad" ? "Action needed" : sev === "warn" ? "Off goal — fixable" : "On track";
+  const v = el("div", "verdict v-" + sev);
+  v.appendChild(el("div", "vh", head + " · " + bits.join(" · ")));
+  const sub = el("div", "vs");
+  if (dec.do_now.length) {
+    sub.appendChild(document.createTextNode("Biggest lever: "));
+    sub.appendChild(el("b", null, dec.do_now[0].what));
+    sub.appendChild(document.createTextNode(" — actions on the Performance page."));
+  } else if (dec.scale && dec.scale.length) {
+    sub.appendChild(document.createTextNode("Scale candidate ready: "));
+    sub.appendChild(el("b", null, dec.scale[0].what));
+  } else {
+    sub.textContent = "No urgent moves. Work the weekly queues.";
+  }
+  v.appendChild(sub);
+  return v;
+}
+
 /* ---------- creative testing monitor ---------- */
 const T_LABEL = { graduate: "Graduate", kill: "Kill", final_stretch: "Final stretch",
                   early_signal: "Early signal", in_test: "In test" };
@@ -939,6 +1036,16 @@ function testingMonitor() {
   if (!t.rows.length) {
     card.appendChild(el("div", "dempty", "No ad sets with spend in the testing campaign right now."));
     return card;
+  }
+  {
+    const c = t.counts;
+    const parts = [];
+    if (c.graduate) parts.push(c.graduate + " ready to graduate");
+    if (c.kill) parts.push(c.kill + " to kill today");
+    if (c.final_stretch) parts.push(c.final_stretch + " in the final stretch");
+    if (c.in_test || c.early_signal) parts.push(((c.in_test || 0) + (c.early_signal || 0)) + " still earning a verdict");
+    card.appendChild(takeaway(parts.join(" · ") + ". Clear the verdicts before feeding new tests in.",
+      c.graduate ? "good" : c.kill ? "bad" : "warn"));
   }
   const chips = el("div", "filters"); chips.style.margin = "10px 0 4px";
   ["graduate", "kill", "final_stretch", "early_signal", "in_test"].forEach(k => {
@@ -1041,6 +1148,7 @@ function render() {
   app.appendChild(hdr);
   app.appendChild(el("div", "brandline"));
   app.appendChild(pageNav("creative"));
+  if (typeof PAGE !== "undefined" && PAGE === "cockpit") app.appendChild(verdictBanner());
 
   const ins = DATA.insights;
   const dec = ins.decide || {do_now: [], scale: [], watch: []};
@@ -1086,14 +1194,20 @@ function render() {
   const goal = m.goal_roas;
   const days = dailySeries();
   const tiles = el("div", "tiles");
-  const mk = (lbl, val, deltaTxt, deltaCls, spark) => {
+  const mk = (lbl, val, deltaTxt, deltaCls, spark, status) => {
     const t = el("div", "tile");
     t.appendChild(el("div", "lbl", lbl));
     t.appendChild(el("div", "val", val));
-    if (deltaTxt) t.appendChild(el("div", "delta " + (deltaCls || ""), deltaTxt));
+    if (deltaTxt) {
+      if (/^\+/.test(deltaTxt)) deltaTxt = "▲ " + deltaTxt.slice(1);
+      else if (/^-\d/.test(deltaTxt)) deltaTxt = "▼ " + deltaTxt.slice(1);
+      t.appendChild(el("div", "delta " + (deltaCls || ""), deltaTxt));
+    }
     if (spark) t.appendChild(spark);
+    if (status) t.appendChild(el("span", "sdot s-" + status));
     return t;
   };
+  const bandStatus = off => off == null ? "na" : Math.abs(off) <= 0.1 ? "good" : Math.abs(off) <= 0.2 ? "warn" : "bad";
   const p7roas = (() => {
     const c = DATA.levels.campaign.filter(x => x.bucket === "core");
     const sp = c.reduce((a, x) => a + (x.windows.P7.spend || 0), 0);
@@ -1108,7 +1222,8 @@ function render() {
     dCls = dd >= 0 ? "up" : "down";
   }
   const t1 = mk("Core NB ROAS — last 7 days", coreRoas == null ? "–" : coreRoas.toFixed(2), dTxt, dCls,
-    sparkline(days.map(d => d.roll).slice(-14), 160, 34, goal));
+    sparkline(days.map(d => d.roll).slice(-14), 160, 34, goal),
+    coreRoas == null ? "na" : coreRoas >= goal ? "good" : coreRoas >= 1.5 ? "warn" : "bad");
   t1.querySelector(".val").style.color = coreRoas != null && coreRoas >= goal ? "var(--st-good)" : (coreRoas != null && coreRoas < 1.5 ? "var(--st-crit)" : "inherit");
   tiles.appendChild(t1);
   const ydayFromSheet = pacing && pacing.yday && pacing.yday.spend;
@@ -1117,7 +1232,7 @@ function render() {
     const dd = plan ? (pacing.yday.spend - plan) / plan : null;
     tiles.appendChild(mk("Spend yesterday (workbook)", fmK(pacing.yday.spend),
       plan ? (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs " + fmK(plan) + " plan" : null,
-      dd != null && Math.abs(dd) > 0.1 ? "down" : "up"));
+      dd != null && Math.abs(dd) > 0.1 ? "down" : "up", null, bandStatus(dd)));
   } else if (s.yday_spend != null) {
     const dd = s.avg7_daily_spend ? (s.yday_spend - s.avg7_daily_spend) / s.avg7_daily_spend : null;
     tiles.appendChild(mk("Spend yesterday (platforms)", fmK(s.yday_spend),
@@ -1129,7 +1244,8 @@ function render() {
     const cls = Math.abs(pc - 1) <= 0.1 ? "up" : "down";
     const est = pacing.estimated_days ? ` (${pacing.estimated_days}d est.)` : "";
     const t = mk("MTD spend vs plan", Math.round(pc * 100) + "%",
-      fmK(pacing.mtd_spend) + " vs " + fmK(pacing.mtd_plan) + " plan" + est, cls);
+      fmK(pacing.mtd_spend) + " vs " + fmK(pacing.mtd_plan) + " plan" + est, cls,
+      null, bandStatus(pc - 1));
     t.title = pacing.source || "";
     t.querySelector(".val").style.color = Math.abs(pc - 1) <= 0.1 ? "var(--st-good)"
       : (Math.abs(pc - 1) <= 0.2 ? "inherit" : "var(--st-crit)");
@@ -1138,7 +1254,8 @@ function render() {
   if (pacing && pacing.yday && pacing.yday.mer) {
     const merT = DATA.meta.mer_target || 2.5;
     const t = mk("Blended MER yesterday", pacing.yday.mer.toFixed(2),
-      "rev " + fmK(pacing.yday.rev || 0) + " · target " + merT.toFixed(1) + " · pacing workbook");
+      "rev " + fmK(pacing.yday.rev || 0) + " · target " + merT.toFixed(1) + " · pacing workbook",
+      null, null, pacing.yday.mer >= merT ? "good" : pacing.yday.mer >= merT * 0.75 ? "warn" : "bad");
     t.querySelector(".val").style.color = pacing.yday.mer >= merT ? "var(--st-good)"
       : (pacing.yday.mer < merT * 0.75 ? "var(--st-crit)" : "inherit");
     tiles.appendChild(t);
@@ -1152,6 +1269,17 @@ function render() {
   /* trend */
   const tc = el("div", "card");
   tc.appendChild(el("h2", null, "30-day trend"));
+  {
+    const rolls = days.map(d => d.roll).filter(v => v != null);
+    const above = rolls.filter(v => v >= goal).length;
+    const dir = rolls.length >= 8 ? (rolls[rolls.length - 1] - rolls[rolls.length - 8]) / rolls[rolls.length - 8] : null;
+    const dirTxt = dir == null ? "" : Math.abs(dir) < 0.05 ? " and flat week-over-week" : dir > 0 ? " and improving (" + Math.round(dir * 100) + "% WoW)" : " and declining (" + Math.round(dir * 100) + "% WoW)";
+    tc.appendChild(takeaway(
+      above === 0
+        ? "The 7-day line has not touched the " + goal.toFixed(1) + " goal once in 30 days — currently " + (rolls.length ? rolls[rolls.length - 1].toFixed(2) : "–") + dirTxt + ". This is structural, not a bad day."
+        : above + " of the last " + rolls.length + " days at/above goal — currently " + rolls[rolls.length - 1].toFixed(2) + dirTxt + ".",
+      above === 0 ? "bad" : above < rolls.length / 2 ? "warn" : "good"));
+  }
   tc.appendChild(trendChart(days));
   /* overview page only: app.appendChild(tc); */
 
