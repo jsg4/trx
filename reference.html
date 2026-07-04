@@ -983,6 +983,52 @@ function creativeIntelligence() {
   return card;
 }
 
+/* ---------- performance detail card (rebuilds in place, no page scroll) ---------- */
+function buildDetail(tcard) {
+  tcard.replaceChildren();
+  const creativePage = typeof PAGE !== "undefined" && PAGE === "creative";
+  tcard.appendChild(el("h2", null, creativePage ? "Ad-level detail" : "Performance detail"));
+  const rebuild = () => {
+    // keep the card visually pinned: neutralize scroll-anchoring drift
+    const before = tcard.getBoundingClientRect().top;
+    buildDetail(tcard);
+    window.scrollBy(0, tcard.getBoundingClientRect().top - before);
+  };
+  const filters = el("div", "filters");
+  const mkSeg = (options, cur, cb) => {
+    const seg = el("div", "seg");
+    options.forEach(([id, label]) => {
+      const b = el("button", null, label);
+      b.setAttribute("aria-pressed", String(id === cur));
+      b.addEventListener("click", () => cb(id));
+      seg.appendChild(b);
+    });
+    return seg;
+  };
+  filters.appendChild(mkSeg([["campaign", "Campaigns"], ["adset", "Ad sets"], ["ad", "Ads"]], levelSel,
+    id => { levelSel = id; rebuild(); }));
+  filters.appendChild(mkSeg([["L1", "Yesterday"], ["L7", "Last 7"], ["L14", "Last 14"]], winSel,
+    id => { winSel = id; rebuild(); }));
+  filters.appendChild(mkSeg([["all", "All"], ["meta", "Meta"], ["google", "Google"], ["tiktok", "TikTok"]], platSel,
+    id => { platSel = id; rebuild(); }));
+  const se = el("input", "search"); se.placeholder = "Search name…"; se.value = query;
+  se.addEventListener("input", () => { query = se.value; renderTable(twrap); });
+  filters.appendChild(se);
+  const zt = el("button", "ghost", showZero ? "Hide $0 rows" : "Show $0 rows");
+  zt.setAttribute("aria-pressed", String(showZero));
+  zt.addEventListener("click", () => { showZero = !showZero; rebuild(); });
+  filters.appendChild(zt);
+  tcard.appendChild(filters);
+  const note = el("div", "maturity-note");
+  note.textContent = winSel === "L1"
+    ? "Yesterday view: accrual revenue for yesterday is largely unmatured — use for spend/delivery checks, not ROAS judgments. Status badges always judge on the 7-day window."
+    : "Status badges judge NB ROAS on the ≥7-day window with a $250 minimum spend. No kill/scale calls on <72h of data.";
+  tcard.appendChild(note);
+  const twrap = el("div", "tscroll");
+  tcard.appendChild(twrap);
+  renderTable(twrap);
+}
+
 /* ---------- verdict + takeaway helpers ---------- */
 function takeaway(text, sev) {
   return el("div", "takeaway tk-" + (sev || "na"), text);
@@ -1338,19 +1384,43 @@ function render() {
       : (Math.abs(pc - 1) <= 0.2 ? "inherit" : "var(--st-crit)");
     tiles.appendChild(t);
   }
-  if (pacing && pacing.yday && pacing.yday.mer) {
-    const merT = DATA.meta.mer_target || 2.5;
-    const t = mk("Blended MER yesterday", pacing.yday.mer.toFixed(2),
-      "rev " + fmK(pacing.yday.rev || 0) + " · target " + merT.toFixed(1) + " · pacing workbook",
-      null, null, pacing.yday.mer >= merT ? "good" : pacing.yday.mer >= merT * 0.75 ? "warn" : "bad");
-    t.querySelector(".val").style.color = pacing.yday.mer >= merT ? "var(--st-good)"
-      : (pacing.yday.mer < merT * 0.75 ? "var(--st-crit)" : "inherit");
-    tiles.appendChild(t);
+  {
+    // yesterday's sheet cells can be mid-edit (zero) — fall back to the last populated day
+    const merRow = (pacing && pacing.yday && pacing.yday.mer) ? {...pacing.yday, when: "yesterday"}
+      : (pacing && pacing.last_mer) ? {...pacing.last_mer, when: pacing.last_mer.date.slice(5).replace("-", "/")} : null;
+    if (merRow) {
+      const merT = DATA.meta.mer_target || 2.5;
+      const t = mk("Blended MER — " + merRow.when, merRow.mer.toFixed(2),
+        "rev " + fmK(merRow.rev || 0) + " · target " + merT.toFixed(1) + " · pacing workbook",
+        null, null, merRow.mer >= merT ? "good" : merRow.mer >= merT * 0.75 ? "warn" : "bad");
+      t.querySelector(".val").style.color = merRow.mer >= merT ? "var(--st-good)"
+        : (merRow.mer < merT * 0.75 ? "var(--st-crit)" : "inherit");
+      tiles.appendChild(t);
+    }
   }
-  tiles.appendChild(mk("TOF / Demand Gen L7", fmK(s.tof_spend_l7),
-    s.total_spend_l7 ? Math.round(s.tof_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "", null));
-  tiles.appendChild(mk("Brand L7", fmK(s.brand_spend_l7),
-    s.total_spend_l7 ? Math.round(s.brand_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "", null));
+  if (s.cac_new_l7 != null) {
+    const dd = s.cac_new_p7 ? (s.cac_new_l7 - s.cac_new_p7) / s.cac_new_p7 : null;
+    // lower CAC is better: arrow shows direction, color shows goodness
+    tiles.appendChild(mk("New-customer CAC — L7", fm$(s.cac_new_l7),
+      (dd == null ? "" : (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs prior 7d · ")
+        + (s.new_txns_l7 || 0) + " new customers (NB paid)",
+      dd == null ? null : (dd <= 0 ? "up" : "down"),
+      null, dd == null ? "na" : dd <= 0 ? "good" : dd <= 0.15 ? "warn" : "bad"));
+  }
+  if (s.new_visit_pct_l7 != null) {
+    const dpp = s.new_visit_pct_p7 != null ? (s.new_visit_pct_l7 - s.new_visit_pct_p7) * 100 : null;
+    tiles.appendChild(mk("New visitor % — L7", Math.round(s.new_visit_pct_l7 * 100) + "%",
+      dpp == null ? "share of NB paid visits" : (dpp >= 0 ? "+" : "") + dpp.toFixed(1) + "pp vs prior 7d",
+      dpp == null ? null : (dpp >= 0 ? "up" : "down"),
+      null, dpp == null ? "na" : dpp >= 0 ? "good" : dpp > -3 ? "warn" : "bad"));
+  }
+  // mix-context tiles live on the pacing page; the cockpit stays one screen
+  if (typeof PAGE === "undefined" || PAGE === "pacing") {
+    tiles.appendChild(mk("TOF / Demand Gen L7", fmK(s.tof_spend_l7),
+      s.total_spend_l7 ? Math.round(s.tof_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "", null));
+    tiles.appendChild(mk("Brand L7", fmK(s.brand_spend_l7),
+      s.total_spend_l7 ? Math.round(s.brand_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "", null));
+  }
   if (PAGE === "pacing" || PAGE === "cockpit") app.appendChild(tiles);
 
   /* trend */
@@ -1418,42 +1488,9 @@ function render() {
   if (PAGE === "creative") app.appendChild(creativeHealth());
   if (PAGE === "creative" && DATA.creative) app.appendChild(creativeIntelligence());
 
-  /* detail tables */
+  /* detail tables — self-rebuilding card so toggles never repaint the page */
   const tcard = el("div", "card");
-  tcard.appendChild(el("h2", null, "Ad-level detail"));
-  const filters = el("div", "filters");
-  const mkSeg = (options, cur, cb) => {
-    const seg = el("div", "seg");
-    options.forEach(([id, label]) => {
-      const b = el("button", null, label);
-      b.setAttribute("aria-pressed", String(id === cur));
-      b.addEventListener("click", () => cb(id));
-      seg.appendChild(b);
-    });
-    return seg;
-  };
-  filters.appendChild(mkSeg([["campaign", "Campaigns"], ["adset", "Ad sets"], ["ad", "Ads"]], levelSel,
-    id => { levelSel = id; render(); }));
-  filters.appendChild(mkSeg([["L1", "Yesterday"], ["L7", "Last 7"], ["L14", "Last 14"]], winSel,
-    id => { winSel = id; render(); }));
-  filters.appendChild(mkSeg([["all", "All"], ["meta", "Meta"], ["google", "Google"], ["tiktok", "TikTok"]], platSel,
-    id => { platSel = id; render(); }));
-  const se = el("input", "search"); se.placeholder = "Search name…"; se.value = query;
-  se.addEventListener("input", () => { query = se.value; renderTable(twrap); });
-  filters.appendChild(se);
-  const zt = el("button", "ghost", showZero ? "Hide $0 rows" : "Show $0 rows");
-  zt.setAttribute("aria-pressed", String(showZero));
-  zt.addEventListener("click", () => { showZero = !showZero; render(); });
-  filters.appendChild(zt);
-  tcard.appendChild(filters);
-  const note = el("div", "maturity-note");
-  note.textContent = winSel === "L1"
-    ? "Yesterday view: accrual revenue for yesterday is largely unmatured — use for spend/delivery checks, not ROAS judgments. Status badges always judge on the 7-day window."
-    : "Status badges judge NB ROAS on the ≥7-day window with a $250 minimum spend. No kill/scale calls on <72h of data.";
-  tcard.appendChild(note);
-  const twrap = el("div", "tscroll");
-  tcard.appendChild(twrap);
-  renderTable(twrap);
+  buildDetail(tcard);
   if (PAGE === "performance" || PAGE === "creative") app.appendChild(tcard);
   if (PAGE === "cockpit") { app.appendChild(decideMini()); app.appendChild(navCards()); }
 
