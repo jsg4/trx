@@ -422,7 +422,8 @@ function trendChart(days) {
   });
   svg.appendChild(sv("line", {x1:padL, x2:W - padR, y1:sy(0), y2:sy(0), stroke:"var(--axis)", "stroke-width":1}));
   const p2t = sv("text", {x:padL, y:top2 + 4, fill:"var(--ink-2)", "font-size":11, "font-weight":600});
-  p2t.textContent = "Daily spend by channel"; svg.appendChild(p2t);
+  p2t.textContent = narrow ? "Daily spend (all buckets)" : "Daily spend by channel — all buckets (core + TOF + brand + support)";
+  svg.appendChild(p2t);
 
   const step = Math.ceil(n / (narrow ? 5 : 8));
   days.forEach((d, i) => {
@@ -545,6 +546,8 @@ function renderTable(container) {
   cols.forEach(([id, label]) => {
     const th = el("th", sortCol === id ? "sorted" : null, label + (sortCol === id ? (sortDir < 0 ? " ↓" : " ↑") : ""));
     if (id === "hook") th.title = "Meta hook rate: 3-second video plays / impressions. <20% = weak opening, >=30% = strong.";
+    if (id === "roas" || id === "rev") th.title = "Northbeam attributed — Clicks + Deterministic Views, 7-day window, accrual. Recent days still maturing.";
+    if (id === "proas") th.title = "Platform-reported (Google Ads API; Meta via NB's Meta integration at 7d-click/1d-view). Direction only.";
     if (!["trend", "st"].includes(id)) th.addEventListener("click", () => {
       if (sortCol === id) sortDir *= -1; else { sortCol = id; sortDir = -1; }
       renderTable(container);
@@ -654,7 +657,10 @@ function channelSummary() {
     tr.appendChild(el("td", "num roascell", fmR(l7.roas)));
     const d = (l7.roas != null && p7.roas) ? (l7.roas - p7.roas) / p7.roas : null;
     const dtd = el("td", "num", d == null ? "–" : (d > 0 ? "+" : "") + Math.round(d * 100) + "%");
-    if (d != null) dtd.className += d >= 0 ? " delta up" : " delta down";
+    // color WoW only where 7d click ROAS is a valid judgment (core rows)
+    const judgeable = label.includes("core");
+    if (d != null && judgeable) dtd.className += d >= 0 ? " delta up" : " delta down";
+    else dtd.className += " muted";
     tr.appendChild(dtd);
     tr.appendChild(el("td", "num", fmR(l14.roas)));
     tr.appendChild(el("td", "num muted", l7.proas ? fmR(l7.proas) : "–"));
@@ -809,9 +815,16 @@ function render() {
     sparkline(days.map(d => d.roll).slice(-14), 160, 34, goal));
   t1.querySelector(".val").style.color = coreRoas != null && coreRoas >= goal ? "var(--st-good)" : (coreRoas != null && coreRoas < 1.5 ? "var(--st-crit)" : "inherit");
   tiles.appendChild(t1);
-  if (s.yday_spend != null) {
+  const ydayFromSheet = pacing && pacing.yday && pacing.yday.spend;
+  if (ydayFromSheet) {
+    const plan = pacing.yday.plan;
+    const dd = plan ? (pacing.yday.spend - plan) / plan : null;
+    tiles.appendChild(mk("Spend yesterday (workbook)", fmK(pacing.yday.spend),
+      plan ? (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs " + fmK(plan) + " plan" : null,
+      dd != null && Math.abs(dd) > 0.1 ? "down" : "up"));
+  } else if (s.yday_spend != null) {
     const dd = s.avg7_daily_spend ? (s.yday_spend - s.avg7_daily_spend) / s.avg7_daily_spend : null;
-    tiles.appendChild(mk("Spend yesterday", fmK(s.yday_spend),
+    tiles.appendChild(mk("Spend yesterday (platforms)", fmK(s.yday_spend),
       dd == null ? null : (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs 7-day avg",
       dd != null && Math.abs(dd) > 0.25 ? "down" : null));
   }
@@ -835,9 +848,9 @@ function render() {
     tiles.appendChild(t);
   }
   tiles.appendChild(mk("TOF / Demand Gen L7", fmK(s.tof_spend_l7),
-    s.total_spend_l7 ? Math.round(s.tof_spend_l7 / s.total_spend_l7 * 100) + "% of total" : "", null));
+    s.total_spend_l7 ? Math.round(s.tof_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "", null));
   tiles.appendChild(mk("Brand L7", fmK(s.brand_spend_l7),
-    s.total_spend_l7 ? Math.round(s.brand_spend_l7 / s.total_spend_l7 * 100) + "% of total" : "", null));
+    s.total_spend_l7 ? Math.round(s.brand_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "", null));
   app.appendChild(tiles);
 
   /* trend */
