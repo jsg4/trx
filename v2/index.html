@@ -87,6 +87,14 @@ button.ghost:hover { color:var(--ink-1); }
 .ditem .a { color:var(--ink-2); margin-top:2px; }
 .ditem .a::before { content:"→ "; color:var(--ink-3); }
 .dempty { color:var(--ink-3); font-size:12.5px; padding:6px 0; }
+.dkids { margin-top:5px; }
+.dkid { display:flex; align-items:baseline; gap:6px; font-size:11.5px; color:var(--ink-2); padding:2px 0 2px 14px; }
+.dkid .kdot { width:7px; height:7px; border-radius:50%; flex:none; align-self:center; }
+.dkid.k-pause .kdot { background:var(--st-crit); }
+.dkid.k-keep .kdot { background:var(--st-good); }
+.dkid.k-best .kdot { background:var(--st-warn); }
+.dkid .knm { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:60%; }
+.dkid .kv { margin-left:auto; font-variant-numeric:tabular-nums; white-space:nowrap; }
 
 /* stat tiles */
 .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px,1fr)); gap:12px; margin-bottom:16px; }
@@ -774,6 +782,20 @@ function render() {
       const d = el("div", "ditem");
       d.appendChild(el("div", "w", it.what));
       d.appendChild(el("div", "a", it.action));
+      if (it.detail && it.detail.length) {
+        const kids = el("div", "dkids");
+        it.detail.forEach(k => {
+          const row = el("div", "dkid k-" + k.kind);
+          row.appendChild(el("span", "kdot"));
+          const prefix = k.kind === "pause" ? "pause: " : (k.kind === "best" ? "best inside: " : "winner: ");
+          const nm = el("span", "knm", prefix + k.name);
+          nm.title = k.name;
+          row.appendChild(nm);
+          row.appendChild(el("span", "kv", "$" + Math.round(k.spend).toLocaleString() + " · " + k.roas.toFixed(2)));
+          kids.appendChild(row);
+        });
+        d.appendChild(kids);
+      }
       c.appendChild(d);
     });
     return c;
