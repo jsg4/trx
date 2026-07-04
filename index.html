@@ -317,12 +317,25 @@ input.search {
 
 <div id="lock" class="card">
   <div class="wordmark" style="text-align:center">Lower Cross</div>
-  <h1>TRX Dashboard</h1>
-  <p class="sub">Enter the team passphrase to unlock.</p>
-  <input id="pw" type="password" placeholder="Passphrase" autocomplete="current-password">
-  <div class="err" id="pwerr"></div>
-  <button id="unlock">Unlock</button>
+  <div id="lockform">
+    <h1>TRX Dashboard</h1>
+    <p class="sub">Enter the team passphrase to unlock.</p>
+    <input id="pw" type="password" placeholder="Passphrase" autocomplete="current-password">
+    <div class="err" id="pwerr"></div>
+    <button id="unlock">Unlock</button>
+  </div>
+  <div id="lockload" style="display:none">
+    <h1>TRX Dashboard</h1>
+    <p class="sub">Unlocking…</p>
+  </div>
 </div>
+<script>
+// saved-pass sessions show a loading state, never a password-form flash
+if (localStorage.getItem("mp_pass")) {
+  document.getElementById("lockform").style.display = "none";
+  document.getElementById("lockload").style.display = "block";
+}
+</script>
 
 <div id="app" class="wrap"></div>
 
@@ -394,7 +407,12 @@ window.addEventListener("resize", () => {
       document.getElementById("lock").style.display = "none";
       document.getElementById("app").style.display = "block";
       render();
-    } catch (e) { localStorage.removeItem("mp_pass"); }
+    } catch (e) {
+      localStorage.removeItem("mp_pass");
+      // reveal the form only when the saved pass genuinely fails
+      document.getElementById("lockload").style.display = "none";
+      document.getElementById("lockform").style.display = "block";
+    }
   }
 })();
 

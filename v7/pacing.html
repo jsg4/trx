@@ -192,6 +192,34 @@ details summary { cursor:pointer; color:var(--ink-2); font-size:13px; font-weigh
 footer { color:var(--ink-3); font-size:12px; margin-top:24px; }
 footer li { margin:3px 0; }
 
+/* v7 skin */
+.card, .tile, .ncard { box-shadow:0 1px 2px rgba(11,16,21,0.04), 0 10px 28px rgba(11,16,21,0.05); }
+:root[data-theme="dark"] .card, :root[data-theme="dark"] .tile, :root[data-theme="dark"] .ncard { box-shadow:0 1px 2px rgba(0,0,0,0.35); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .card, :root:not([data-theme="light"]) .tile, :root:not([data-theme="light"]) .ncard { box-shadow:0 1px 2px rgba(0,0,0,0.35); } }
+.tile { border-radius:16px; }
+.tile .val { font-size:32px; }
+.tile .delta { display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:100px; font-weight:650; margin-top:6px; background:var(--grid); }
+.tile .delta.up { background:var(--wash-good); }
+.tile .delta.down { background:var(--wash-bad); }
+.pagehead { margin:2px 0 14px; }
+.pagehead .eyebrow { font-family:"Space Grotesk",sans-serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); font-weight:700; }
+.pagehead .ptitle { font-family:"Space Grotesk",sans-serif; font-size:20px; font-weight:700; letter-spacing:-0.02em; margin-top:2px; }
+.wrow { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; margin-bottom:16px; }
+.widget { background:var(--surface-1); border:1px solid var(--border); border-radius:16px; padding:16px 18px; box-shadow:0 1px 2px rgba(11,16,21,0.04), 0 10px 28px rgba(11,16,21,0.05); }
+.widget h3 { margin:0 0 10px; font-family:"Space Grotesk",sans-serif; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-3); font-weight:700; }
+.mixbar { display:flex; height:16px; border-radius:100px; overflow:hidden; gap:2px; background:var(--grid); }
+.mixbar > div { height:100%; }
+.mixlegend { margin-top:10px; }
+.mixlegend .row { display:flex; align-items:center; gap:8px; font-size:12px; padding:3px 0; color:var(--ink-2); }
+.mixlegend .sw { width:10px; height:10px; border-radius:3px; flex:none; }
+.mixlegend .v { margin-left:auto; font-variant-numeric:tabular-nums; color:var(--ink-1); font-weight:600; }
+.gauge-wrap { display:flex; align-items:center; gap:16px; }
+.gauge-meta .gv { font-family:"Space Grotesk",sans-serif; font-size:30px; font-weight:700; letter-spacing:-0.02em; }
+.gauge-meta .gs { font-size:12px; color:var(--ink-2); margin-top:2px; }
+.callout { display:flex; gap:9px; padding:8px 0; border-bottom:1px solid var(--grid); font-size:13px; align-items:baseline; }
+.callout:last-child { border-bottom:none; }
+.callout .cdot { width:8px; height:8px; border-radius:50%; flex:none; align-self:center; }
+.mult-chip { display:inline-block; padding:1px 9px; border-radius:100px; font-weight:700; font-size:12px; background:var(--wash); }
 /* verdict + takeaways + indicators */
 .verdict { border-radius:20px; padding:16px 20px; margin-bottom:16px; border:1px solid var(--border); border-left:6px solid; }
 .verdict.v-good { background:var(--wash-good); border-left-color:var(--st-good); }
@@ -374,7 +402,7 @@ function el(tag, cls, text) {
 
 /* ---------- boot ---------- */
 async function tryUnlock(pass) {
-  const res = await fetch("data.enc", {cache:"no-store"});
+  const res = await fetch("../data.enc", {cache:"no-store"});
   if (!res.ok) throw new Error("data.enc not found");
   DATA = await decryptEnvelope(JSON.parse(await res.text()), pass);
 }
@@ -964,7 +992,7 @@ function creativeIntelligence() {
       const thumbs = el("div", "comp-thumbs");
       let anyThumb = false;
       (c.proven_ads || []).forEach(p => {
-        if (p.thumb) { const img = document.createElement("img"); img.src = p.thumb; img.alt = p.headline || ""; img.title = (p.headline || "") + " — " + (p.gist || "") + " (" + (p.running || "") + ")"; img.loading = "lazy"; thumbs.appendChild(img); anyThumb = true; }
+        if (p.thumb) { const img = document.createElement("img"); img.src = "../" + p.thumb; img.alt = p.headline || ""; img.title = (p.headline || "") + " — " + (p.gist || "") + " (" + (p.running || "") + ")"; img.loading = "lazy"; thumbs.appendChild(img); anyThumb = true; }
       });
       if (anyThumb) cc.appendChild(thumbs);
       (c.proven_ads || []).slice(0, 2).forEach(p => {
@@ -1045,6 +1073,165 @@ function buildDetail(tcard) {
   const twrap = el("div", "tscroll");
   tcard.appendChild(twrap);
   renderTable(twrap);
+}
+
+/* ---------- v7 widgets ---------- */
+const PAGE_TITLES = {cockpit: "Daily cockpit", pacing: "Pacing & trend", performance: "Performance & allocation",
+                     creative: "Creative studio", testing: "Testing lab", reference: "Reference", ltv: "LTV economics"};
+function pageHead() {
+  const d = el("div", "pagehead");
+  d.appendChild(el("div", "eyebrow", "Lower Cross · TRX — US"));
+  d.appendChild(el("div", "ptitle", PAGE_TITLES[PAGE] || ""));
+  return d;
+}
+function spendMixCard() {
+  const s0 = DATA.insights.summary;
+  const parts = [["Core", s0.core_spend_l7, "var(--s-meta)"], ["TOF", s0.tof_spend_l7, "var(--s-google)"],
+                 ["Brand", s0.brand_spend_l7, "var(--s-tiktok)"], ["App/Amazon", s0.other_spend_l7, "var(--s-other)"]]
+    .filter(p => p[1] > 0);
+  const tot = s0.total_spend_l7 || 1;
+  const w = el("div", "widget");
+  w.appendChild(el("h3", null, "Spend mix — last 7 days"));
+  const bar = el("div", "mixbar");
+  parts.forEach(([label, v, color]) => {
+    const seg = el("div"); seg.style.width = (v / tot * 100) + "%"; seg.style.background = color;
+    seg.title = label + " " + fm$(v); bar.appendChild(seg);
+  });
+  w.appendChild(bar);
+  const leg = el("div", "mixlegend");
+  parts.forEach(([label, v, color]) => {
+    const r = el("div", "row");
+    const sw = el("span", "sw"); sw.style.background = color; r.appendChild(sw);
+    r.appendChild(el("span", null, label));
+    r.appendChild(el("span", "v", fm$(v) + " · " + Math.round(v / tot * 100) + "%"));
+    leg.appendChild(r);
+  });
+  w.appendChild(leg);
+  return w;
+}
+function goalGaugeCard(days) {
+  const goal = DATA.meta.goal_roas;
+  const roas = DATA.insights.summary.core_roas_l7;
+  const rolls = days.map(d => d.roll).filter(v => v != null);
+  const above = rolls.filter(v => v >= goal).length;
+  const pct = roas == null ? 0 : Math.min(1, roas / goal);
+  const color = roas == null ? "var(--grid)" : roas >= goal ? "var(--st-good)" : roas >= goal * 0.75 ? "var(--st-warn)" : "var(--st-crit)";
+  const w = el("div", "widget");
+  w.appendChild(el("h3", null, "Distance to goal — core NB ROAS"));
+  const wrap = el("div", "gauge-wrap");
+  const size = 110, sw = 12, r = (size - sw) / 2, c = Math.PI * r;  // semicircle
+  const svg = sv("svg", {width: size, height: size / 2 + 8, viewBox: `0 0 ${size} ${size / 2 + 8}`});
+  const arc = (frac, stroke, width) => {
+    const p = sv("path", {d: `M ${sw / 2} ${size / 2 + 4} A ${r} ${r} 0 0 1 ${size - sw / 2} ${size / 2 + 4}`,
+      fill: "none", stroke, "stroke-width": width, "stroke-linecap": "round",
+      "stroke-dasharray": `${c * frac} ${c}`});
+    return p;
+  };
+  svg.appendChild(arc(1, "var(--grid)", sw));
+  svg.appendChild(arc(pct, color, sw));
+  wrap.appendChild(svg);
+  const meta = el("div", "gauge-meta");
+  const gv = el("div", "gv", roas == null ? "–" : roas.toFixed(2)); gv.style.color = color;
+  meta.appendChild(gv);
+  meta.appendChild(el("div", "gs", "of " + goal.toFixed(1) + " goal · " + above + "/" + rolls.length + " days above in last 30"));
+  wrap.appendChild(meta);
+  w.appendChild(wrap);
+  return w;
+}
+function calloutsCard() {
+  const ins = DATA.insights;
+  const rows = [];
+  const up = (ins.working || []).find(x => x.scope === "trend");
+  const down = (ins.issues || []).find(x => x.scope === "trend");
+  if (up) rows.push(["var(--st-good)", up.text]);
+  if (down) rows.push(["var(--st-warn)", down.text]);
+  const burn = (ins.issues || []).find(x => x.sev === "bad");
+  if (burn && rows.length < 3) rows.push(["var(--st-crit)", burn.text]);
+  const att = (ins.issues || []).find(x => x.scope === "attribution");
+  if (att && rows.length < 3) rows.push(["var(--s-other)", att.text]);
+  const w = el("div", "widget");
+  w.appendChild(el("h3", null, "Callouts"));
+  if (!rows.length) w.appendChild(el("div", "dempty", "Quiet day — no notable movers."));
+  rows.slice(0, 3).forEach(([color, text]) => {
+    const c = el("div", "callout");
+    const d0 = el("span", "cdot"); d0.style.background = color; c.appendChild(d0);
+    c.appendChild(el("span", null, text));
+    w.appendChild(c);
+  });
+  return w;
+}
+function ltvPage(app) {
+  const L = DATA.ltv;
+  if (!L) { app.appendChild(el("div", "card", "LTV data not in payload yet.")); return; }
+  const goal = DATA.meta.goal_roas;
+  const a = L.account;
+  const tiles = el("div", "tiles");
+  const mk2 = (lbl, val, sub) => {
+    const t = el("div", "tile");
+    t.appendChild(el("div", "lbl", lbl));
+    t.appendChild(el("div", "val", val));
+    if (sub) t.appendChild(el("div", "delta", sub));
+    return t;
+  };
+  tiles.appendChild(mk2("LTV multiplier", a.multiplier ? a.multiplier.toFixed(2) + "x" : "–", "modeled lifetime ÷ first purchase"));
+  tiles.appendChild(mk2("LTV / new customer", a.ltv_per_customer ? fm$(a.ltv_per_customer) : "–", a.ftx + " new customers · 30d"));
+  tiles.appendChild(mk2("New-customer CAC", a.cac_ft ? fm$(a.cac_ft) : "–", "LTV:CAC " + (a.cac_ft && a.ltv_per_customer ? (a.ltv_per_customer / a.cac_ft).toFixed(1) + ":1" : "–")));
+  tiles.appendChild(mk2("First purchase vs LTV ROAS", (a.ft_roas ?? "–") + " → " + (a.ltv_roas ?? "–"), "30-day, NB modeled"));
+  app.appendChild(tiles);
+
+  const card = el("div", "card");
+  card.appendChild(el("h2", null, "LTV by channel"));
+  if (a.multiplier) card.appendChild(takeaway(
+    "Every $1 of first-purchase revenue becomes ~$" + a.multiplier.toFixed(2) + " over the modeled lifetime — a campaign at " +
+    (goal / a.multiplier).toFixed(2) + " first-purchase ROAS is LTV-breakeven against the " + goal.toFixed(1) + " goal.",
+    a.multiplier >= 1.3 ? "good" : "warn"));
+  const mkTable = rows => {
+    const t = el("table");
+    const trh = el("tr");
+    ["", "Spend 30d", "New cust.", "CAC", "FT ROAS", "LTV ROAS", "Multiplier", "LTV/cust."].forEach((h, i) => {
+      const th = el("th", null, h); th.style.cursor = "default"; if (i === 0) th.style.textAlign = "left"; trh.appendChild(th);
+    });
+    t.appendChild(trh);
+    rows.forEach(r => {
+      const tr = el("tr");
+      const nt = el("td", "name"); nt.style.maxWidth = "260px"; nt.style.fontWeight = "600";
+      nt.textContent = r.label; nt.title = r.label; tr.appendChild(nt);
+      tr.appendChild(el("td", "num", fm$(r.spend)));
+      tr.appendChild(el("td", "num muted", String(r.ftx)));
+      tr.appendChild(el("td", "num", r.cac_ft ? fm$(r.cac_ft) : "–"));
+      const ft = el("td", "num roascell", fmR(r.ft_roas)); if (r.ft_roas != null) ft.appendChild(roasBar(r.ft_roas, goal)); tr.appendChild(ft);
+      const lt = el("td", "num roascell", fmR(r.ltv_roas));
+      if (r.ltv_roas != null) { lt.style.color = r.ltv_roas >= goal ? "var(--st-good)" : (r.ltv_roas < goal * 0.6 ? "var(--st-crit)" : "inherit"); lt.appendChild(roasBar(r.ltv_roas, goal)); }
+      tr.appendChild(lt);
+      const mc = el("td", "num");
+      if (r.multiplier) { const chip = el("span", "mult-chip", r.multiplier.toFixed(2) + "x"); mc.appendChild(chip); } else mc.textContent = "–";
+      tr.appendChild(mc);
+      tr.appendChild(el("td", "num muted", r.ltv_per_customer ? fm$(r.ltv_per_customer) : "–"));
+      t.appendChild(tr);
+    });
+    const sc = el("div", "tscroll"); sc.appendChild(t); return sc;
+  };
+  card.appendChild(mkTable(L.channels));
+  app.appendChild(card);
+
+  const card2 = el("div", "card");
+  card2.appendChild(el("h2", null, "LTV by campaign — 30 days, min $400 / 3 new customers"));
+  card2.appendChild(mkTable(L.campaigns));
+  app.appendChild(card2);
+
+  if (L.recommendations && L.recommendations.length) {
+    const gb = el("div", "card");
+    gb.appendChild(el("h2", null, "Recommendations"));
+    const ul = el("ul", "insights");
+    L.recommendations.forEach(t => { const li = el("li", "sev-info"); li.textContent = t; ul.appendChild(li); });
+    gb.appendChild(ul);
+    app.appendChild(gb);
+  }
+  const f = el("footer");
+  const ful = el("ul");
+  (L.notes || []).forEach(n => ful.appendChild(el("li", null, n)));
+  f.appendChild(ful);
+  app.appendChild(f);
 }
 
 /* ---------- verdict + takeaway helpers ---------- */
@@ -1180,7 +1367,7 @@ function testingMonitor() {
 
 function pageNav(cur) {
   const n = el("div", "pagenav");
-  [["cockpit", "Home", "index.html"], ["pacing", "Pacing", "pacing.html"],
+  [["cockpit", "Home", "index.html"], ["pacing", "Pacing", "pacing.html"], ["ltv", "LTV", "ltv.html"],
    ["performance", "Performance", "performance.html"], ["creative", "Creative", "creative.html"],
    ["testing", "Testing", "testing.html"], ["reference", "Reference", "reference.html"]
   ].forEach(([id, label, href]) => {
@@ -1272,7 +1459,7 @@ function render() {
   const app = document.getElementById("app");
   app.replaceChildren();
   const m = DATA.meta;
-  document.title = m.client + " — " + (PAGE === "cockpit" ? "Home" : PAGE[0].toUpperCase() + PAGE.slice(1));
+  document.title = m.client + " — " + (PAGE_TITLES[PAGE] || PAGE);
 
   /* header */
   app.appendChild(el("div", "wordmark", "Lower Cross — Media Performance"));
@@ -1299,6 +1486,7 @@ function render() {
   app.appendChild(hdr);
   app.appendChild(el("div", "brandline"));
   app.appendChild(pageNav(PAGE));
+  app.appendChild(pageHead());
   if (typeof PAGE !== "undefined" && PAGE === "cockpit") app.appendChild(verdictBanner());
 
   const ins = DATA.insights;
@@ -1510,7 +1698,16 @@ function render() {
   const tcard = el("div", "card");
   buildDetail(tcard);
   if (PAGE === "performance" || PAGE === "creative") app.appendChild(tcard);
-  if (PAGE === "cockpit") { app.appendChild(decideMini()); app.appendChild(navCards()); }
+  if (PAGE === "cockpit") {
+    const wrow = el("div", "wrow");
+    wrow.appendChild(goalGaugeCard(days));
+    wrow.appendChild(spendMixCard());
+    wrow.appendChild(calloutsCard());
+    app.appendChild(wrow);
+    app.appendChild(decideMini());
+    app.appendChild(navCards());
+  }
+  if (PAGE === "ltv") ltvPage(app);
 
   /* working / attention (weekly evidence) */
   const insWrap = el("div", "card");
