@@ -489,7 +489,8 @@ function renderTable(container) {
     proas: e => e.windows[W].p_roas ?? -1,
     hook: e => {
       const w = e.windows[W];
-      return (w.impressions || 0) >= 1000 && (w.video3s || 0) > 0
+      const isVideo = !/static|image|carousel/i.test(e.ad_name || "");
+      return isVideo && (w.impressions || 0) >= 1000 && (w.video3s || 0) >= 100
         ? w.video3s / w.impressions : -1;
     },
     delta: e => {
@@ -542,8 +543,10 @@ function renderTable(container) {
     tr.appendChild(el("td", "num muted", fmR(w.p_roas)));
     if (levelSel === "ad") {
       const imp = w.impressions || 0, v3 = w.video3s || 0;
-      const htd = el("td", "num muted", imp >= 1000 && v3 > 0 ? Math.round(v3 / imp * 100) + "%" : "–");
-      if (imp >= 5000 && v3 > 0) {
+      const isVideo = !/static|image|carousel/i.test(e.ad_name || "");
+      const show = isVideo && imp >= 1000 && v3 >= 100;
+      const htd = el("td", "num muted", show ? Math.round(v3 / imp * 100) + "%" : "–");
+      if (show && imp >= 5000) {
         const hr = v3 / imp;
         if (hr < 0.2) { htd.className = "num delta down"; }
         else if (hr >= 0.3) { htd.className = "num delta up"; }
