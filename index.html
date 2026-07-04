@@ -133,10 +133,10 @@ td.num { font-variant-numeric:tabular-nums; }
 
 /* insights */
 .insights { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px; }
-.insights ul { margin:0; padding-left:0; list-style:none; }
-.insights li { padding:7px 0 7px 22px; position:relative; border-bottom:1px solid var(--grid); font-size:13px; }
-.insights li:last-child { border-bottom:none; }
-.insights li::before {
+.insights ul, ul.insights { margin:0; padding-left:0; list-style:none; }
+.insights li, ul.insights li { padding:7px 0 7px 22px; position:relative; border-bottom:1px solid var(--grid); font-size:13px; }
+.insights li:last-child, ul.insights li:last-child { border-bottom:none; }
+.insights li::before, ul.insights li::before {
   content:""; position:absolute; left:4px; top:13px; width:8px; height:8px; border-radius:50%;
 }
 li.sev-good::before { background:var(--st-good); }
@@ -363,6 +363,7 @@ function trendChart(days) {
   const step = Math.ceil(n / 8);
   days.forEach((d, i) => {
     if (i % step !== 0 && i !== n - 1) return;
+    if (i !== n - 1 && x(n - 1) - x(i) < 34) return;  // avoid colliding with the last label
     const t = sv("text", {x:x(i), y:H - 4, "text-anchor":"middle", fill:"var(--ink-3)", "font-size":10.5});
     t.textContent = d.date.slice(5).replace("-", "/"); svg.appendChild(t);
   });
@@ -419,6 +420,7 @@ function statusBadge(e) {
   if (e.platform === "tiktok") return ["b-na", "TikTok — NB broken"];
   if (e.bucket === "tof") return ["b-na", "TOF"];
   if (e.bucket === "brand") return ["b-na", "Brand"];
+  if (e.bucket === "other") return ["b-na", "App / Amazon"];
   const w = e.windows[winSel === "L1" ? "L7" : winSel];   // judge on >= 7d always
   if (!w || (w.spend || 0) < 250 || w.roas7 == null) return ["b-na", "Low data"];
   if (w.roas7 >= goal * 1.2) return ["b-scale", "Scale ↑"];
@@ -526,6 +528,7 @@ function channelSummary() {
     "Google Brand":     e => e.platform === "google" && e.bucket === "brand",
     "Demand Gen (TOF)": e => e.bucket === "tof",
     "TikTok":           e => e.platform === "tiktok",
+    "App / Amazon (support)": e => e.bucket === "other",
   };
   const card = el("div", "card");
   card.appendChild(el("h2", null, "Channel allocation"));
@@ -563,7 +566,7 @@ function channelSummary() {
   }
   card.appendChild(table);
   const n = el("div", "maturity-note");
-  n.textContent = "TOF and Brand are excluded from core ROAS. TikTok NB attribution is currently broken (understates) — judge TikTok on model views / MER.";
+  n.textContent = "TOF, Brand, and App/Amazon support are excluded from core ROAS — they serve goals this metric doesn't measure. TikTok NB attribution is currently broken (understates) — judge TikTok on model views / MER.";
   card.appendChild(n);
   return card;
 }
