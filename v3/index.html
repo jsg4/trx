@@ -4,76 +4,89 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>TRX Dashboard</title>
+<title>TRX — Lower Cross</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Geist:wght@400;500;650&display=swap" rel="stylesheet">
 <style>
 :root {
-  --surface-1:#fcfcfb; --page:#f9f9f7;
-  --ink-1:#0b0b0b; --ink-2:#52514e; --ink-3:#898781;
-  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,0.10);
+  /* Lower Cross design system — light: ink on cream, white cards */
+  --lc-green:#123524; --lc-green-dark:#0F2A1D; --lc-lime:#DAFF00;
+  --surface-1:#FFFFFF; --page:#F8F6F4;
+  --ink-1:#0B1015; --ink-2:rgba(11,16,21,0.70); --ink-3:rgba(11,16,21,0.45);
+  --grid:rgba(11,16,21,0.08); --axis:rgba(11,16,21,0.28); --border:rgba(11,16,21,0.16);
   --s-meta:#2a78d6; --s-google:#eda100; --s-tiktok:#1baf7a; --s-other:#4a3aa7;
   --seq-250:#86b6ef;
   --st-good:#0ca30c; --st-warn:#fab219; --st-serious:#ec835a; --st-crit:#d03b3b;
-  --delta-good:#006300; --delta-bad:#d03b3b;
-  --wash:rgba(42,120,214,0.10);
-  --wash-bad:rgba(208,59,59,0.07); --wash-good:rgba(12,163,12,0.07); --wash-warn:rgba(250,178,25,0.09);
+  --delta-good:#0a5c22; --delta-bad:#d03b3b;
+  --wash:rgba(18,53,36,0.06);
+  --wash-bad:rgba(208,59,59,0.06); --wash-good:rgba(18,53,36,0.06); --wash-warn:rgba(250,178,25,0.10);
+  --accent:#DAFF00; --on-accent:#123524;
 }
 :root[data-theme="dark"] {
-  --surface-1:#1a1a19; --page:#0d0d0d;
-  --ink-1:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
-  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,0.10);
+  /* Lower Cross dark: white + lime on deep green */
+  --surface-1:#123524; --page:#0F2A1D;
+  --ink-1:#FFFFFF; --ink-2:rgba(255,255,255,0.72); --ink-3:rgba(255,255,255,0.45);
+  --grid:rgba(255,255,255,0.09); --axis:rgba(255,255,255,0.30); --border:rgba(255,255,255,0.16);
   --s-meta:#3987e5; --s-google:#c98500; --s-tiktok:#199e70; --s-other:#9085e9;
-  --seq-250:#1c5cab;
-  --delta-good:#0ca30c; --delta-bad:#e66767;
-  --wash:rgba(57,135,229,0.12);
-  --wash-bad:rgba(230,103,103,0.10); --wash-good:rgba(12,163,12,0.10); --wash-warn:rgba(250,178,25,0.10);
+  --seq-250:#5598e7;
+  --st-good:#2fbf4f; --st-warn:#fab219; --st-serious:#ec835a; --st-crit:#ff7a76;
+  --delta-good:#DAFF00; --delta-bad:#ff9b98;
+  --wash:rgba(218,255,0,0.08);
+  --wash-bad:rgba(255,122,118,0.12); --wash-good:rgba(218,255,0,0.08); --wash-warn:rgba(250,178,25,0.12);
+  --accent:#DAFF00; --on-accent:#123524;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --surface-1:#1a1a19; --page:#0d0d0d;
-    --ink-1:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
-    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,0.10);
+    --surface-1:#123524; --page:#0F2A1D;
+    --ink-1:#FFFFFF; --ink-2:rgba(255,255,255,0.72); --ink-3:rgba(255,255,255,0.45);
+    --grid:rgba(255,255,255,0.09); --axis:rgba(255,255,255,0.30); --border:rgba(255,255,255,0.16);
     --s-meta:#3987e5; --s-google:#c98500; --s-tiktok:#199e70; --s-other:#9085e9;
-    --seq-250:#1c5cab;
-    --delta-good:#0ca30c; --delta-bad:#e66767;
-    --wash:rgba(57,135,229,0.12);
-    --wash-bad:rgba(230,103,103,0.10); --wash-good:rgba(12,163,12,0.10); --wash-warn:rgba(250,178,25,0.10);
+    --seq-250:#5598e7;
+    --st-good:#2fbf4f; --st-warn:#fab219; --st-serious:#ec835a; --st-crit:#ff7a76;
+    --delta-good:#DAFF00; --delta-bad:#ff9b98;
+    --wash:rgba(218,255,0,0.08);
+    --wash-bad:rgba(255,122,118,0.12); --wash-good:rgba(218,255,0,0.08); --wash-warn:rgba(250,178,25,0.12);
+    --accent:#DAFF00; --on-accent:#123524;
   }
 }
 * { box-sizing:border-box; }
 html { -webkit-text-size-adjust:100%; }
 body {
   margin:0; background:var(--page); color:var(--ink-1);
-  font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font:14px/1.5 "Geist", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
 }
 .wrap { max-width:1240px; margin:0 auto; padding:20px 20px 60px; }
 .card {
   background:var(--surface-1); border:1px solid var(--border);
-  border-radius:10px; padding:16px 18px; margin-bottom:16px;
+  border-radius:24px; padding:20px 22px; margin-bottom:16px;
 }
-h1 { font-size:20px; margin:0; font-weight:650; }
-h2 { font-size:14px; margin:0 0 10px; font-weight:650; color:var(--ink-1); }
+h1 { font-family:"Space Grotesk", sans-serif; font-size:21px; margin:0; font-weight:700; letter-spacing:-0.02em; }
+h2 { font-family:"Space Grotesk", sans-serif; font-size:12px; margin:0 0 10px; font-weight:600; color:var(--ink-2); text-transform:uppercase; letter-spacing:0.06em; }
 .sub { color:var(--ink-2); font-size:12.5px; }
 .muted { color:var(--ink-3); }
 
 /* header */
-.hdr { display:flex; flex-wrap:wrap; align-items:baseline; gap:10px 16px; margin-bottom:14px; }
+.hdr { display:flex; flex-wrap:wrap; align-items:baseline; gap:10px 16px; margin-bottom:0; }
+.brandline { height:3px; background:var(--accent); border-radius:2px; margin:10px 0 16px; }
+.wordmark { font-family:"Space Grotesk", sans-serif; font-size:10px; letter-spacing:0.22em; color:var(--ink-3); text-transform:uppercase; font-weight:700; margin-bottom:2px; }
 .chip {
   display:inline-flex; align-items:center; gap:6px; padding:3px 10px;
-  border:1px solid var(--border); border-radius:999px; font-size:12px; color:var(--ink-2);
+  border:1px solid var(--border); border-radius:100px; font-size:12px; color:var(--ink-2);
   background:var(--surface-1);
 }
 .chip b { color:var(--ink-1); }
 .chip.stale { border-color:var(--st-crit); color:var(--st-crit); font-weight:650; }
 .spacer { flex:1; }
 button.ghost {
-  background:none; border:1px solid var(--border); border-radius:8px; color:var(--ink-2);
-  padding:4px 10px; font:inherit; font-size:12px; cursor:pointer;
+  background:none; border:1px solid var(--border); border-radius:100px; color:var(--ink-2);
+  padding:4px 12px; font:inherit; font-size:12px; cursor:pointer;
 }
 button.ghost:hover { color:var(--ink-1); }
 
 /* decide card */
 .decide { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
-.dcol { border:1px solid var(--border); border-radius:8px; padding:10px 12px; }
+.dcol { border:1px solid var(--border); border-radius:14px; padding:12px 14px; }
 .dcol h3 { margin:0 0 8px; font-size:12px; letter-spacing:0.4px; display:flex; align-items:center; gap:6px; }
 .dcol h3 .dot { width:9px; height:9px; border-radius:50%; }
 .d-now { background:var(--wash-bad); } .d-now h3 { color:var(--st-crit); } .d-now .dot { background:var(--st-crit); }
@@ -98,9 +111,9 @@ button.ghost:hover { color:var(--ink-1); }
 
 /* stat tiles */
 .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px,1fr)); gap:12px; margin-bottom:16px; }
-.tile { background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
-.tile .lbl { font-size:12px; color:var(--ink-2); margin-bottom:4px; }
-.tile .val { font-size:26px; font-weight:600; }
+.tile { background:var(--surface-1); border:1px solid var(--border); border-radius:20px; padding:16px 18px; }
+.tile .lbl { font-size:10.5px; color:var(--ink-3); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em; font-weight:600; }
+.tile .val { font-family:"Space Grotesk", sans-serif; font-size:27px; font-weight:700; letter-spacing:-0.02em; }
 .tile .delta { font-size:12px; margin-top:2px; }
 .delta.up { color:var(--delta-good); } .delta.down { color:var(--delta-bad); }
 .tile svg { display:block; margin-top:6px; }
@@ -157,7 +170,7 @@ td.guide { text-align:left; color:var(--ink-2); font-size:12px; white-space:norm
 
 /* section divider */
 .section-h { display:flex; align-items:baseline; gap:10px; margin:26px 0 12px; }
-.section-h h2 { font-size:16px; margin:0; }
+.section-h h2 { font-family:"Space Grotesk", sans-serif; font-size:15px; margin:0; letter-spacing:0.05em; }
 .section-h .sub { font-size:12px; }
 
 /* insights lists */
@@ -183,7 +196,7 @@ footer li { margin:3px 0; }
 
 /* filters */
 .filters { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:14px; }
-.seg { display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; background:var(--surface-1); }
+.seg { display:inline-flex; border:1px solid var(--border); border-radius:100px; overflow:hidden; background:var(--surface-1); }
 .seg button {
   background:none; border:none; padding:6px 14px; font:inherit; font-size:12.5px;
   color:var(--ink-2); cursor:pointer; border-right:1px solid var(--border);
@@ -192,7 +205,7 @@ footer li { margin:3px 0; }
 .seg button[aria-pressed="true"] { color:var(--ink-1); font-weight:650; background:var(--wash); }
 input.search {
   background:var(--surface-1); color:var(--ink-1); border:1px solid var(--border);
-  border-radius:8px; padding:6px 10px; font:inherit; font-size:12.5px; width:220px;
+  border-radius:100px; padding:6px 14px; font:inherit; font-size:12.5px; width:220px;
 }
 .maturity-note { font-size:11.5px; color:var(--ink-3); margin-top:4px; }
 
@@ -202,8 +215,8 @@ input.search {
   width:100%; padding:10px 12px; font:inherit; border:1px solid var(--border);
   border-radius:8px; background:var(--surface-1); color:var(--ink-1); margin:14px 0 10px;
 }
-#lock button { width:100%; padding:10px; font:inherit; font-weight:600; border:none; border-radius:8px;
-  background:var(--s-meta); color:#fff; cursor:pointer; }
+#lock button { width:100%; padding:11px; font:inherit; font-weight:650; border:none; border-radius:100px;
+  background:var(--accent); color:var(--on-accent); cursor:pointer; }
 #lock .err { color:var(--st-crit); font-size:12.5px; min-height:18px; }
 #app { display:none; }
 
@@ -232,6 +245,7 @@ input.search {
 <body>
 
 <div id="lock" class="card">
+  <div class="wordmark" style="text-align:center">Lower Cross</div>
   <h1>TRX Dashboard</h1>
   <p class="sub">Enter the team passphrase to unlock.</p>
   <input id="pw" type="password" placeholder="Passphrase" autocomplete="current-password">
@@ -749,6 +763,7 @@ function render() {
   document.title = m.client + " — Dashboard";
 
   /* header */
+  app.appendChild(el("div", "wordmark", "Lower Cross — Media Performance"));
   const hdr = el("div", "hdr");
   hdr.appendChild(el("h1", null, m.client));
   const gc = el("span", "chip"); gc.appendChild(document.createTextNode("Goal "));
@@ -770,6 +785,7 @@ function render() {
   });
   hdr.appendChild(th);
   app.appendChild(hdr);
+  app.appendChild(el("div", "brandline"));
 
   const ins = DATA.insights;
   const dec = ins.decide || {do_now: [], scale: [], watch: []};
