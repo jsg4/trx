@@ -768,6 +768,67 @@ function channelGuidance(label, roas, goal) {
   if (roas >= 1.5) return "Fix creative/bids first — no new budget.";
   return "Cut to winners before adding anything.";
 }
+/* ---------- change log (Monday) ---------- */
+function changeLog() {
+  const ch = DATA.changes;
+  const card = el("div", "card");
+  card.appendChild(el("h2", null, "Change log — what we did & how it read"));
+  const t = el("table");
+  const trh = el("tr");
+  ["Date", "Change", "Read since change"].forEach((h, i) => {
+    const th = el("th", null, h); th.style.cursor = "default";
+    if (i < 2) th.style.textAlign = "left";
+    trh.appendChild(th);
+  });
+  t.appendChild(trh);
+  ch.items.forEach(it => {
+    const tr = el("tr");
+    const td0 = el("td", "num muted", it.date.slice(5).replace("-", "/"));
+    td0.style.verticalAlign = "top";
+    tr.appendChild(td0);
+    const tdc = el("td");
+    tdc.style.textAlign = "left"; tdc.style.whiteSpace = "normal";
+    tdc.style.minWidth = "260px"; tdc.style.maxWidth = "520px";
+    const nm = el("div", null, it.name); nm.style.fontWeight = "600";
+    tdc.appendChild(nm);
+    const sub = [it.type, it.owner].filter(Boolean).join(" · ");
+    if (sub) { const s = el("div", "muted", sub); s.style.fontSize = "11px"; tdc.appendChild(s); }
+    if (it.notes) { const no = el("div", "muted", it.notes); no.style.fontSize = "12px"; tdc.appendChild(no); }
+    tr.appendChild(tdc);
+    const tdr = el("td");
+    tdr.style.whiteSpace = "normal"; tdr.style.minWidth = "220px"; tdr.style.verticalAlign = "top";
+    const m = it.match;
+    if (!m) {
+      tdr.appendChild(el("span", "muted", "—"));
+    } else {
+      const cn = el("div", "muted", m.campaign_name + " (" + m.platform + ")");
+      cn.style.fontSize = "11px"; tdr.appendChild(cn);
+      if (m.maturing || !m.post) {
+        tdr.appendChild(el("div", "muted",
+          (m.pre ? "was " + m.pre.roas.toFixed(2) + " NB ROAS · " : "") + "too early to read"));
+      } else {
+        const line = el("div");
+        line.appendChild(el("span", null, (m.pre ? m.pre.roas.toFixed(2) : "–") + " → "));
+        const pv = el("b", null, m.post.roas.toFixed(2));
+        if (m.pre) pv.style.color = m.post.roas >= m.pre.roas ? "var(--st-good)" : "var(--st-crit)";
+        line.appendChild(pv);
+        line.appendChild(el("span", "muted", " NB ROAS"));
+        tdr.appendChild(line);
+        tdr.appendChild(el("div", "muted",
+          (m.pre ? "$" + Math.round(m.pre.spend_day).toLocaleString() : "–") + " → $" +
+          Math.round(m.post.spend_day).toLocaleString() + " /day · " + m.post.days + "d read"));
+      }
+    }
+    tr.appendChild(tdr);
+    t.appendChild(tr);
+  });
+  const sc = el("div", "tscroll"); sc.appendChild(t); card.appendChild(sc);
+  const note = el("div", "maturity-note");
+  note.textContent = "Source: change log in Monday (TRX items marked Done). Reads are NB accrual over up to 7 days after the change — recent days always read low and firm up.";
+  card.appendChild(note);
+  return card;
+}
+
 function channelSummary() {
   const goal = DATA.meta.goal_roas;
   const groups = {
@@ -1650,6 +1711,8 @@ function render() {
 
   /* decide today — after the numbers, before allocation */
   if (PAGE === "performance") app.appendChild(dcard);
+  if (PAGE === "performance" && DATA.changes && DATA.changes.items && DATA.changes.items.length)
+    app.appendChild(changeLog());
 
   /* channel allocation */
   if (PAGE === "performance") app.appendChild(channelSummary());
