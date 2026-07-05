@@ -369,6 +369,35 @@ footer li { margin:3px 0; }
   .vfun { grid-template-columns:92px minmax(0,1fr) 132px; }
   .vfun .vlabs .vl b { font-size:17px; }
 }
+.funnelseg { font-size:var(--t-cap); }
+.funnelcard .vfun-body { clear:both; }
+.fscope { text-align:center; font-size:var(--t-cap); color:var(--ink-3); margin-top:var(--s3);
+  border:1px solid var(--border); border-radius:99px; padding:3px 12px; display:inline-block;
+  position:relative; left:50%; transform:translateX(-50%); }
+.dgctx { margin-top:var(--s3); padding:var(--s3); border-radius:var(--r-s); background:var(--wash);
+  border:1px solid var(--border); font-size:var(--t-sm); color:var(--ink-2); line-height:1.45; }
+.dgctx b { color:var(--ink-1); font-weight:650; }
+
+/* ---- global Demand Gen toggle: sidebar control + mode banner + tile chip ---- */
+.sb-ctl { display:grid; gap:6px; }
+.sb-ctl-l { font-size:var(--t-cap); letter-spacing:0.06em; text-transform:uppercase;
+  color:var(--bar-ink-2); font-weight:650; }
+.sb-seg { background:transparent; border-color:var(--bar-line); }
+.sb-seg button { color:var(--bar-ink-2); border-right-color:var(--bar-line); padding:6px 12px; font-size:var(--t-sm); }
+.sb-seg button:hover { color:var(--bar-ink); }
+.sb-seg button[aria-pressed="true"] { color:var(--on-accent); background:var(--lime); font-weight:650; }
+/* mode banner — shown only when DG is folded in */
+.dgmode { display:flex; align-items:center; gap:8px; margin:0 0 var(--s3);
+  padding:8px 12px; border-radius:var(--r-s); background:var(--wash);
+  border:1px solid var(--border); font-size:var(--t-sm); color:var(--ink-2); line-height:1.4; }
+.dgmode b { color:var(--ink-1); font-weight:650; }
+.dgmode-dot { width:8px; height:8px; border-radius:50%; background:var(--lime); flex:none;
+  outline:1px solid rgba(11,16,21,0.12); }
+/* "incl DG" chip on the headline ROAS tile */
+.dgchip { display:inline-flex; align-items:center; font-size:var(--t-cap); font-weight:650;
+  padding:1px 7px; border-radius:100px; background:var(--surface-2); color:var(--ink-2);
+  border:1px solid var(--border); text-transform:uppercase; letter-spacing:0.05em;
+  white-space:nowrap; flex:none; align-self:flex-start; }
 
 /* cockpit hero row: trends beside funnel, reference-style */
 .cockrow { display:grid; grid-template-columns:minmax(0,3fr) minmax(0,2fr); gap:var(--s4); margin-bottom:var(--s4); align-items:stretch; }
@@ -572,6 +601,8 @@ const PAGE = "reference";
 let winSel = "L7", platSel = PAGE === "creative" ? "meta" : "all",
     levelSel = PAGE === "creative" ? "ad" : "campaign";
 let sortCol = "spend", sortDir = -1, query = "", showZero = false, minRoasOn = false;
+// global Demand Gen (TOF) fold-in — persisted so it survives page nav (default: Excluded)
+let inclDG = localStorage.getItem("trx_incl_dg") === "1";
 const ROAS_FILTER = 1.75;  // testing graduation bar — "working" threshold
 const PLAT_COLOR = { meta:"var(--s-meta)", google:"var(--s-google)", tiktok:"var(--s-tiktok)" };
 const PLAT_LABEL = { meta:"Meta", google:"Google", tiktok:"TikTok" };
@@ -630,33 +661,88 @@ window.addEventListener("resize", () => {
 })();
 
 /* ---------- derived series ---------- */
+// Buckets are aggregated over ALL platforms (not tiktok-filtered) so that the
+// excl-DG rolling line reproduces the precomputed core numbers exactly, and the
+// incl-DG line folds Demand Gen (tof) in on NB Clicks + Modeled Views (mv_rev).
 function dailySeries() {
   const by = {};
   for (const c of DATA.levels.campaign) {
-    const judged = c.bucket !== "other" && c.platform !== "tiktok";
     for (const d of c.daily) {
-      const o = by[d.date] || (by[d.date] = {meta:0, google:0, tiktok:0, coreSpend:0, coreRev:0,
-                                             jSpend:0, ftx:0, nv:0, visits:0});
+      const o = by[d.date] || (by[d.date] = {meta:0, google:0, tiktok:0,
+                                             coreSpend:0, coreRev:0, tofSpend:0, tofMv:0,
+                                             cbSpend:0, cbFtx:0, cbNv:0, cbVis:0,
+                                             tofFtx:0, tofNv:0, tofVis:0});
       if (o[c.platform] != null) o[c.platform] += d.spend || 0;
       if (c.bucket === "core") { o.coreSpend += d.spend || 0; o.coreRev += d.rev7 || 0; }
-      if (judged) { o.jSpend += d.spend || 0; o.ftx += d.ftx || 0; o.nv += d.nv || 0; o.visits += d.visits || 0; }
+      if (c.bucket === "tof") {
+        o.tofSpend += d.spend || 0; o.tofMv += d.mv_rev || 0;
+        o.tofFtx += d.ftx || 0; o.tofNv += d.nv || 0; o.tofVis += d.visits || 0;
+      }
+      if (c.bucket === "core" || c.bucket === "brand") {
+        o.cbSpend += d.spend || 0; o.cbFtx += d.ftx || 0; o.cbNv += d.nv || 0; o.cbVis += d.visits || 0;
+      }
     }
   }
-  const days = Object.keys(by).sort().map(date => ({date, ...by[date],
-    roas: by[date].coreSpend > 0 ? by[date].coreRev / by[date].coreSpend : null}));
-  // spend-weighted 7-day rolling core ROAS — the line a buyer should read
-  // (+ rolling CAC and new-visitor share for the tile sparklines; per-day ftx is too noisy)
+  const days = Object.keys(by).sort().map(date => {
+    const o = by[date];
+    const rev = inclDG ? o.coreRev + o.tofMv : o.coreRev;
+    const sp = inclDG ? o.coreSpend + o.tofSpend : o.coreSpend;
+    return {date, ...o, roas: sp > 0 ? rev / sp : null};
+  });
+  // spend-weighted 7-day rolling ROAS — the line a buyer should read
+  // (+ rolling CAC and new-visitor share for the tile sparklines; per-day ftx is too noisy).
+  // excl: core only / core+brand. incl: folds in Demand Gen (tof) on modeled views.
   for (let i = 0; i < days.length; i++) {
-    let s = 0, r = 0, js = 0, fx = 0, nv = 0, vis = 0;
+    let cs = 0, cr = 0, ts = 0, tm = 0, cbs = 0, cbf = 0, cbn = 0, cbv = 0, tf = 0, tn = 0, tv = 0;
     for (let j = Math.max(0, i - 6); j <= i; j++) {
-      s += days[j].coreSpend; r += days[j].coreRev;
-      js += days[j].jSpend; fx += days[j].ftx; nv += days[j].nv; vis += days[j].visits;
+      cs += days[j].coreSpend; cr += days[j].coreRev;
+      ts += days[j].tofSpend; tm += days[j].tofMv;
+      cbs += days[j].cbSpend; cbf += days[j].cbFtx; cbn += days[j].cbNv; cbv += days[j].cbVis;
+      tf += days[j].tofFtx; tn += days[j].tofNv; tv += days[j].tofVis;
     }
-    days[i].roll = i >= 6 && s > 0 ? r / s : null;
-    days[i].cacRoll = i >= 6 && fx > 0 ? js / fx : null;
-    days[i].nvRoll = i >= 6 && vis > 0 ? nv / vis : null;
+    const rRev = inclDG ? cr + tm : cr, rSp = inclDG ? cs + ts : cs;
+    const caSp = inclDG ? cbs + ts : cbs, caFx = inclDG ? cbf + tf : cbf;
+    const nvN = inclDG ? cbn + tn : cbn, nvV = inclDG ? cbv + tv : cbv;
+    days[i].roll = i >= 6 && rSp > 0 ? rRev / rSp : null;
+    days[i].cacRoll = i >= 6 && caFx > 0 ? caSp / caFx : null;
+    days[i].nvRoll = i >= 6 && nvV > 0 ? nvN / nvV : null;
   }
   return days;
+}
+
+/* Demand Gen (TOF) global blend for the headline tiles + verdict. Reads inclDG.
+   Sums by bucket over ALL platforms — excl core ROAS == summary.core_roas_l7 and
+   incl CAC / new-visitor % reproduce the precomputed (tof-inclusive) values;
+   excl cleanly removes Demand Gen. DG revenue uses mv_rev (Clicks + Modeled
+   Views); DG first-time customers use deterministic ftx (MV gives revenue, not
+   customer counts). */
+function dgAgg(win) {
+  let coreRev = 0, coreSpend = 0, tofMv = 0, tofSpend = 0,
+      cbSpend = 0, cbFtx = 0, cbNv = 0, cbVis = 0, tofFtx = 0, tofNv = 0, tofVis = 0;
+  for (const c of DATA.levels.campaign) {
+    const w = c.windows[win];
+    if (!w) continue;
+    if (c.bucket === "core") { coreRev += w.rev7 || 0; coreSpend += w.spend || 0; }
+    if (c.bucket === "tof") {
+      tofMv += w.mv_rev || 0; tofSpend += w.spend || 0;
+      tofFtx += w.ftx || 0; tofNv += w.nv || 0; tofVis += w.visits || 0;
+    }
+    if (c.bucket === "core" || c.bucket === "brand") {
+      cbSpend += w.spend || 0; cbFtx += w.ftx || 0; cbNv += w.nv || 0; cbVis += w.visits || 0;
+    }
+  }
+  const rev = inclDG ? coreRev + tofMv : coreRev;
+  const spend = inclDG ? coreSpend + tofSpend : coreSpend;
+  const caSp = inclDG ? cbSpend + tofSpend : cbSpend;
+  const caFx = inclDG ? cbFtx + tofFtx : cbFtx;
+  const nvN = inclDG ? cbNv + tofNv : cbNv;
+  const nvV = inclDG ? cbVis + tofVis : cbVis;
+  return {
+    roas: spend > 0 ? rev / spend : null,
+    cac: caFx > 0 ? caSp / caFx : null,
+    ftx: caFx,
+    nvPct: nvV > 0 ? nvN / nvV : null,
+  };
 }
 
 /* ---------- svg helpers ---------- */
@@ -1437,7 +1523,7 @@ function goalTrackCard(days) {
   const last30 = days.map(d => d.roll).slice(-30);
   const known = last30.filter(v => v != null);
   const w = el("div", "widget");
-  w.appendChild(el("h3", null, "Goal track — rolling core NB ROAS, 30 days"));
+  w.appendChild(el("h3", null, "Goal track — rolling " + (inclDG ? "core + DG" : "core") + " NB ROAS, 30 days"));
   const track = el("div", "gtrack");
   const max = Math.max(goal * 1.25, ...known, 0.1);
   last30.forEach(v => {
@@ -1503,111 +1589,145 @@ function funnelAgg(plat, win) {
 function funnelCard() {
   const F = DATA.funnel;
   const card = el("div", "card funnelcard");
-  if (!F || !F.platforms) return card;                 /* hidden if no funnel data */
+  if (!F) return card;
   const src = F.source || "google";
-  const plat = F.platforms[src] || {};
-  const L7 = plat.L7 || {}, P7 = plat.P7 || {};
-  const stages = (F.stages || []).map(s => [s.label, +L7[s.key] || 0, +P7[s.key] || 0, s.key]);
-  if (!stages.length) return card;
+  /* scopes with back-compat: fall back to the old platforms.google shape */
+  const scopes = F.scopes || (F.platforms && F.platforms[src]
+    ? {excl_dg: {label: F.label, L7: F.platforms[src].L7, P7: F.platforms[src].P7}} : null);
+  if (!scopes) return card;
+  const scopeKeys = Object.keys(scopes);
+  // funnel follows the GLOBAL Demand Gen toggle (no local seg control)
+  const scope = inclDG && scopes.incl_dg ? "incl_dg"
+              : scopes.excl_dg ? "excl_dg"
+              : (F.default_scope && scopes[F.default_scope] ? F.default_scope : scopeKeys[0]);
+  const stagesDef = F.stages || [];
+  if (!stagesDef.length) return card;
+
+  const fm$ = v => "$" + Math.round(v).toLocaleString("en-US");
 
   const head = el("div", "chead");
-  if (F.label) head.appendChild(el("span", "srcpill", F.label));
   head.appendChild(el("div", "ct", "Funnel"));
-  head.appendChild(el("div", "cs", "Clicks to purchase — last 7 days vs prior 7"));
+  head.appendChild(el("div", "cs", "Clicks to purchase — last 7 days vs prior 7"
+    + (scope === "incl_dg" ? " · incl. Demand Gen" : "")));
   card.appendChild(head);
 
-  const L = stages.map(s => s[1]), P = stages.map(s => s[2]);
-  const conv = (arr, i) => arr[i] && arr[i + 1] != null ? arr[i + 1] / arr[i] : null;
+  const body = el("div", "vfun-body");
+  card.appendChild(body);
 
-  /* biggest week-over-week leak among step conversions */
-  let leak = null;
-  for (let i = 0; i < stages.length - 1; i++) {
-    const c = conv(L, i), p = conv(P, i);
-    if (c == null || !p) continue;
-    const rel = (c - p) / p;
-    if (rel < -0.10 && (!leak || rel < leak.rel)) leak = {i, rel};
-  }
-  card.appendChild(takeaway(leak
-    ? "Biggest WoW leak: " + stages[leak.i][0] + " → " + stages[leak.i + 1][0] + " down " +
-      Math.round(-leak.rel * 100) + "% vs prior 7 days."
-    : "No funnel step leaking week-over-week past 10%.",
-    leak ? (leak.rel < -0.25 ? "bad" : "warn") : "good"));
+  function rebuild() {
+    body.replaceChildren();
+    const sc = scopes[scope];
+    const L7 = sc.L7 || {}, P7 = sc.P7 || {};
+    const stages = stagesDef.map(s => [s.label, +L7[s.key] || 0, +P7[s.key] || 0, s.key]);
+    const L = stages.map(s => s[1]), P = stages.map(s => s[2]);
+    const conv = (arr, i) => arr[i] && arr[i + 1] != null ? arr[i + 1] / arr[i] : null;
 
-  /* vertical mirrored funnel, log-scaled half-widths (drops are large) */
-  const n = stages.length, ROWH = 74;
-  const VW = 300, VH = n * ROWH;
-  const cx = VW / 2, maxHW = VW / 2 - 8, floorHW = 11;
-  const pos = L.filter(v => v > 0);
-  const vmax = Math.max(...L, 1);
-  const vmin = Math.max(1, pos.length ? Math.min(...pos) : 1);
-  const hw = L.map(v => {
-    if (!v || vmax <= vmin) return floorHW;
-    const f = (Math.log(v) - Math.log(vmin)) / (Math.log(vmax) - Math.log(vmin));
-    return floorHW + f * (maxHW - floorHW);
-  });
-  const yc = i => i * ROWH + ROWH / 2;
-  const pts = [[hw[0], 0], ...hw.map((v, i) => [v, yc(i)]), [hw[n - 1], VH]];
-  let right = `M ${cx + pts[0][0]} ${pts[0][1]}`;
-  for (let i = 1; i < pts.length; i++) {
-    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], my = (y0 + y1) / 2;
-    right += ` C ${cx + x0} ${my}, ${cx + x1} ${my}, ${cx + x1} ${y1}`;
-  }
-  let left = "";
-  for (let i = pts.length - 1; i > 0; i--) {
-    const [x0, y0] = pts[i], [x1, y1] = pts[i - 1], my = (y0 + y1) / 2;
-    left += ` C ${cx - x0} ${my}, ${cx - x1} ${my}, ${cx - x1} ${y1}`;
-  }
-  const dPath = right + ` L ${cx - pts[pts.length - 1][0]} ${VH}` + left + " Z";
-
-  const grid = el("div", "vfun");
-  grid.style.setProperty("--vfrow", ROWH + "px");
-
-  const labs = el("div", "vlabs");
-  stages.forEach(([label, v, pv]) => {
-    const t = el("div", "vl");
-    t.appendChild(el("b", null, fmN(v)));
-    t.appendChild(document.createTextNode(label));
-    t.title = label + ": " + Math.round(v).toLocaleString("en-US") +
-      (pv ? " · prior 7d " + Math.round(pv).toLocaleString("en-US") : "");
-    labs.appendChild(t);
-  });
-  grid.appendChild(labs);
-
-  const svg = sv("svg", {viewBox: `0 0 ${VW} ${VH}`, preserveAspectRatio: "none", style: `height:${VH}px`});
-  const defs = sv("defs", {});
-  const lg = sv("linearGradient", {id: "vfgrad", x1: "0", y1: "0", x2: "0", y2: "1"});
-  lg.appendChild(sv("stop", {offset: "0%", "stop-color": "var(--fn-2)"}));
-  lg.appendChild(sv("stop", {offset: "55%", "stop-color": "var(--fn-4)"}));
-  lg.appendChild(sv("stop", {offset: "100%", "stop-color": "var(--fn-5)"}));
-  defs.appendChild(lg); svg.appendChild(defs);
-  svg.appendChild(sv("path", {d: dPath, fill: "url(#vfgrad)"}));
-  for (let i = 1; i < n; i++) {
-    const bw = Math.min(maxHW, (hw[i - 1] + hw[i]) / 2);
-    svg.appendChild(sv("line", {x1: cx - bw, x2: cx + bw, y1: i * ROWH, y2: i * ROWH,
-                                stroke: "var(--surface-1)", "stroke-width": 2}));
-  }
-  grid.appendChild(svg);
-
-  const drops = el("div", "vdrops");
-  for (let i = 0; i < n - 1; i++) {
-    const c = conv(L, i), p = conv(P, i);
-    const d0 = el("div", "vd0" + (leak && leak.i === i ? " leak" : ""));
-    const line1 = el("div");
-    line1.appendChild(el("b", null, c == null ? "–" : (c * 100).toFixed(c < 0.1 ? 1 : 0) + "%"));
-    line1.appendChild(document.createTextNode(" " + stages[i][0].toLowerCase() + " → " + stages[i + 1][0].toLowerCase()));
-    d0.appendChild(line1);
-    if (c != null && p) {
-      const rel = (c - p) / p, cls = Math.abs(rel) < 0.03 ? "flat" : rel > 0 ? "up" : "down";
-      const chip = el("span", "rchip " + cls,
-        (cls === "flat" ? "· flat" : (rel > 0 ? "▲ " : "▼ ") + Math.round(Math.abs(rel) * 100) + "%") + " WoW");
-      chip.title = "prior 7 days: " + (p * 100).toFixed(1) + "%";
-      d0.appendChild(chip);
+    /* biggest week-over-week leak among step conversions */
+    let leak = null;
+    for (let i = 0; i < stages.length - 1; i++) {
+      const c = conv(L, i), p = conv(P, i);
+      if (c == null || !p) continue;
+      const rel = (c - p) / p;
+      if (rel < -0.10 && (!leak || rel < leak.rel)) leak = {i, rel};
     }
-    drops.appendChild(d0);
+    body.appendChild(takeaway(leak
+      ? "Biggest WoW leak: " + stages[leak.i][0] + " → " + stages[leak.i + 1][0] + " down " +
+        Math.round(-leak.rel * 100) + "% vs prior 7 days."
+      : "No funnel step leaking week-over-week past 10%.",
+      leak ? (leak.rel < -0.25 ? "bad" : "warn") : "good"));
+
+    /* vertical mirrored funnel, log-scaled half-widths (drops are large) */
+    const n = stages.length, ROWH = 74;
+    const VW = 300, VH = n * ROWH;
+    const cx = VW / 2, maxHW = VW / 2 - 8, floorHW = 11;
+    const pos = L.filter(v => v > 0);
+    const vmax = Math.max(...L, 1);
+    const vmin = Math.max(1, pos.length ? Math.min(...pos) : 1);
+    const hw = L.map(v => {
+      if (!v || vmax <= vmin) return floorHW;
+      const f = (Math.log(v) - Math.log(vmin)) / (Math.log(vmax) - Math.log(vmin));
+      return floorHW + f * (maxHW - floorHW);
+    });
+    const yc = i => i * ROWH + ROWH / 2;
+    const pts = [[hw[0], 0], ...hw.map((v, i) => [v, yc(i)]), [hw[n - 1], VH]];
+    let right = `M ${cx + pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], my = (y0 + y1) / 2;
+      right += ` C ${cx + x0} ${my}, ${cx + x1} ${my}, ${cx + x1} ${y1}`;
+    }
+    let left = "";
+    for (let i = pts.length - 1; i > 0; i--) {
+      const [x0, y0] = pts[i], [x1, y1] = pts[i - 1], my = (y0 + y1) / 2;
+      left += ` C ${cx - x0} ${my}, ${cx - x1} ${my}, ${cx - x1} ${y1}`;
+    }
+    const dPath = right + ` L ${cx - pts[pts.length - 1][0]} ${VH}` + left + " Z";
+
+    const grid = el("div", "vfun");
+    grid.style.setProperty("--vfrow", ROWH + "px");
+    const labs = el("div", "vlabs");
+    stages.forEach(([label, v, pv]) => {
+      const t = el("div", "vl");
+      t.appendChild(el("b", null, fmN(v)));
+      t.appendChild(document.createTextNode(label));
+      t.title = label + ": " + Math.round(v).toLocaleString("en-US") +
+        (pv ? " · prior 7d " + Math.round(pv).toLocaleString("en-US") : "");
+      labs.appendChild(t);
+    });
+    grid.appendChild(labs);
+    const svg = sv("svg", {viewBox: `0 0 ${VW} ${VH}`, preserveAspectRatio: "none", style: `height:${VH}px`});
+    const defs = sv("defs", {});
+    const lg = sv("linearGradient", {id: "vfgrad", x1: "0", y1: "0", x2: "0", y2: "1"});
+    lg.appendChild(sv("stop", {offset: "0%", "stop-color": "var(--fn-2)"}));
+    lg.appendChild(sv("stop", {offset: "55%", "stop-color": "var(--fn-4)"}));
+    lg.appendChild(sv("stop", {offset: "100%", "stop-color": "var(--fn-5)"}));
+    defs.appendChild(lg); svg.appendChild(defs);
+    svg.appendChild(sv("path", {d: dPath, fill: "url(#vfgrad)"}));
+    for (let i = 1; i < n; i++) {
+      const bw = Math.min(maxHW, (hw[i - 1] + hw[i]) / 2);
+      svg.appendChild(sv("line", {x1: cx - bw, x2: cx + bw, y1: i * ROWH, y2: i * ROWH,
+                                  stroke: "var(--surface-1)", "stroke-width": 2}));
+    }
+    grid.appendChild(svg);
+    const drops = el("div", "vdrops");
+    for (let i = 0; i < n - 1; i++) {
+      const c = conv(L, i), p = conv(P, i);
+      const d0 = el("div", "vd0" + (leak && leak.i === i ? " leak" : ""));
+      const line1 = el("div");
+      line1.appendChild(el("b", null, c == null ? "–" : (c * 100).toFixed(c < 0.1 ? 1 : 0) + "%"));
+      line1.appendChild(document.createTextNode(" " + stages[i][0].toLowerCase() + " → " + stages[i + 1][0].toLowerCase()));
+      d0.appendChild(line1);
+      if (c != null && p) {
+        const rel = (c - p) / p, cls = Math.abs(rel) < 0.03 ? "flat" : rel > 0 ? "up" : "down";
+        const chip = el("span", "rchip " + cls,
+          (cls === "flat" ? "· flat" : (rel > 0 ? "▲ " : "▼ ") + Math.round(Math.abs(rel) * 100) + "%") + " WoW");
+        chip.title = "prior 7 days: " + (p * 100).toFixed(1) + "%";
+        d0.appendChild(chip);
+      }
+      drops.appendChild(d0);
+    }
+    grid.appendChild(drops);
+    body.appendChild(grid);
+
+    /* scope label pill */
+    if (sc.label) body.appendChild(el("div", "fscope", sc.label));
+
+    /* Demand Gen modeled-views context — only when DG is included */
+    if (scope === "incl_dg" && F.dg) {
+      const dg = F.dg;
+      const box = el("div", "dgctx");
+      const mv = dg.mv_roas_l7, det = dg.det_roas_l7;
+      const parts = [];
+      if (dg.spend_l7 != null) parts.push(fm$(dg.spend_l7) + " Demand Gen (TOF) spend L7");
+      if (mv != null) parts.push("NB Clicks + Modeled Views 7D ROAS " + Number(mv).toFixed(2));
+      if (det != null) parts.push("deterministic " + Number(det).toFixed(2) + " understates it");
+      box.appendChild(el("b", null, "Demand Gen is a modeled-views channel — "));
+      box.appendChild(document.createTextNode(parts.join(" · ") + "."));
+      body.appendChild(box);
+    }
+    if (F.note) body.appendChild(el("div", "fsub", F.note));
   }
-  grid.appendChild(drops);
-  card.appendChild(grid);
-  if (F.note) card.appendChild(el("div", "fsub", F.note));
+
+  rebuild();
   return card;
 }
 /* ---------- v11: data integrity ---------- */
@@ -1829,13 +1949,13 @@ function verdictBanner() {
   const m = DATA.meta, s = DATA.insights.summary, pac = DATA.insights.pacing || {};
   const dec = DATA.insights.decide || {do_now: [], scale: []};
   const goal = m.goal_roas;
-  const roas = s.core_roas_l7;
+  const roas = dgAgg("L7").roas;  // excl == summary.core_roas_l7; incl folds in Demand Gen
   const paceOff = pac.pace != null ? Math.abs(pac.pace - 1) : 0;
   let sev = "good";
   if ((roas != null && roas < goal * 0.75) || dec.do_now.length >= 3 || paceOff > 0.2) sev = "bad";
   else if ((roas != null && roas < goal) || dec.do_now.length >= 1 || paceOff > 0.1) sev = "warn";
   const bits = [];
-  if (roas != null) bits.push("core ROAS " + roas.toFixed(2) + " vs " + goal.toFixed(1) + " goal");
+  if (roas != null) bits.push((inclDG ? "core + DG ROAS " : "core ROAS ") + roas.toFixed(2) + " vs " + goal.toFixed(1) + " goal");
   if (pac.pace != null) bits.push("spend " + Math.round(pac.pace * 100) + "% of plan");
   if (dec.do_now.length) bits.push(dec.do_now.length + " campaign" + (dec.do_now.length > 1 ? "s" : "") + " need action today");
   const head = sev === "bad" ? "Action needed" : sev === "warn" ? "Off goal — fixable" : "On track";
@@ -2078,6 +2198,28 @@ function render() {
   const fresh = m.data_through >= yesterday;
   foot.appendChild(el("div", fresh ? null : "stale",
     (fresh ? "Data through " : "STALE — data through ") + m.data_through));
+  /* global Demand Gen fold-in — applies to the whole dashboard, persisted across pages */
+  const dgCtl = el("div", "sb-ctl");
+  const dgLabel = el("span", "sb-ctl-l");
+  dgLabel.append("Demand Gen");
+  dgCtl.appendChild(dgLabel);
+  const dgSeg = el("div", "seg sb-seg");
+  dgSeg.setAttribute("role", "group");
+  dgSeg.setAttribute("aria-label", "Demand Gen — include in performance metrics");
+  [["Excluded", false], ["Included", true]].forEach(([lbl, val]) => {
+    const b = el("button", null, lbl);
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(inclDG === val));
+    b.addEventListener("click", () => {
+      if (inclDG === val) return;
+      inclDG = val;
+      localStorage.setItem("trx_incl_dg", val ? "1" : "0");
+      render();
+    });
+    dgSeg.appendChild(b);
+  });
+  dgCtl.appendChild(dgSeg);
+  foot.appendChild(dgCtl);
   const th = el("button", "ghost", "Theme");
   th.addEventListener("click", () => {
     const r = document.documentElement;
@@ -2120,6 +2262,16 @@ function render() {
     app.appendChild(ts);
   }
   app.appendChild(pageHead());
+
+  /* global mode indicator — visible only when Demand Gen is folded in */
+  if (inclDG) {
+    const dgm = el("div", "dgmode");
+    dgm.appendChild(el("span", "dgmode-dot"));
+    dgm.appendChild(el("b", null, "Including Demand Gen"));
+    dgm.appendChild(document.createTextNode(
+      " — counted on NB Clicks + Modeled Views (7D). Toggle off in the sidebar for core-only numbers."));
+    app.appendChild(dgm);
+  }
 
   const ins = DATA.insights;
   const dec = ins.decide || {do_now: [], scale: [], watch: []};
@@ -2188,13 +2340,11 @@ function render() {
     return t;
   };
   const bandStatus = off => off == null ? "na" : Math.abs(off) <= 0.1 ? "good" : Math.abs(off) <= 0.2 ? "warn" : "bad";
-  const p7roas = (() => {
-    const c = DATA.levels.campaign.filter(x => x.bucket === "core");
-    const sp = c.reduce((a, x) => a + (x.windows.P7.spend || 0), 0);
-    const rv = c.reduce((a, x) => a + (x.windows.P7.rev7 || 0), 0);
-    return sp > 0 ? rv / sp : null;
-  })();
-  const coreRoas = s.core_roas_l7;
+  // headline blend (reads global inclDG): excl == precomputed core numbers,
+  // incl folds Demand Gen (tof) in on NB Clicks + Modeled Views
+  const aggL7 = dgAgg("L7"), aggP7 = dgAgg("P7");
+  const p7roas = aggP7.roas;
+  const coreRoas = aggL7.roas;
   let dTxt = null, dCls = null;
   if (coreRoas != null && p7roas) {
     const dd = (coreRoas - p7roas) / p7roas;
@@ -2209,10 +2359,15 @@ function render() {
     d.appendChild(sparkline(vals, 200, 34, goalLine));
     return d;
   };
-  const t1 = mk("Core NB ROAS", coreRoas == null ? "–" : coreRoas.toFixed(2), dTxt, dCls,
+  const t1 = mk(inclDG ? "Core + DG NB ROAS" : "Core NB ROAS", coreRoas == null ? "–" : coreRoas.toFixed(2), dTxt, dCls,
     spk(last14.map(d => d.roll), goal),
     coreRoas == null ? "na" : coreRoas >= goal ? "good" : coreRoas >= 1.5 ? "warn" : "bad");
   t1.querySelector(".val").style.color = coreRoas != null && coreRoas >= goal ? "var(--st-good)" : (coreRoas != null && coreRoas < 1.5 ? "var(--st-crit)" : "inherit");
+  if (inclDG) {
+    const chip = el("span", "dgchip", "incl DG");
+    chip.title = "Demand Gen folded in on NB Clicks + Modeled Views (7D)";
+    t1.querySelector(".tile-top").appendChild(chip);
+  }
   tiles.appendChild(t1);
   const ydayFromSheet = pacing && pacing.yday && pacing.yday.spend;
   if (ydayFromSheet) {
@@ -2255,19 +2410,26 @@ function render() {
       tiles.appendChild(t);
     }
   }
-  if (s.cac_new_l7 != null) {
-    const dd = s.cac_new_p7 ? (s.cac_new_l7 - s.cac_new_p7) / s.cac_new_p7 : null;
+  // New-customer CAC — core+brand spend/ftx (excl); +tof (incl). Client-side so
+  // excl-DG cleanly removes Demand Gen (the precomputed cac_new_l7 baked tof in).
+  const cacL7 = aggL7.cac, cacP7 = aggP7.cac;
+  if (cacL7 != null) {
+    const dd = cacP7 ? (cacL7 - cacP7) / cacP7 : null;
     // lower CAC is better: arrow shows direction, color shows goodness
-    tiles.appendChild(mk("New-customer CAC", fm$(s.cac_new_l7),
+    const cacTile = mk("New-customer CAC", fm$(cacL7),
       (dd == null ? "" : (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs prior 7d · ")
-        + (s.new_txns_l7 || 0) + " new customers (NB paid, ex-App/Amazon)",
+        + Math.round(aggL7.ftx) + " new customers (NB paid, core+brand" + (inclDG ? "+DG" : "") + ", ex-App/Amazon)",
       dd == null ? null : (dd <= 0 ? "up" : "down"),
-      spk(last14.map(d => d.cacRoll)), dd == null ? "na" : dd <= 0 ? "good" : dd <= 0.15 ? "warn" : "bad"));
+      spk(last14.map(d => d.cacRoll)), dd == null ? "na" : dd <= 0 ? "good" : dd <= 0.15 ? "warn" : "bad");
+    if (inclDG) cacTile.title = "Demand Gen first-time customers are counted on Northbeam deterministic ftx — Modeled Views gives revenue, not customer counts.";
+    tiles.appendChild(cacTile);
   }
-  if (s.new_visit_pct_l7 != null) {
-    const dpp = s.new_visit_pct_p7 != null ? (s.new_visit_pct_l7 - s.new_visit_pct_p7) * 100 : null;
-    tiles.appendChild(mk("New visitor %", Math.round(s.new_visit_pct_l7 * 100) + "%",
-      dpp == null ? "share of NB paid visits" : (dpp >= 0 ? "+" : "") + dpp.toFixed(1) + "pp vs prior 7d",
+  const nvL7 = aggL7.nvPct, nvP7 = aggP7.nvPct;
+  if (nvL7 != null) {
+    const dpp = nvP7 != null ? (nvL7 - nvP7) * 100 : null;
+    tiles.appendChild(mk("New visitor %", Math.round(nvL7 * 100) + "%",
+      (dpp == null ? "share of NB paid visits" : (dpp >= 0 ? "+" : "") + dpp.toFixed(1) + "pp vs prior 7d")
+        + (inclDG ? " · core+brand+DG" : ""),
       dpp == null ? null : (dpp >= 0 ? "up" : "down"),
       spk(last14.map(d => d.nvRoll)), dpp == null ? "na" : dpp >= 0 ? "good" : dpp > -3 ? "warn" : "bad"));
   }
