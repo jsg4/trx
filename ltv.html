@@ -259,6 +259,8 @@ td.guide { text-align:left; color:var(--ink-2); font-size:var(--t-sm); white-spa
 .b-na .dot { background:var(--ink-3); }
 .roascell { font-weight:650; }
 .tscroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+tr.chg-hidden { display:none; }
+.chg-more { background:none; border:none; padding:var(--s2) 0 0; font:inherit; font-size:var(--t-sm); font-weight:650; color:var(--ink-1); cursor:pointer; }
 
 /* ---- section divider --------------------------------------------------- */
 .section-h { display:flex; align-items:baseline; gap:10px; margin:var(--s6) 0 var(--s3); }
@@ -860,8 +862,9 @@ function changeLog() {
     trh.appendChild(th);
   });
   t.appendChild(trh);
-  ch.items.forEach(it => {
-    const tr = el("tr");
+  const CHG_VISIBLE = 8;
+  ch.items.forEach((it, idx) => {
+    const tr = el("tr", idx >= CHG_VISIBLE ? "chg-hidden" : null);
     const td0 = el("td", "num muted", it.date.slice(5).replace("-", "/"));
     td0.style.verticalAlign = "top";
     tr.appendChild(td0);
@@ -902,6 +905,21 @@ function changeLog() {
     t.appendChild(tr);
   });
   const sc = el("div", "tscroll"); sc.appendChild(t); card.appendChild(sc);
+  if (ch.items.length > CHG_VISIBLE) {
+    const more = el("button", "chg-more");
+    let open = false;
+    const setLabel = () => { more.textContent = open
+      ? "Show fewer \u2191"
+      : "Show all " + ch.items.length + " changes \u2193"; };
+    setLabel();
+    more.addEventListener("click", () => {
+      open = !open;
+      t.querySelectorAll("tr.chg-hidden, tr.chg-open").forEach(r =>
+        r.className = open ? "chg-open" : "chg-hidden");
+      setLabel();
+    });
+    card.appendChild(more);
+  }
   const note = el("div", "maturity-note");
   note.textContent = "Source: change log in Monday (TRX items marked Done). Reads are NB accrual over up to 7 days after the change — recent days always read low and firm up.";
   card.appendChild(note);
