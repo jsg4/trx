@@ -87,26 +87,66 @@ h2 { font-family:var(--f-ui); font-size:var(--t-cap); margin:0 0 var(--s3); font
 
 .card { background:var(--surface-1); border:1px solid var(--border); border-radius:var(--r); padding:var(--s4) var(--s4); margin-bottom:var(--s4); box-shadow:var(--shadow); }
 
-/* ---- command bar (signature: pine strip carries brand, nav, verdict) -- */
-.cmdbar { background:var(--pine); color:var(--bar-ink); border-radius:var(--r); padding:var(--s3) var(--s4) 0; margin-bottom:var(--s4); box-shadow:var(--shadow); }
-.cmdbar .brandrow { display:flex; align-items:baseline; gap:var(--s3); flex-wrap:wrap; }
-.cmdbar .wordmark { font-family:var(--f-display); font-size:10px; letter-spacing:0.22em; text-transform:uppercase; font-weight:700; color:var(--lime); }
-.cmdbar h1 { color:var(--bar-ink); font-size:17px; }
-.cmdbar .meta { display:flex; align-items:baseline; gap:var(--s2); flex-wrap:wrap; font-size:var(--t-sm); color:var(--bar-ink-2); }
-.cmdbar .meta b { color:var(--bar-ink); font-weight:600; }
-.cmdbar .meta .sep { opacity:0.4; }
-.cmdbar .meta .stale { color:var(--bar-crit); font-weight:650; }
-.cmdbar .spacer { flex:1; }
-.cmdbar button.ghost { background:none; border:1px solid var(--bar-line); border-radius:var(--r-s); color:var(--bar-ink-2); padding:5px 12px; font:inherit; font-size:var(--t-sm); cursor:pointer; }
-.cmdbar button.ghost:hover { color:var(--bar-ink); border-color:var(--bar-ink-2); }
-.cmdbar :focus-visible { outline-color:var(--lime); }
-/* nav tabs live inside the bar */
-.pagenav { display:flex; gap:var(--s1); margin-top:var(--s2); overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
-.pagenav a { padding:10px 14px 12px; font-family:var(--f-ui); font-size:13px; font-weight:500; color:var(--bar-ink-2); text-decoration:none; border-bottom:2px solid transparent; white-space:nowrap; }
-.pagenav a:hover { color:var(--bar-ink); }
-.pagenav a.on { color:var(--lime); border-bottom-color:var(--lime); font-weight:650; }
-/* verdict strip — cockpit only, bottom row of the bar */
-.verdict { display:flex; align-items:baseline; gap:var(--s2); border-top:1px solid var(--bar-line); padding:var(--s3) 0; margin:var(--s2) 0 0; font-size:var(--t-body); color:var(--bar-ink); flex-wrap:wrap; }
+/* ---- sidebar (signature: pine rail carries brand + nav) ---------------- */
+:root { --sbw:224px; --mbh:52px; }
+.sidebar { position:fixed; top:0; bottom:0; left:0; width:var(--sbw); z-index:40;
+  background:var(--pine); color:var(--bar-ink); display:flex; flex-direction:column;
+  padding:var(--s5) var(--s4) var(--s4); overflow-y:auto; }
+.sb-brand .wordmark { color:var(--lime); }
+.sb-brand h1 { color:var(--bar-ink); font-size:17px; margin-top:var(--s1); }
+.sb-nav { display:flex; flex-direction:column; gap:2px; margin-top:var(--s5); }
+.sb-nav a { display:flex; align-items:center; gap:10px; padding:9px 10px;
+  border-radius:var(--r-s); font-size:13.5px; font-weight:500; color:var(--bar-ink-2);
+  text-decoration:none; border-left:3px solid transparent; }
+.sb-nav a .nic { display:flex; flex:none; opacity:0.7; }
+.sb-nav a:hover { color:var(--bar-ink); background:rgba(244,246,241,0.06); }
+.sb-nav a.on { color:var(--lime); border-left-color:var(--lime); font-weight:650; background:rgba(218,255,0,0.07); }
+.sb-nav a.on .nic { opacity:1; }
+.sb-foot { margin-top:auto; padding-top:var(--s4); border-top:1px solid var(--bar-line);
+  font-size:var(--t-sm); color:var(--bar-ink-2); display:grid; gap:6px; }
+.sb-foot b { color:var(--bar-ink); font-weight:600; }
+.sb-foot .attr { font-size:var(--t-cap); }
+.sb-foot .stale { color:var(--bar-crit); font-weight:650; }
+.sb-foot button.ghost { border-color:var(--bar-line); color:var(--bar-ink-2); justify-self:start; }
+.sb-foot button.ghost:hover { color:var(--bar-ink); border-color:var(--bar-ink-2); }
+.sidebar :focus-visible { outline-color:var(--lime); }
+:root.shell body { padding-left:var(--sbw); }
+
+/* mobile top bar + hamburger (hidden on desktop) */
+.mobilebar { display:none; position:fixed; top:0; left:0; right:0; height:var(--mbh); z-index:45;
+  background:var(--pine); color:var(--bar-ink); align-items:center; gap:var(--s2); padding:0 var(--s2); }
+.mobilebar .wordmark { color:var(--lime); }
+.mobilebar .mb-client { font-family:var(--f-display); font-weight:700; font-size:14px; }
+.hamb { width:44px; height:44px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:none; border:none; cursor:pointer; padding:0; }
+.hamb span { display:block; width:20px; height:2px; background:var(--lime); border-radius:2px; margin:2.5px 0;
+  transition:transform .3s cubic-bezier(0.34,1.56,0.64,1), opacity .2s ease; }
+:root.nav-open .hamb span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+:root.nav-open .hamb span:nth-child(2) { opacity:0; transform:scaleX(0.4); }
+:root.nav-open .hamb span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+.scrim { position:fixed; inset:0; z-index:39; background:rgba(10,20,14,0.5); opacity:0;
+  pointer-events:none; transition:opacity .3s ease; }
+:root.nav-open .scrim { opacity:1; pointer-events:auto; }
+
+@media (max-width:1023px) {
+  :root.shell body { padding-left:0; padding-top:calc(var(--mbh) + var(--s2)); }
+  .mobilebar { display:flex; }
+  .sidebar { width:min(300px, 84vw); transform:translateX(-105%); box-shadow:0 0 44px rgba(0,0,0,0.35);
+    transition:transform .38s cubic-bezier(0.34,1.56,0.64,1); padding-top:calc(var(--mbh) + var(--s3)); }
+  /* the persistent top bar already carries the brand — no duplicate in the drawer */
+  .sidebar .sb-brand { display:none; }
+  .sb-nav { margin-top:0; }
+  :root.nav-open .sidebar { transform:none; }
+  /* whimsy: nav items spring in one after another as the drawer opens */
+  .sb-nav a { opacity:0; transform:translateX(-14px);
+    transition:opacity .22s ease, transform .32s cubic-bezier(0.34,1.56,0.64,1); }
+  :root.nav-open .sb-nav a { opacity:1; transform:none; transition-delay:calc(40ms * var(--i, 0)); }
+  :root.nav-open, :root.nav-open body { overflow:hidden; }
+}
+
+/* verdict strip — cockpit, pine strip at the top of the content column */
+.topstrip { background:var(--pine); border-radius:var(--r); padding:var(--s3) var(--s4); margin-bottom:var(--s4); box-shadow:var(--shadow); }
+.verdict { display:flex; align-items:baseline; gap:var(--s2); font-size:var(--t-body); color:var(--bar-ink); flex-wrap:wrap; }
 .verdict .vdot { width:9px; height:9px; border-radius:50%; flex:none; align-self:center; }
 .verdict.v-good .vdot { background:var(--bar-good); }
 .verdict.v-warn .vdot { background:var(--bar-warn); }
@@ -120,9 +160,10 @@ h2 { font-family:var(--f-ui); font-size:var(--t-cap); margin:0 0 var(--s3); font
 .verdict a { color:var(--lime); text-decoration:none; font-weight:600; }
 .verdict a:hover { text-decoration:underline; }
 
-/* page title under the bar */
-.pagehead { margin:var(--s5) 0 var(--s3); }
+/* page title */
+.pagehead { margin:var(--s2) 0 var(--s3); display:flex; align-items:baseline; gap:var(--s3); flex-wrap:wrap; }
 .pagehead .ptitle { font-family:var(--f-display); font-size:var(--t-title); font-weight:700; letter-spacing:-0.02em; }
+.pagehead .pctx { margin-left:auto; font-size:var(--t-sm); color:var(--ink-3); font-variant-numeric:tabular-nums; }
 
 /* legacy header pieces (lock screen wordmark) */
 .wordmark { font-family:var(--f-display); font-size:10px; letter-spacing:0.22em; color:var(--ink-3); text-transform:uppercase; font-weight:700; }
@@ -156,7 +197,7 @@ button.ghost:hover { color:var(--ink-1); }
 .dkid .kv { margin-left:auto; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-1); }
 
 /* ---- stat tiles: one anatomy — label / value / delta chip ------------- */
-.tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px,1fr)); gap:var(--s3); margin-bottom:var(--s4); }
+.tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(158px,1fr)); gap:var(--s3); margin-bottom:var(--s4); }
 .tile { position:relative; background:var(--surface-1); border:1px solid var(--border); border-radius:var(--r); padding:var(--s4); box-shadow:var(--shadow); }
 .tile .lbl { font-size:var(--t-cap); color:var(--ink-3); margin-bottom:var(--s2); text-transform:uppercase; letter-spacing:0.08em; font-weight:650; line-height:1.45; min-height:calc(2 * 1.45em); }
 .tile .val { font-family:var(--f-display); font-size:var(--t-kpi); font-weight:700; letter-spacing:-0.02em; line-height:1.1; font-variant-numeric:tabular-nums; }
@@ -243,10 +284,12 @@ footer li { margin:3px 0; }
 .mixlegend .sw { width:9px; height:9px; border-radius:3px; flex:none; }
 .mixlegend .v { margin-left:auto; font-variant-numeric:tabular-nums; color:var(--ink-1); font-weight:600; }
 /* goal track: 30 daily bars vs goal */
-.gtrack { display:flex; align-items:flex-end; gap:2px; height:44px; margin-top:var(--s1); }
+.gtrack { display:flex; align-items:flex-end; gap:2px; height:44px; margin-top:var(--s1); position:relative; }
+.gtrack .gline { position:absolute; left:0; right:0; border-top:1.5px dashed var(--axis); pointer-events:none; }
 .gtrack i { flex:1; min-width:2px; border-radius:2px 2px 0 0; background:var(--grid); }
 .gtrack i.above { background:var(--st-good); }
-.gtrack i.below { background:var(--wash-bad); background:color-mix(in srgb, var(--st-crit) 45%, transparent); }
+.gtrack i.below { background:var(--grid); }
+.gtrack i.below.recent { background:color-mix(in srgb, var(--st-warn) 35%, transparent); }
 .gtrack-cap { font-size:var(--t-sm); color:var(--ink-2); margin-top:var(--s2); }
 .gtrack-cap b { color:var(--ink-1); font-variant-numeric:tabular-nums; }
 .callout { display:flex; gap:9px; padding:var(--s2) 0; border-bottom:1px solid var(--grid); font-size:13px; align-items:baseline; }
@@ -335,13 +378,6 @@ input.search { background:var(--surface-1); color:var(--ink-1); border:1px solid
   .wrap { padding:var(--s3) max(12px, env(safe-area-inset-right)) var(--s7) max(12px, env(safe-area-inset-left)); }
   input.search, #lock input { font-size:16px; }
   .card { padding:var(--s3); border-radius:var(--r-s); }
-  .cmdbar { padding:var(--s3) var(--s3) 0; border-radius:var(--r-s); }
-  .cmdbar h1 { font-size:15px; }
-  .cmdbar .meta { font-size:var(--t-cap); }
-  /* attribution detail lives on the Reference page; keep the bar one line on phones */
-  .cmdbar .meta .attr, .cmdbar .meta .sep { display:none; }
-  .cmdbar .meta { gap:2px 12px; }
-  .pagenav a { padding:8px 10px 10px; font-size:var(--t-sm); }
   .pagehead { margin:var(--s4) 0 var(--s2); }
   .tiles { grid-template-columns:repeat(2, 1fr); gap:var(--s2); }
   .tile { padding:var(--s3); }
@@ -680,7 +716,10 @@ function renderTable(container) {
   const preRoas = rows.length;
   if (minRoasOn) rows = rows.filter(e => {
     const w = e.windows[W === "L1" ? "L7" : W];
-    return w && w.roas7 != null && w.roas7 >= ROAS_FILTER;
+    if (!w) return false;
+    /* judge each row on its own model: DG (tof) on modeled views, rest on deterministic */
+    const r = e.bucket === "tof" && w.mv_roas != null ? w.mv_roas : w.roas7;
+    return r != null && r >= ROAS_FILTER;
   });
   const roasHidden = preRoas - rows.length;
   const get = {
@@ -742,6 +781,13 @@ function renderTable(container) {
     if (w.roas7 != null && (w.spend || 0) >= 100 && e.bucket === "core" && e.platform !== "tiktok") {
       rc.style.color = w.roas7 >= goal ? "var(--st-good)" : (w.roas7 >= 1.5 ? "inherit" : "var(--st-crit)");
       rc.appendChild(roasBar(w.roas7, goal));
+    }
+    if (e.bucket === "tof" && w.mv_roas != null) {
+      /* DG is judged on Clicks + Modeled Views — deterministic undercounts it */
+      const mv = el("span", "mult-chip", "MV " + w.mv_roas.toFixed(2));
+      mv.style.marginLeft = "7px";
+      mv.title = "Clicks + Modeled Views — the model Demand Gen is judged on. The main number is the deterministic read (comparable across the table).";
+      rc.appendChild(mv);
     }
     tr.appendChild(rc);
     tr.appendChild(el("td", "num", fm$(w.rev7 || 0)));
@@ -883,7 +929,9 @@ function channelSummary() {
       const r = g.reduce((a, c) => a + (c.windows[w].rev7 || 0), 0);
       const pv = g.reduce((a, c) => a + (c.windows[w].p_value || 0), 0);
       const ps = g.reduce((a, c) => a + (c.windows[w].p_spend || 0), 0);
-      return {s, roas: s > 0 ? r / s : null, proas: ps > 0 ? pv / ps : null};
+      const mvr = g.reduce((a, c) => a + (c.windows[w].mv_rev || 0), 0);
+      return {s, roas: s > 0 ? r / s : null, proas: ps > 0 ? pv / ps : null,
+              mv: s > 0 && mvr > 0 ? mvr / s : null};
     };
     const l7 = agg("L7"), p7 = agg("P7"), l14 = agg("L14");
     rowsAgg.push({label, roas: l7.roas, s: l7.s});
@@ -893,6 +941,12 @@ function channelSummary() {
     tr.appendChild(el("td", "num muted", totalL7 ? Math.round(l7.s / totalL7 * 100) + "%" : "–"));
     const rcell = el("td", "num roascell", fmR(l7.roas));
     if (label.includes("core") && l7.roas != null) rcell.appendChild(roasBar(l7.roas, goal));
+    if (label.includes("TOF") && l7.mv != null) {
+      const mv = el("span", "mult-chip", "MV " + l7.mv.toFixed(2));
+      mv.style.marginLeft = "7px";
+      mv.title = "Clicks + Modeled Views — the model Demand Gen is judged on.";
+      rcell.appendChild(mv);
+    }
     tr.appendChild(rcell);
     const d = (l7.roas != null && p7.roas) ? (l7.roas - p7.roas) / p7.roas : null;
     const dtd = el("td", "num", d == null ? "–" : (d > 0 ? "+" : "") + Math.round(d * 100) + "%");
@@ -1173,6 +1227,8 @@ const PAGE_TITLES = {cockpit: "Daily cockpit", pacing: "Pacing & trend", perform
 function pageHead() {
   const d = el("div", "pagehead");
   d.appendChild(el("div", "ptitle", PAGE_TITLES[PAGE] || ""));
+  d.appendChild(el("div", "pctx", "Data through " + DATA.meta.data_through +
+    " · NB 7-day accrual — recent days still maturing"));
   return d;
 }
 function spendMixCard() {
@@ -1217,6 +1273,10 @@ function goalTrackCard(days) {
     } else bar.style.height = "8%";
     track.appendChild(bar);
   });
+  const gl = el("span", "gline");
+  gl.style.bottom = (goal / max * 100) + "%";
+  gl.title = "Goal " + goal.toFixed(1);
+  track.appendChild(gl);
   w.appendChild(track);
   const above = known.filter(v => v >= goal).length;
   const cap = el("div", "gtrack-cap");
@@ -1469,15 +1529,29 @@ function testingMonitor() {
   return card;
 }
 
+/* 16px geometric line icons, currentColor strokes */
+const NAV_ICONS = {
+  cockpit: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5 8 2.5l5.5 5v5.5a1 1 0 0 1-1 1H9.5V10h-3v4H3.5a1 1 0 0 1-1-1z"/></svg>',
+  pacing: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 13.5h12M3.5 10.5 7 7l2.5 2.5 4-4.5"/><path d="M10.5 5h3v3"/></svg>',
+  ltv: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><ellipse cx="8" cy="4" rx="5" ry="2"/><path d="M3 4v4c0 1.1 2.2 2 5 2s5-.9 5-2V4"/><path d="M3 8v4c0 1.1 2.2 2 5 2s5-.9 5-2V8"/></svg>',
+  performance: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="3"/><circle cx="8" cy="8" r="0.5" fill="currentColor"/></svg>',
+  creative: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5c.4 2.7 1.4 3.9 4 4.5-2.6.6-3.6 1.8-4 4.5-.4-2.7-1.4-3.9-4-4.5 2.6-.6 3.6-1.8 4-4.5z"/><path d="M12.8 10.2c.2 1.3.7 1.9 2 2.2-1.3.3-1.8.9-2 2.2-.2-1.3-.7-1.9-2-2.2 1.3-.3 1.8-.9 2-2.2z"/></svg>',
+  testing: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h4M6.8 2v4.2L3 12.5a1.2 1.2 0 0 0 1 1.9h8a1.2 1.2 0 0 0 1-1.9L9.2 6.2V2"/><path d="M5 10h6"/></svg>',
+  reference: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 3A1.5 1.5 0 0 1 4 1.5h9.5v11H4A1.5 1.5 0 0 0 2.5 14z"/><path d="M2.5 12.5A1.5 1.5 0 0 1 4 11h9.5"/></svg>',
+};
 function pageNav(cur) {
-  const n = el("div", "pagenav");
+  const n = el("nav", "sb-nav");
   [["cockpit", "Home", "index.html"], ["pacing", "Pacing", "pacing.html"], ["ltv", "LTV", "ltv.html"],
    ["performance", "Performance", "performance.html"], ["creative", "Creative", "creative.html"],
    ["testing", "Testing", "testing.html"], ["reference", "Reference", "reference.html"]
-  ].forEach(([id, label, href]) => {
+  ].forEach(([id, label, href], i) => {
     const a = document.createElement("a");
-    a.textContent = label; a.href = href;
-    if (id === cur) a.className = "on";
+    a.href = href;
+    a.style.setProperty("--i", i);
+    const ic = el("span", "nic"); ic.innerHTML = NAV_ICONS[id] || "";
+    a.appendChild(ic);
+    a.appendChild(document.createTextNode(label));
+    if (id === cur) { a.className = "on"; a.setAttribute("aria-current", "page"); }
     n.appendChild(a);
   });
   return n;
@@ -1565,26 +1639,24 @@ function render() {
   const m = DATA.meta;
   document.title = m.client + " — " + (PAGE_TITLES[PAGE] || PAGE);
 
-  /* command bar: brand + meta + nav, verdict strip on the cockpit */
-  const bar = el("div", "cmdbar");
-  const brow = el("div", "brandrow");
-  brow.appendChild(el("span", "wordmark", "Lower Cross"));
-  brow.appendChild(el("h1", null, m.client));
-  const meta = el("span", "meta");
-  const addMeta = node => {
-    if (meta.childNodes.length) meta.appendChild(el("span", "sep", "·"));
-    meta.appendChild(node);
-  };
-  const gc = el("span"); gc.appendChild(document.createTextNode("Goal "));
+  /* shell: pine sidebar carries brand + nav; drawer behind a hamburger on mobile */
+  document.documentElement.classList.add("shell");
+  const sb = el("aside", "sidebar");
+  const brand = el("div", "sb-brand");
+  brand.appendChild(el("span", "wordmark", "Lower Cross"));
+  brand.appendChild(el("h1", null, m.client));
+  sb.appendChild(brand);
+  sb.appendChild(pageNav(PAGE));
+  const foot = el("div", "sb-foot");
+  const gc = el("div"); gc.appendChild(document.createTextNode("Goal "));
   gc.appendChild(el("b", null, m.goal_roas.toFixed(1) + " NB ROAS"));
-  addMeta(gc);
-  addMeta(el("span", "attr", m.attribution_label));
-  const yesterday = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+  foot.appendChild(gc);
+  foot.appendChild(el("div", "attr", m.attribution_label));
+  // judge freshness in ET (data days are ET); UTC evenings would false-flag STALE
+  const yesterday = new Date(Date.now() - 5 * 3600e3 - 864e5).toISOString().slice(0, 10);
   const fresh = m.data_through >= yesterday;
-  addMeta(el("span", fresh ? null : "stale",
+  foot.appendChild(el("div", fresh ? null : "stale",
     (fresh ? "Data through " : "STALE — data through ") + m.data_through));
-  brow.appendChild(meta);
-  brow.appendChild(el("span", "spacer"));
   const th = el("button", "ghost", "Theme");
   th.addEventListener("click", () => {
     const r = document.documentElement;
@@ -1593,11 +1665,36 @@ function render() {
     r.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
     render();
   });
-  brow.appendChild(th);
-  bar.appendChild(brow);
-  bar.appendChild(pageNav(PAGE));
-  if (typeof PAGE !== "undefined" && PAGE === "cockpit") bar.appendChild(verdictBanner());
-  app.appendChild(bar);
+  foot.appendChild(th);
+  sb.appendChild(foot);
+  app.appendChild(sb);
+
+  /* mobile top bar: hamburger + brand; drawer toggles via .nav-open on <html> */
+  const setNav = open => {
+    document.documentElement.classList.toggle("nav-open", open);
+    hb.setAttribute("aria-expanded", String(open));
+  };
+  const mb = el("div", "mobilebar");
+  const hb = el("button", "hamb");
+  hb.setAttribute("aria-label", "Menu");
+  hb.setAttribute("aria-expanded", "false");
+  for (let i = 0; i < 3; i++) hb.appendChild(el("span"));
+  hb.addEventListener("click", () => setNav(!document.documentElement.classList.contains("nav-open")));
+  mb.appendChild(hb);
+  mb.appendChild(el("span", "wordmark", "Lower Cross"));
+  mb.appendChild(el("span", "mb-client", m.client));
+  app.appendChild(mb);
+  const scrim = el("div", "scrim");
+  scrim.addEventListener("click", () => setNav(false));
+  app.appendChild(scrim);
+  document.onkeydown = ev => { if (ev.key === "Escape") setNav(false); };
+  setNav(false);
+
+  if (typeof PAGE !== "undefined" && PAGE === "cockpit") {
+    const ts = el("div", "topstrip");
+    ts.appendChild(verdictBanner());
+    app.appendChild(ts);
+  }
   app.appendChild(pageHead());
 
   const ins = DATA.insights;
@@ -1756,8 +1853,15 @@ function render() {
   }
   // mix-context tiles live on the pacing page; the cockpit stays one screen
   if (typeof PAGE === "undefined" || PAGE === "pacing") {
-    tiles.appendChild(mk("TOF / Demand Gen L7", fmK(s.tof_spend_l7),
-      s.total_spend_l7 ? Math.round(s.tof_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "", null));
+    {
+      /* DG judged on Clicks + Modeled Views — surface that read on the tile */
+      const tof = DATA.levels.campaign.filter(c => c.bucket === "tof");
+      const tsp = tof.reduce((a, c) => a + (c.windows.L7.spend || 0), 0);
+      const tmv = tof.reduce((a, c) => a + (c.windows.L7.mv_rev || 0), 0);
+      const mvTxt = tsp > 0 && tmv > 0 ? " · MV ROAS " + (tmv / tsp).toFixed(2) : "";
+      tiles.appendChild(mk("TOF / Demand Gen L7", fmK(s.tof_spend_l7),
+        (s.total_spend_l7 ? Math.round(s.tof_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "") + mvTxt, null));
+    }
     tiles.appendChild(mk("Brand L7", fmK(s.brand_spend_l7),
       s.total_spend_l7 ? Math.round(s.brand_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "", null));
   }
@@ -1841,7 +1945,7 @@ function render() {
     wrow.appendChild(calloutsCard());
     app.appendChild(wrow);
     app.appendChild(decideMini());
-    app.appendChild(navCards());
+    /* nav cards retired — the sidebar owns navigation; no duplicate wayfinding */
   }
   if (PAGE === "ltv") ltvPage(app);
 
