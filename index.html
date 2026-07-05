@@ -259,7 +259,7 @@ td.guide { text-align:left; color:var(--ink-2); font-size:var(--t-sm); white-spa
 .b-na .dot { background:var(--ink-3); }
 .roascell { font-weight:650; }
 .tscroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
-tr.chg-hidden { display:none; }
+.chg-hidden { display:none !important; }
 .chg-more { background:none; border:none; padding:var(--s2) 0 0; font:inherit; font-size:var(--t-sm); font-weight:650; color:var(--ink-1); cursor:pointer; }
 
 /* ---- section divider --------------------------------------------------- */
@@ -830,6 +830,7 @@ function renderTable(container) {
   }
   table.appendChild(tbody);
   container.appendChild(table);
+  foldRows(Array.from(tbody.children), 12, container, "rows");
   const notes = [];
   if (rows.length > shown.length) notes.push(`Showing top ${shown.length} of ${rows.length} by current sort — use search to narrow.`);
   if (zeroHidden > 0) notes.push(`${zeroHidden} rows with $0 spend in this window hidden — use "Show $0 rows" to include them.`);
@@ -862,9 +863,10 @@ function changeLog() {
     trh.appendChild(th);
   });
   t.appendChild(trh);
-  const CHG_VISIBLE = 8;
-  ch.items.forEach((it, idx) => {
-    const tr = el("tr", idx >= CHG_VISIBLE ? "chg-hidden" : null);
+  const chgRows = [];
+  ch.items.forEach(it => {
+    const tr = el("tr");
+    chgRows.push(tr);
     const td0 = el("td", "num muted", it.date.slice(5).replace("-", "/"));
     td0.style.verticalAlign = "top";
     tr.appendChild(td0);
@@ -905,21 +907,7 @@ function changeLog() {
     t.appendChild(tr);
   });
   const sc = el("div", "tscroll"); sc.appendChild(t); card.appendChild(sc);
-  if (ch.items.length > CHG_VISIBLE) {
-    const more = el("button", "chg-more");
-    let open = false;
-    const setLabel = () => { more.textContent = open
-      ? "Show fewer \u2191"
-      : "Show all " + ch.items.length + " changes \u2193"; };
-    setLabel();
-    more.addEventListener("click", () => {
-      open = !open;
-      t.querySelectorAll("tr.chg-hidden, tr.chg-open").forEach(r =>
-        r.className = open ? "chg-open" : "chg-hidden");
-      setLabel();
-    });
-    card.appendChild(more);
-  }
+  foldRows(chgRows, 8, card, "changes");
   const note = el("div", "maturity-note");
   note.textContent = "Source: change log in Monday (TRX items marked Done). Reads are NB accrual over up to 7 days after the change — recent days always read low and firm up.";
   card.appendChild(note);
@@ -1110,6 +1098,7 @@ function ciList(title, rows, mode) {
     it.appendChild(el("div", "a", bits.join(" · ")));
     d.appendChild(it);
   });
+  foldRows(Array.from(d.querySelectorAll(".ditem")), 4, d, "creatives");
   return d;
 }
 function creativeIntelligence() {
@@ -1170,6 +1159,7 @@ function creativeIntelligence() {
       cg.appendChild(cc);
     });
     card.appendChild(cg);
+    foldRows(Array.from(cg.children), 3, card, "competitors");
     if (comp.gaps && comp.gaps.length) {
       const gb = el("div", "gapbox");
       const gt = el("div"); gt.style.fontWeight = "650"; gt.style.fontSize = "13px";
@@ -1382,7 +1372,11 @@ function ltvPage(app) {
       tr.appendChild(el("td", "num muted", r.ltv_per_customer ? fm$(r.ltv_per_customer) : "–"));
       t.appendChild(tr);
     });
-    const sc = el("div", "tscroll"); sc.appendChild(t); return sc;
+    const sc = el("div", "tscroll"); sc.appendChild(t);
+    const wrapd = el("div");
+    wrapd.appendChild(sc);
+    foldRows(Array.from(t.querySelectorAll("tr")).slice(1), 8, wrapd, "campaigns");
+    return wrapd;
   };
   card.appendChild(mkTable(L.channels));
   app.appendChild(card);
@@ -1405,6 +1399,24 @@ function ltvPage(app) {
   (L.notes || []).forEach(n => ful.appendChild(el("li", null, n)));
   f.appendChild(ful);
   app.appendChild(f);
+}
+
+/* v10: progressive disclosure — hide list items past `limit` behind one toggle */
+function foldRows(nodes, limit, mount, noun) {
+  const extra = nodes.slice(limit);
+  if (!extra.length) return;
+  extra.forEach(n => n.classList.add("chg-hidden"));
+  const more = el("button", "chg-more");
+  let open = false;
+  const setLabel = () => { more.textContent = open
+    ? "Show fewer \u2191" : "Show all " + nodes.length + " " + noun + " \u2193"; };
+  setLabel();
+  more.addEventListener("click", () => {
+    open = !open;
+    extra.forEach(n => n.classList.toggle("chg-hidden", !open));
+    setLabel();
+  });
+  mount.appendChild(more);
 }
 
 /* ---------- verdict + takeaway helpers ---------- */
@@ -1552,6 +1564,7 @@ function testingMonitor() {
     table.appendChild(tr);
   });
   const sc = el("div", "tscroll"); sc.appendChild(table); card.appendChild(sc);
+  foldRows(Array.from(table.querySelectorAll("tr")).slice(1), 8, card, "test ad sets");
   return card;
 }
 
@@ -1760,6 +1773,7 @@ function render() {
       }
       c.appendChild(d);
     });
+    foldRows(Array.from(c.querySelectorAll(".ditem")), 3, c, "items");
     return c;
   };
   dgrid.appendChild(mkCol("d-now", "DO NOW", dec.do_now, "Nothing bleeding. Good."));
@@ -1996,6 +2010,7 @@ function render() {
     });
     if (!items || !items.length) ul.appendChild(el("li", "muted", "Nothing at current thresholds."));
     d.appendChild(ul);
+    foldRows(Array.from(ul.children), 4, d, "items");
     return d;
   };
   grid.appendChild(mkList("Working", ins.working));
@@ -2014,6 +2029,7 @@ function render() {
     cul.appendChild(li);
   });
   cx.appendChild(cul);
+  foldRows(Array.from(cul.children), 5, cx, "updates");
   const det = el("details");
   det.appendChild(el("summary", null, "Playbook rules this dashboard applies"));
   const pul = el("ul");
