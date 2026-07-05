@@ -402,7 +402,8 @@ let DATA = null;
 const PAGE = "creative";
 let winSel = "L7", platSel = PAGE === "creative" ? "meta" : "all",
     levelSel = PAGE === "creative" ? "ad" : "campaign";
-let sortCol = "spend", sortDir = -1, query = "", showZero = false;
+let sortCol = "spend", sortDir = -1, query = "", showZero = false, minRoasOn = false;
+const ROAS_FILTER = 1.75;  // testing graduation bar — "working" threshold
 const PLAT_COLOR = { meta:"var(--s-meta)", google:"var(--s-google)", tiktok:"var(--s-tiktok)" };
 const PLAT_LABEL = { meta:"Meta", google:"Google", tiktok:"TikTok" };
 const fm$ = v => "$" + Math.round(v).toLocaleString("en-US");
@@ -674,6 +675,14 @@ function renderTable(container) {
   const preZero = rows.length;
   if (!showZero) rows = rows.filter(e => (e.windows[W].spend || 0) > 0);
   const zeroHidden = preZero - rows.length;
+  // threshold judges on the >=7d window even in the Yesterday view (L1 accrual
+  // is too immature to threshold on), same mapping the status badges use
+  const preRoas = rows.length;
+  if (minRoasOn) rows = rows.filter(e => {
+    const w = e.windows[W === "L1" ? "L7" : W];
+    return w && w.roas7 != null && w.roas7 >= ROAS_FILTER;
+  });
+  const roasHidden = preRoas - rows.length;
   const get = {
     name: e => entityName(e).toLowerCase(),
     spend: e => e.windows[W].spend || 0,
@@ -768,6 +777,7 @@ function renderTable(container) {
   const notes = [];
   if (rows.length > shown.length) notes.push(`Showing top ${shown.length} of ${rows.length} by current sort — use search to narrow.`);
   if (zeroHidden > 0) notes.push(`${zeroHidden} rows with $0 spend in this window hidden — use "Show $0 rows" to include them.`);
+  if (minRoasOn && roasHidden > 0) notes.push(`${roasHidden} rows below ${ROAS_FILTER} NB ROAS hidden by the working-only filter.`);
   if (notes.length) container.appendChild(el("div", "muted", notes.join(" ")));
 }
 
@@ -1142,6 +1152,10 @@ function buildDetail(tcard) {
   zt.setAttribute("aria-pressed", String(showZero));
   zt.addEventListener("click", () => { showZero = !showZero; rebuild(); });
   filters.appendChild(zt);
+  const rt = el("button", "ghost", minRoasOn ? "Show all rows" : "Only ≥ " + ROAS_FILTER.toFixed(2) + " NB ROAS");
+  rt.setAttribute("aria-pressed", String(minRoasOn));
+  rt.addEventListener("click", () => { minRoasOn = !minRoasOn; rebuild(); });
+  filters.appendChild(rt);
   tcard.appendChild(filters);
   const note = el("div", "maturity-note");
   note.textContent = winSel === "L1"
