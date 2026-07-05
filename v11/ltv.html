@@ -32,6 +32,7 @@
   --bk-core:#123524; --bk-tof:#4E7A5D; --bk-brand:#8FAC94; --bk-other:#CBC7B8;
   /* funnel ordinal ramp (validated light: white card): impressions -> purchases */
   --fn-1:#9FB7A4; --fn-2:#7A9C84; --fn-3:#567F66; --fn-4:#2F5D44; --fn-5:#123524;
+  --tfun:#123524;  /* tornado funnel fill */
   /* command bar (pine in both themes) */
   --bar-ink:#F4F6F1; --bar-ink-2:rgba(244,246,241,0.66); --bar-line:rgba(244,246,241,0.16);
   --bar-good:#6FD49A; --bar-warn:#E9B45B; --bar-crit:#F08D84;
@@ -56,6 +57,7 @@
   --seq-250:#4F7DA8;
   --bk-core:#C7E463; --bk-tof:#79A886; --bk-brand:#48705A; --bk-other:#3A453D;
   --fn-1:#44604E; --fn-2:#5C7F63; --fn-3:#7B9F72; --fn-4:#9FC276; --fn-5:#C7E463;
+  --tfun:#C7E463;
   --shadow:0 1px 2px rgba(0,0,0,0.4);
 }
 @media (prefers-color-scheme: dark) {
@@ -71,6 +73,7 @@
     --seq-250:#4F7DA8;
     --bk-core:#C7E463; --bk-tof:#79A886; --bk-brand:#48705A; --bk-other:#3A453D;
     --fn-1:#44604E; --fn-2:#5C7F63; --fn-3:#7B9F72; --fn-4:#9FC276; --fn-5:#C7E463;
+    --tfun:#C7E463;
     --shadow:0 1px 2px rgba(0,0,0,0.4);
   }
 }
@@ -317,26 +320,49 @@ footer li { margin:3px 0; }
 .funnel-head { display:flex; align-items:center; gap:var(--s3); flex-wrap:wrap; margin-bottom:var(--s3); }
 .funnel-head h2 { margin:0; }
 .funnel-head .seg { margin-left:auto; }
-.fstage { display:grid; grid-template-columns:150px 1fr; gap:var(--s4); align-items:center; }
-.fstage .fl { font-size:var(--t-cap); color:var(--ink-2); line-height:1.3; }
-.fstage .fl b { display:block; color:var(--ink-1); font-weight:650; font-size:16px; font-variant-numeric:tabular-nums; }
-.fbarwrap { background:var(--grid); border-radius:0 4px 4px 0; }
-.fbar { height:22px; border-radius:0 4px 4px 0; min-width:4px; }
-.fsub { grid-column:2; font-size:var(--t-cap); color:var(--ink-3); margin-top:2px; }
-.frate { display:grid; grid-template-columns:150px 1fr; gap:var(--s4); align-items:center; padding:3px 0; }
-.frate .rl { text-align:right; font-size:var(--t-cap); color:var(--ink-3); padding-right:2px; }
-.frate .rv { display:flex; align-items:center; gap:8px; font-size:var(--t-sm); color:var(--ink-2); }
-.frate .rv b { color:var(--ink-1); font-weight:650; font-variant-numeric:tabular-nums; }
-.frate .rv::before { content:""; width:14px; height:14px; flex:none; margin-left:4px;
-  border-left:1px solid var(--axis); border-bottom:1px solid var(--axis); border-radius:0 0 0 6px; }
-.frate .rchip { font-size:var(--t-cap); font-weight:650; font-variant-numeric:tabular-nums; padding:1px 7px; border-radius:99px; white-space:nowrap; }
-.frate .rchip.up { color:var(--delta-good); background:var(--wash-good); }
-.frate .rchip.down { color:var(--delta-bad); background:var(--wash-bad); }
-.frate .rchip.flat { color:var(--ink-3); background:var(--wash); }
-.frate.leak .rv b { color:var(--st-crit); }
+/* tornado funnel: labels left, smooth mirrored shape center, transition chips right */
+.tfun { display:grid; grid-template-columns:104px minmax(0,1fr) 150px; gap:0 var(--s3); align-items:start; }
+.tfun svg { display:block; width:100%; }
+.tfun .tlabs .tl { height:var(--tfrow); display:flex; flex-direction:column; justify-content:center; font-size:var(--t-cap); color:var(--ink-2); line-height:1.25; }
+.tfun .tlabs .tl b { color:var(--ink-1); font-weight:650; font-size:17px; font-variant-numeric:tabular-nums; }
+.tfun .tdrops { padding-top:calc(var(--tfrow) / 2); }
+.tfun .tdrops .td0 { height:var(--tfrow); display:flex; flex-direction:column; justify-content:center; gap:2px; font-size:var(--t-cap); color:var(--ink-3); }
+.tfun .tdrops .td0 b { color:var(--ink-1); font-weight:650; font-size:var(--t-sm); font-variant-numeric:tabular-nums; }
+.tfun .tdrops .td0.leak b { color:var(--st-crit); }
+.rchip { display:inline-block; font-size:var(--t-cap); font-weight:650; font-variant-numeric:tabular-nums; padding:1px 7px; border-radius:99px; white-space:nowrap; align-self:flex-start; }
+.rchip.up { color:var(--delta-good); background:var(--wash-good); }
+.rchip.down { color:var(--delta-bad); background:var(--wash-bad); }
+.rchip.flat { color:var(--ink-3); background:var(--wash); }
+.fsub { font-size:var(--t-cap); color:var(--ink-3); margin-top:var(--s3); }
+
+/* cockpit hero row: trends beside funnel, reference-style */
+.cockrow { display:grid; grid-template-columns:minmax(0,3fr) minmax(0,2fr); gap:var(--s4); margin-bottom:var(--s4); align-items:stretch; }
+.cockrow > .card { margin-bottom:0; }
+@media (max-width: 980px) { .cockrow { grid-template-columns:1fr; } }
+
+/* card head: sentence-case title + quiet subtitle (major cards) */
+.chead { margin-bottom:var(--s3); }
+.chead .ct { font-family:var(--f-display); font-size:16px; font-weight:650; letter-spacing:-0.01em; color:var(--ink-1); }
+.chead .cs { font-size:var(--t-sm); color:var(--ink-3); margin-top:2px; }
+.chead .seg { float:right; margin-left:var(--s3); }
+
+/* stat row under the trend chart */
+.chstats { display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:var(--s3); border-top:1px solid var(--grid); margin-top:var(--s3); padding-top:var(--s3); }
+.chstats .cs-l { font-size:var(--t-cap); color:var(--ink-3); font-weight:650; text-transform:uppercase; letter-spacing:0.06em; }
+.chstats .cs-v { font-size:19px; font-weight:650; color:var(--ink-1); margin-top:2px; }
+.chstats .cs-v .delta { display:inline-block; margin-left:8px; }
+
+/* donut (spend mix) */
+.donutwrap { display:flex; gap:var(--s4); align-items:center; }
+.donutwrap .mixlegend { flex:1; margin-top:0; }
+
+/* tile sparkline */
+.tile .spark { margin-top:var(--s2); }
+.tile .spark svg { display:block; width:100%; height:34px; }
+
 @media (max-width: 560px) {
-  .fstage, .frate { grid-template-columns:118px 1fr; gap:var(--s3); }
-  .fstage .fl b { font-size:15px; }
+  .tfun { grid-template-columns:88px minmax(0,1fr) 118px; }
+  .tfun .tlabs .tl b { font-size:15px; }
 }
 
 /* ---- data health (v11) -------------------------------------------------- */
@@ -572,19 +598,28 @@ window.addEventListener("resize", () => {
 function dailySeries() {
   const by = {};
   for (const c of DATA.levels.campaign) {
+    const judged = c.bucket !== "other" && c.platform !== "tiktok";
     for (const d of c.daily) {
-      const o = by[d.date] || (by[d.date] = {meta:0, google:0, tiktok:0, coreSpend:0, coreRev:0});
+      const o = by[d.date] || (by[d.date] = {meta:0, google:0, tiktok:0, coreSpend:0, coreRev:0,
+                                             jSpend:0, ftx:0, nv:0, visits:0});
       if (o[c.platform] != null) o[c.platform] += d.spend || 0;
       if (c.bucket === "core") { o.coreSpend += d.spend || 0; o.coreRev += d.rev7 || 0; }
+      if (judged) { o.jSpend += d.spend || 0; o.ftx += d.ftx || 0; o.nv += d.nv || 0; o.visits += d.visits || 0; }
     }
   }
   const days = Object.keys(by).sort().map(date => ({date, ...by[date],
     roas: by[date].coreSpend > 0 ? by[date].coreRev / by[date].coreSpend : null}));
   // spend-weighted 7-day rolling core ROAS — the line a buyer should read
+  // (+ rolling CAC and new-visitor share for the tile sparklines; per-day ftx is too noisy)
   for (let i = 0; i < days.length; i++) {
-    let s = 0, r = 0;
-    for (let j = Math.max(0, i - 6); j <= i; j++) { s += days[j].coreSpend; r += days[j].coreRev; }
+    let s = 0, r = 0, js = 0, fx = 0, nv = 0, vis = 0;
+    for (let j = Math.max(0, i - 6); j <= i; j++) {
+      s += days[j].coreSpend; r += days[j].coreRev;
+      js += days[j].jSpend; fx += days[j].ftx; nv += days[j].nv; vis += days[j].visits;
+    }
     days[i].roll = i >= 6 && s > 0 ? r / s : null;
+    days[i].cacRoll = i >= 6 && fx > 0 ? js / fx : null;
+    days[i].nvRoll = i >= 6 && vis > 0 ? nv / vis : null;
   }
   return days;
 }
@@ -838,6 +873,7 @@ function renderTable(container) {
   thead.appendChild(trh); table.appendChild(thead);
   const tbody = el("tbody");
   const shown = rows.slice(0, 60);
+  const maxSp = Math.max(...shown.map(e => e.windows[W].spend || 0), 1);
   for (const e of shown) {
     const w = e.windows[W];
     const tr = el("tr");
@@ -848,7 +884,13 @@ function renderTable(container) {
     if (entitySub(e)) { const s = el("div", "muted"); s.style.fontSize = "13px"; s.textContent = entitySub(e); nameTd.appendChild(s); }
     nameTd.title = entityName(e) + (entitySub(e) ? " — " + entitySub(e) : "");
     tr.appendChild(nameTd);
-    tr.appendChild(el("td", "num", fm$(w.spend || 0)));
+    {
+      /* reference-style data bar behind the spend value */
+      const sp = el("td", "num spendcell", fm$(w.spend || 0));
+      const pct = Math.round((w.spend || 0) / maxSp * 100);
+      sp.style.background = `linear-gradient(90deg, var(--wash) ${pct}%, transparent ${pct}%)`;
+      tr.appendChild(sp);
+    }
     const rc = el("td", "num roascell", fmR(w.roas7));
     if (w.roas7 != null && (w.spend || 0) >= 100 && e.bucket === "core" && e.platform !== "tiktok") {
       rc.style.color = w.roas7 >= goal ? "var(--st-good)" : (w.roas7 >= 1.5 ? "inherit" : "var(--st-crit)");
@@ -1320,12 +1362,29 @@ function spendMixCard() {
   const tot = s0.total_spend_l7 || 1;
   const w = el("div", "widget");
   w.appendChild(el("h3", null, "Spend mix — last 7 days"));
-  const bar = el("div", "mixbar");
+  const wrap = el("div", "donutwrap");
+  /* donut, center total (reference-style); 2px surface gaps between segments */
+  const R = 44, C = 2 * Math.PI * R, SW = 15, gap = 2.5;
+  const svg = sv("svg", {width: 116, height: 116, viewBox: "0 0 116 116", role: "img"});
+  let off = -C / 4;  /* start at 12 o'clock */
   parts.forEach(([label, v, color]) => {
-    const seg = el("div"); seg.style.width = (v / tot * 100) + "%"; seg.style.background = color;
-    seg.title = label + " " + fm$(v); bar.appendChild(seg);
+    const frac = v / tot, len = Math.max(0, frac * C - gap);
+    const arc = sv("circle", {cx: 58, cy: 58, r: R, fill: "none", stroke: color,
+      "stroke-width": SW, "stroke-dasharray": `${len} ${C - len}`,
+      "stroke-dashoffset": -off, "stroke-linecap": "butt"});
+    const t = sv("title", {}); t.textContent = label + " " + fm$(v) + " · " + Math.round(frac * 100) + "%";
+    arc.appendChild(t);
+    svg.appendChild(arc);
+    off += frac * C;
   });
-  w.appendChild(bar);
+  const tv = sv("text", {x: 58, y: 55, "text-anchor": "middle",
+    style: "font:650 17px var(--f-ui); fill:var(--ink-1)"});
+  tv.textContent = fmK(tot);
+  const tl = sv("text", {x: 58, y: 71, "text-anchor": "middle",
+    style: "font:650 10px var(--f-ui); fill:var(--ink-3); letter-spacing:0.06em"});
+  tl.textContent = "L7 SPEND";
+  svg.appendChild(tv); svg.appendChild(tl);
+  wrap.appendChild(svg);
   const leg = el("div", "mixlegend");
   parts.forEach(([label, v, color]) => {
     const r = el("div", "row");
@@ -1334,7 +1393,8 @@ function spendMixCard() {
     r.appendChild(el("span", "v", fm$(v) + " · " + Math.round(v / tot * 100) + "%"));
     leg.appendChild(r);
   });
-  w.appendChild(leg);
+  wrap.appendChild(leg);
+  w.appendChild(wrap);
   return w;
 }
 function goalTrackCard(days) {
@@ -1411,8 +1471,7 @@ function funnelCard() {
 
   const build = () => {
     card.replaceChildren();
-    const head = el("div", "funnel-head");
-    head.appendChild(el("h2", null, "Funnel — paid traffic to purchase, last 7 days"));
+    const head = el("div", "chead");
     const seg = el("div", "seg");
     [["all", "All"], ["meta", "Meta"], ["google", "Google"]].forEach(([val, label]) => {
       const b = el("button", null, label);
@@ -1421,15 +1480,17 @@ function funnelCard() {
       seg.appendChild(b);
     });
     head.appendChild(seg);
+    head.appendChild(el("div", "ct", "Funnel"));
+    head.appendChild(el("div", "cs", "Paid traffic to purchase — last 7 days vs prior 7"));
     card.appendChild(head);
 
     const cur = funnelAgg(plat, "L7"), prev = funnelAgg(plat, "P7");
     const stages = [
-      ["Impressions", cur.impr, prev.impr, "var(--fn-1)"],
-      ["Clicks", cur.clicks, prev.clicks, "var(--fn-2)"],
-      ["Visits (NB)", cur.visits, prev.visits, "var(--fn-3)"],
-      ["New visitors", cur.nv, prev.nv, "var(--fn-4)"],
-      ["Purchases", cur.txns, prev.txns, "var(--fn-5)"],
+      ["Impressions", cur.impr, prev.impr],
+      ["Clicks", cur.clicks, prev.clicks],
+      ["Visits (NB)", cur.visits, prev.visits],
+      ["New visitors", cur.nv, prev.nv],
+      ["Purchases", cur.txns, prev.txns],
     ];
     const rate = (o) => ({
       ctr: o.impr ? o.clicks / o.impr : null,
@@ -1461,45 +1522,80 @@ function funnelCard() {
 
     const fmPct = (v, k) => v == null ? "–" :
       (k === "ctr" || k === "cvr" ? (v * 100).toFixed(2) + "%" : Math.round(v * 100) + "%");
-    const wrap = el("div", "funnel-rows");
-    stages.forEach(([label, v, pv, color], i) => {
-      const row = el("div", "fstage");
-      const fl = el("div", "fl");
-      fl.appendChild(el("b", null, fmN(v)));
-      fl.appendChild(document.createTextNode(label));
-      row.appendChild(fl);
-      const wrap2 = el("div", "fbarwrap");
-      const bar = el("div", "fbar");
-      bar.style.width = Math.max(1, (stages[0][1] ? v / stages[0][1] * 100 : 0)) + "%";
-      bar.style.background = color;
-      wrap2.title = label + ": " + Math.round(v).toLocaleString("en-US") +
-        (stages[0][1] ? " · " + (v / stages[0][1] * 100).toFixed(2) + "% of impressions" : "") +
-        (i > 0 && stages[i - 1][1] ? " · " + (v / stages[i - 1][1] * 100).toFixed(2) + "% of " + stages[i - 1][0].toLowerCase() : "") +
-        (pv ? " · prior 7d " + Math.round(pv).toLocaleString("en-US") : "");
-      wrap2.appendChild(bar);
-      row.appendChild(wrap2);
-      wrap.appendChild(row);
-      if (i < rates.length) {
-        const [k, label2, , tip] = rates[i];
-        const rr = el("div", "frate" + (leak && leak.k === k ? " leak" : ""));
-        rr.appendChild(el("div", "rl"));
-        const rv = el("div", "rv");
-        rv.title = tip;
-        rv.appendChild(el("b", null, fmPct(rc[k], k)));
-        rv.appendChild(document.createTextNode(label2));
-        if (rc[k] != null && rp[k]) {
-          const rel = (rc[k] - rp[k]) / rp[k];
-          const cls = Math.abs(rel) < 0.03 ? "flat" : rel > 0 ? "up" : "down";
-          const chip = el("span", "rchip " + cls,
-            (cls === "flat" ? "· flat" : (rel > 0 ? "▲ " : "▼ ") + Math.round(Math.abs(rel) * 100) + "%") + " WoW");
-          chip.title = "prior 7 days: " + fmPct(rp[k], k);
-          rv.appendChild(chip);
-        }
-        rr.appendChild(rv);
-        wrap.appendChild(rr);
-      }
+
+    /* tornado: smooth mirrored shape, stage width = share of impressions
+       (floored so the purchase stem stays visible), hairline separators */
+    const n = stages.length, ROWH = 66;
+    const VW = 400, VH = n * 66;                       /* viewBox units; y maps 1:1 to px rows */
+    const cx = VW / 2, maxHW = VW / 2 - 6, floorHW = 9;
+    /* log-scaled widths: paid funnels drop ~99% impressions->clicks, so a linear
+       shape collapses to a stem. The printed counts carry the true magnitudes. */
+    const vmax = Math.max(...stages.map(s => s[1] || 0), 1);
+    const vmin = Math.max(1, Math.min(...stages.map(s => s[1] || 1)));
+    const hw = stages.map(s => {
+      if (!s[1] || vmax <= vmin) return floorHW;
+      const f = (Math.log(s[1]) - Math.log(vmin)) / (Math.log(vmax) - Math.log(vmin));
+      return floorHW + f * (maxHW - floorHW);
     });
-    card.appendChild(wrap);
+    const yc = i => i * 66 + 33;
+    const pathFor = scale => {
+      const h = hw.map(v => Math.min(maxHW, v * scale));
+      const pts = [[h[0], 0], ...h.map((v, i) => [v, yc(i)]), [h[n - 1], VH]];
+      let right = `M ${cx + pts[0][0]} ${pts[0][1]}`;
+      for (let i = 1; i < pts.length; i++) {
+        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], my = (y0 + y1) / 2;
+        right += ` C ${cx + x0} ${my}, ${cx + x1} ${my}, ${cx + x1} ${y1}`;
+      }
+      let left = "";
+      for (let i = pts.length - 1; i > 0; i--) {
+        const [x0, y0] = pts[i], [x1, y1] = pts[i - 1], my = (y0 + y1) / 2;
+        left += ` C ${cx - x0} ${my}, ${cx - x1} ${my}, ${cx - x1} ${y1}`;
+      }
+      return right + ` L ${cx - pts[pts.length - 1][0]} ${VH}` + left + " Z";
+    };
+    const grid = el("div", "tfun");
+    grid.style.setProperty("--tfrow", ROWH + "px");
+    const labs = el("div", "tlabs");
+    stages.forEach(([label, v, pv]) => {
+      const t = el("div", "tl");
+      t.appendChild(el("b", null, fmN(v)));
+      t.appendChild(document.createTextNode(label));
+      t.title = label + ": " + Math.round(v).toLocaleString("en-US") +
+        (pv ? " · prior 7d " + Math.round(pv).toLocaleString("en-US") : "");
+      labs.appendChild(t);
+    });
+    grid.appendChild(labs);
+    const svg = sv("svg", {viewBox: `0 0 ${VW} ${VH}`, preserveAspectRatio: "none",
+                           style: `height:${n * ROWH}px`});
+    svg.appendChild(sv("path", {d: pathFor(1.16), fill: "var(--tfun)", opacity: "0.14"}));
+    svg.appendChild(sv("path", {d: pathFor(1.07), fill: "var(--tfun)", opacity: "0.3"}));
+    svg.appendChild(sv("path", {d: pathFor(1), fill: "var(--tfun)"}));
+    for (let i = 1; i < n; i++) {
+      const bw = Math.min(maxHW, (hw[i - 1] + hw[i]) / 2 * 1.07);
+      svg.appendChild(sv("line", {x1: cx - bw, x2: cx + bw, y1: i * 66, y2: i * 66,
+                                  stroke: "var(--surface-1)", "stroke-width": 2}));
+    }
+    grid.appendChild(svg);
+    const drops = el("div", "tdrops");
+    rates.forEach(([k, label2, , tip]) => {
+      const d0 = el("div", "td0" + (leak && leak.k === k ? " leak" : ""));
+      d0.title = tip;
+      const line1 = el("div");
+      line1.appendChild(el("b", null, fmPct(rc[k], k)));
+      line1.appendChild(document.createTextNode(" " + label2));
+      d0.appendChild(line1);
+      if (rc[k] != null && rp[k]) {
+        const rel = (rc[k] - rp[k]) / rp[k];
+        const cls = Math.abs(rel) < 0.03 ? "flat" : rel > 0 ? "up" : "down";
+        const chip = el("span", "rchip " + cls,
+          (cls === "flat" ? "· flat" : (rel > 0 ? "▲ " : "▼ ") + Math.round(Math.abs(rel) * 100) + "%") + " WoW");
+        chip.title = "prior 7 days: " + fmPct(rp[k], k);
+        d0.appendChild(chip);
+      }
+      drops.appendChild(d0);
+    });
+    grid.appendChild(drops);
+    card.appendChild(grid);
     const cvr2 = cur.txns && cur.ftx ? Math.round(cur.ftx / cur.txns * 100) : null;
     card.appendChild(el("div", "fsub",
       fm$(cur.rev) + " NB revenue" + (cur.ftx ? " · " + fmN(cur.ftx) + " first-time customers" +
@@ -2102,24 +2198,18 @@ function render() {
     dTxt = (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs prior 7d";
     dCls = dd >= 0 ? "up" : "down";
   }
+  /* reference-style KPI sparklines: last 14 days, goal line where one exists */
+  const last14 = days.slice(-14);
+  const spk = (vals, goalLine) => {
+    if (vals.filter(v => v != null).length < 2) return null;
+    const d = el("div", "spark");
+    d.appendChild(sparkline(vals, 200, 34, goalLine));
+    return d;
+  };
   const t1 = mk("Core NB ROAS — last 7 days", coreRoas == null ? "–" : coreRoas.toFixed(2), dTxt, dCls,
-    null, coreRoas == null ? "na" : coreRoas >= goal ? "good" : coreRoas >= 1.5 ? "warn" : "bad");
+    spk(last14.map(d => d.roll), goal),
+    coreRoas == null ? "na" : coreRoas >= goal ? "good" : coreRoas >= 1.5 ? "warn" : "bad");
   t1.querySelector(".val").style.color = coreRoas != null && coreRoas >= goal ? "var(--st-good)" : (coreRoas != null && coreRoas < 1.5 ? "var(--st-crit)" : "inherit");
-  {
-    /* progress to goal, tick at goal (track runs to 1.25x goal) */
-    const gb = el("div", "goalbar");
-    const fill = document.createElement("i");
-    const frac = coreRoas == null ? 0 : Math.min(1, coreRoas / (goal * 1.25));
-    fill.style.width = (frac * 100) + "%";
-    fill.style.background = coreRoas == null ? "var(--grid)" :
-      coreRoas >= goal ? "var(--st-good)" : coreRoas >= 1.5 ? "var(--st-warn)" : "var(--st-crit)";
-    gb.appendChild(fill);
-    const tick = el("span", "tick");
-    tick.style.left = (100 / 1.25) + "%";
-    gb.appendChild(tick);
-    gb.title = "Goal " + goal.toFixed(1);
-    t1.appendChild(gb);
-  }
   tiles.appendChild(t1);
   const ydayFromSheet = pacing && pacing.yday && pacing.yday.spend;
   if (ydayFromSheet) {
@@ -2127,12 +2217,14 @@ function render() {
     const dd = plan ? (pacing.yday.spend - plan) / plan : null;
     tiles.appendChild(mk("Spend yesterday (workbook)", fmK(pacing.yday.spend),
       plan ? (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs " + fmK(plan) + " plan" : null,
-      dd != null && Math.abs(dd) > 0.1 ? "down" : "up", null, bandStatus(dd)));
+      dd != null && Math.abs(dd) > 0.1 ? "down" : "up",
+      spk(last14.map(d => d.meta + d.google + d.tiktok)), bandStatus(dd)));
   } else if (s.yday_spend != null) {
     const dd = s.avg7_daily_spend ? (s.yday_spend - s.avg7_daily_spend) / s.avg7_daily_spend : null;
     tiles.appendChild(mk("Spend yesterday (platforms)", fmK(s.yday_spend),
       dd == null ? null : (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs 7-day avg",
-      dd != null && Math.abs(dd) > 0.25 ? "down" : null));
+      dd != null && Math.abs(dd) > 0.25 ? "down" : null,
+      spk(last14.map(d => d.meta + d.google + d.tiktok))));
   }
   if (pacing && pacing.pace != null) {
     const pc = pacing.pace;
@@ -2167,14 +2259,14 @@ function render() {
       (dd == null ? "" : (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs prior 7d · ")
         + (s.new_txns_l7 || 0) + " new customers (NB paid, ex-App/Amazon)",
       dd == null ? null : (dd <= 0 ? "up" : "down"),
-      null, dd == null ? "na" : dd <= 0 ? "good" : dd <= 0.15 ? "warn" : "bad"));
+      spk(last14.map(d => d.cacRoll)), dd == null ? "na" : dd <= 0 ? "good" : dd <= 0.15 ? "warn" : "bad"));
   }
   if (s.new_visit_pct_l7 != null) {
     const dpp = s.new_visit_pct_p7 != null ? (s.new_visit_pct_l7 - s.new_visit_pct_p7) * 100 : null;
     tiles.appendChild(mk("New visitor % — L7", Math.round(s.new_visit_pct_l7 * 100) + "%",
       dpp == null ? "share of NB paid visits" : (dpp >= 0 ? "+" : "") + dpp.toFixed(1) + "pp vs prior 7d",
       dpp == null ? null : (dpp >= 0 ? "up" : "down"),
-      null, dpp == null ? "na" : dpp >= 0 ? "good" : dpp > -3 ? "warn" : "bad"));
+      spk(last14.map(d => d.nvRoll)), dpp == null ? "na" : dpp >= 0 ? "good" : dpp > -3 ? "warn" : "bad"));
   }
   // mix-context tiles live on the pacing page; the cockpit stays one screen
   if (typeof PAGE === "undefined" || PAGE === "pacing") {
@@ -2192,12 +2284,15 @@ function render() {
   }
   if (PAGE === "pacing" || PAGE === "cockpit") app.appendChild(tiles);
 
-  /* funnel — the acquisition path at a glance */
-  if (PAGE === "cockpit") app.appendChild(funnelCard());
 
   /* trend */
   const tc = el("div", "card");
-  tc.appendChild(el("h2", null, "30-day trend"));
+  {
+    const ch = el("div", "chead");
+    ch.appendChild(el("div", "ct", "Performance trends"));
+    ch.appendChild(el("div", "cs", "Daily core NB ROAS + 7-day rolling line vs goal · spend stacked by channel · 30 days"));
+    tc.appendChild(ch);
+  }
   {
     const rolls = days.map(d => d.roll).filter(v => v != null);
     const above = rolls.filter(v => v >= goal).length;
@@ -2210,7 +2305,40 @@ function render() {
       above === 0 ? "bad" : above < rolls.length / 2 ? "warn" : "good"));
   }
   tc.appendChild(trendChart(days));
+  {
+    /* reference-style stat row under the chart: L7 totals with WoW deltas */
+    const c7 = funnelAgg("all", "L7"), p7 = funnelAgg("all", "P7");
+    const st = el("div", "chstats");
+    const cell = (lbl, val, cur, prev, upGood = true) => {
+      const d = el("div");
+      d.appendChild(el("div", "cs-l", lbl));
+      const v = el("div", "cs-v", val);
+      if (prev) {
+        const rel = (cur - prev) / prev;
+        if (Math.abs(rel) >= 0.005) {
+          const good = upGood ? rel >= 0 : rel <= 0;
+          v.appendChild(el("span", "delta " + (good ? "up" : "down"),
+            (rel >= 0 ? "▲ " : "▼ ") + Math.abs(Math.round(rel * 100)) + "%"));
+        }
+      }
+      d.appendChild(v);
+      return d;
+    };
+    st.appendChild(cell("Judged spend — L7", fmK(c7.spend), c7.spend, p7.spend, false));
+    st.appendChild(cell("NB revenue — L7", fmK(c7.rev), c7.rev, p7.rev));
+    const ctr = c7.impr ? c7.clicks / c7.impr : null, pctr = p7.impr ? p7.clicks / p7.impr : null;
+    if (ctr != null) st.appendChild(cell("CTR — L7", (ctr * 100).toFixed(2) + "%", ctr, pctr));
+    st.appendChild(cell("Purchases — L7", fmN(c7.txns), c7.txns, p7.txns));
+    tc.appendChild(st);
+  }
   if (PAGE === "pacing") app.appendChild(tc);
+  if (PAGE === "cockpit") {
+    /* hero row: trends beside the funnel, reference layout */
+    const row = el("div", "cockrow");
+    row.appendChild(tc);
+    row.appendChild(funnelCard());
+    app.appendChild(row);
+  }
 
   /* decide today — after the numbers, before allocation */
   if (PAGE === "performance") app.appendChild(dcard);
