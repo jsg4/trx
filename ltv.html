@@ -7,16 +7,18 @@
 <title>TRX LTV — Lower Cross</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Geist:wght@400;500;650&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@500,600,700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* ---- Lower Cross design tokens (v8) ------------------------------- */
-  /* brand */
-  --pine:#123524; --pine-2:#1B4A33; --lime:#DAFF00;
+  /* ---- Lower Cross design tokens (v11 — aligned to the LC design system) */
+  /* brand: greens from the DS (#134823 green-ink, #0F2A1D green-dark) */
+  --pine:#123524; --pine-2:#134823; --pine-dark:#0F2A1D; --lime:#DAFF00;
   --accent:#DAFF00; --on-accent:#123524;
-  /* surfaces + ink (light: warm paper, white cards) */
-  --page:#F5F3EE; --surface-1:#FFFFFF; --surface-2:#EFEDE6;
-  --ink-1:#1A241E; --ink-2:#57635B; --ink-3:#7E8A81;
+  /* surfaces + ink (light: brand cream pair, white cards) */
+  --page:#F8F6F4; --surface-1:#FFFFFF; --surface-2:#F0EBE6;
+  --ink-1:#121B16; --ink-2:#57635B; --ink-3:#7E8A81;
   --border:#E2E0D7; --grid:#EBE9E1; --axis:#B9B6AA;
   /* status — the ONLY red/amber/green on the page */
   --st-good:#177A46; --st-warn:#A96A00; --st-serious:#B45309; --st-crit:#BF3B31;
@@ -28,15 +30,18 @@
   --seq-250:#8FB2CF;
   /* bucket ramp (spend mix): tonal pine, one hue */
   --bk-core:#123524; --bk-tof:#4E7A5D; --bk-brand:#8FAC94; --bk-other:#CBC7B8;
+  /* funnel ordinal ramp (validated light: white card): impressions -> purchases */
+  --fn-1:#9FB7A4; --fn-2:#7A9C84; --fn-3:#567F66; --fn-4:#2F5D44; --fn-5:#123524;
+  --tfun:#123524;  /* tornado funnel fill */
   /* command bar (pine in both themes) */
   --bar-ink:#F4F6F1; --bar-ink-2:rgba(244,246,241,0.66); --bar-line:rgba(244,246,241,0.16);
   --bar-good:#6FD49A; --bar-warn:#E9B45B; --bar-crit:#F08D84;
-  /* shape + elevation + spacing (8pt) */
-  --r:14px; --r-s:8px;
-  --shadow:0 1px 2px rgba(20,30,24,0.04), 0 8px 24px rgba(20,30,24,0.05);
+  /* shape + elevation + spacing (8pt) — DS-leaning radius, slightly deeper card shadow */
+  --r:18px; --r-s:9px;
+  --shadow:0 1px 2px rgba(11,16,21,0.04), 0 10px 32px rgba(11,16,21,0.06);
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
-  /* type roles */
-  --f-display:"Space Grotesk",sans-serif;
+  /* type roles — Switzer is the true LC display face (Space Grotesk = DS fallback) */
+  --f-display:"Switzer","Space Grotesk",sans-serif;
   --f-ui:"Geist",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
   --t-cap:12px; --t-sm:13px; --t-body:14.5px; --t-title:22px; --t-kpi:34px;
 }
@@ -51,6 +56,8 @@
   --s-meta:#5D8DBC; --s-google:#CFA14E; --s-tiktok:#5CAB85; --s-other:#9BA0B0;
   --seq-250:#4F7DA8;
   --bk-core:#C7E463; --bk-tof:#79A886; --bk-brand:#48705A; --bk-other:#3A453D;
+  --fn-1:#44604E; --fn-2:#5C7F63; --fn-3:#7B9F72; --fn-4:#9FC276; --fn-5:#C7E463;
+  --tfun:#C7E463;
   --shadow:0 1px 2px rgba(0,0,0,0.4);
 }
 @media (prefers-color-scheme: dark) {
@@ -65,6 +72,8 @@
     --s-meta:#5D8DBC; --s-google:#CFA14E; --s-tiktok:#5CAB85; --s-other:#9BA0B0;
     --seq-250:#4F7DA8;
     --bk-core:#C7E463; --bk-tof:#79A886; --bk-brand:#48705A; --bk-other:#3A453D;
+    --fn-1:#44604E; --fn-2:#5C7F63; --fn-3:#7B9F72; --fn-4:#9FC276; --fn-5:#C7E463;
+    --tfun:#C7E463;
     --shadow:0 1px 2px rgba(0,0,0,0.4);
   }
 }
@@ -98,7 +107,8 @@ h2 { font-family:var(--f-ui); font-size:var(--t-cap); margin:0 0 var(--s3); font
 /* ---- sidebar (signature: pine rail carries brand + nav) ---------------- */
 :root { --sbw:236px; --mbh:56px; }
 .sidebar { position:fixed; top:0; bottom:0; left:0; width:var(--sbw); z-index:40;
-  background:var(--pine); color:var(--bar-ink); display:flex; flex-direction:column;
+  background:linear-gradient(180deg, var(--pine) 0%, var(--pine-dark) 100%);
+  color:var(--bar-ink); display:flex; flex-direction:column;
   padding:var(--s5) var(--s4) var(--s4); overflow-y:auto; }
 .sb-brand .wordmark { color:var(--lime); }
 .sb-brand h1 { color:var(--bar-ink); font-size:18px; margin-top:var(--s2); }
@@ -305,6 +315,84 @@ footer li { margin:3px 0; }
 .callout { display:flex; gap:9px; padding:var(--s2) 0; border-bottom:1px solid var(--grid); font-size:14px; align-items:baseline; }
 .callout:last-child { border-bottom:none; }
 .callout .cdot { width:7px; height:7px; border-radius:50%; flex:none; align-self:center; }
+
+/* ---- funnel (v11): stage bars + between-stage conversion rates ---------- */
+.funnel-head { display:flex; align-items:center; gap:var(--s3); flex-wrap:wrap; margin-bottom:var(--s3); }
+.funnel-head h2 { margin:0; }
+.funnel-head .seg { margin-left:auto; }
+/* tornado funnel: labels left, smooth mirrored shape center, transition chips right */
+.tfun { display:grid; grid-template-columns:104px minmax(0,1fr) 150px; gap:0 var(--s3); align-items:start; }
+.tfun svg { display:block; width:100%; }
+.tfun .tlabs .tl { height:var(--tfrow); display:flex; flex-direction:column; justify-content:center; font-size:var(--t-cap); color:var(--ink-2); line-height:1.25; }
+.tfun .tlabs .tl b { color:var(--ink-1); font-weight:650; font-size:17px; font-variant-numeric:tabular-nums; }
+.tfun .tdrops { padding-top:calc(var(--tfrow) / 2); }
+.tfun .tdrops .td0 { height:var(--tfrow); display:flex; flex-direction:column; justify-content:center; gap:2px; font-size:var(--t-cap); color:var(--ink-3); }
+.tfun .tdrops .td0 b { color:var(--ink-1); font-weight:650; font-size:var(--t-sm); font-variant-numeric:tabular-nums; }
+.tfun .tdrops .td0.leak b { color:var(--st-crit); }
+.rchip { display:inline-block; font-size:var(--t-cap); font-weight:650; font-variant-numeric:tabular-nums; padding:1px 7px; border-radius:99px; white-space:nowrap; align-self:flex-start; }
+.rchip.up { color:var(--delta-good); background:var(--wash-good); }
+.rchip.down { color:var(--delta-bad); background:var(--wash-bad); }
+.rchip.flat { color:var(--ink-3); background:var(--wash); }
+.fsub { font-size:var(--t-cap); color:var(--ink-3); margin-top:var(--s3); }
+
+/* cockpit hero row: trends beside funnel, reference-style */
+.cockrow { display:grid; grid-template-columns:minmax(0,3fr) minmax(0,2fr); gap:var(--s4); margin-bottom:var(--s4); align-items:stretch; }
+.cockrow > .card { margin-bottom:0; }
+@media (max-width: 980px) { .cockrow { grid-template-columns:1fr; } }
+
+/* card head: sentence-case title + quiet subtitle (major cards) */
+.chead { margin-bottom:var(--s3); }
+.chead .ct { font-family:var(--f-display); font-size:16px; font-weight:650; letter-spacing:-0.01em; color:var(--ink-1); }
+.chead .cs { font-size:var(--t-sm); color:var(--ink-3); margin-top:2px; }
+.chead .seg { float:right; margin-left:var(--s3); }
+
+/* stat row under the trend chart */
+.chstats { display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:var(--s3); border-top:1px solid var(--grid); margin-top:var(--s3); padding-top:var(--s3); }
+.chstats .cs-l { font-size:var(--t-cap); color:var(--ink-3); font-weight:650; text-transform:uppercase; letter-spacing:0.06em; }
+.chstats .cs-v { font-size:19px; font-weight:650; color:var(--ink-1); margin-top:2px; }
+.chstats .cs-v .delta { display:inline-block; margin-left:8px; }
+
+/* donut (spend mix) */
+.donutwrap { display:flex; gap:var(--s4); align-items:center; }
+.donutwrap .mixlegend { flex:1; margin-top:0; }
+
+/* tile sparkline */
+.tile .spark { margin-top:var(--s2); }
+.tile .spark svg { display:block; width:100%; height:34px; }
+
+@media (max-width: 560px) {
+  .tfun { grid-template-columns:88px minmax(0,1fr) 118px; }
+  .tfun .tlabs .tl b { font-size:15px; }
+}
+
+/* ---- data health (v11) -------------------------------------------------- */
+.dhstrip { display:flex; align-items:center; gap:var(--s3); flex-wrap:wrap; font-size:var(--t-sm); color:var(--ink-2); }
+.dhstrip .dh-label { font-size:var(--t-cap); letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-3); font-weight:650; }
+.dhstrip .dh-src { display:inline-flex; align-items:center; gap:6px; }
+.dhstrip .dh-dot { width:8px; height:8px; border-radius:50%; flex:none; }
+.dhstrip a { color:inherit; margin-left:auto; font-size:var(--t-cap); }
+.integ table { width:100%; border-collapse:collapse; font-size:var(--t-sm); }
+.integ th { text-align:left; font-size:var(--t-cap); color:var(--ink-3); font-weight:650; text-transform:uppercase; letter-spacing:0.06em; padding:6px 10px 6px 0; border-bottom:1px solid var(--border); }
+.integ th, .integ td { text-align:left; }
+.integ td { padding:8px 10px 8px 0; border-bottom:1px solid var(--grid); vertical-align:top; color:var(--ink-2); font-variant-numeric:tabular-nums; }
+.integ td:first-child { color:var(--ink-1); font-weight:600; white-space:nowrap; }
+.integ .ichip { display:inline-block; font-size:var(--t-cap); font-weight:650; padding:1px 8px; border-radius:99px; text-transform:uppercase; letter-spacing:0.04em; }
+.integ .ichip.ok { color:var(--st-good); background:var(--wash-good); }
+.integ .ichip.cache { color:var(--st-warn); background:var(--wash-warn); }
+.integ .ichip.bad { color:var(--st-crit); background:var(--wash-bad); }
+.divrow { margin:var(--s2) 0 var(--s3); }
+.divrow .dl { display:flex; justify-content:space-between; font-size:var(--t-sm); color:var(--ink-2); margin-bottom:3px; }
+.divrow .dl b { color:var(--ink-1); font-variant-numeric:tabular-nums; }
+.divrow .dbar { height:12px; border-radius:0 3px 3px 0; min-width:3px; margin-bottom:3px; }
+.divrow .dbar.claim { background:var(--wash); border:1px dashed var(--ink-3); }
+.divrow .dbar.nb { background:var(--pine); }
+:root[data-theme="dark"] .divrow .dbar.nb { background:var(--bk-core); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .divrow .dbar.nb { background:var(--bk-core); } }
+
+/* ---- brand eyebrow (v11) ------------------------------------------------- */
+.eyebrow { font-size:11px; letter-spacing:0.09em; text-transform:uppercase; color:var(--ink-3); font-weight:650; display:flex; align-items:center; gap:8px; }
+.eyebrow::before { content:""; width:14px; height:3px; background:var(--lime); border-radius:2px;
+  outline:1px solid rgba(11,16,21,0.08); }
 .mult-chip { display:inline-block; padding:1px 8px; border-radius:100px; font-weight:650; font-size:var(--t-sm); background:var(--surface-2); font-variant-numeric:tabular-nums; }
 
 /* ---- takeaways ----------------------------------------------------------- */
@@ -510,19 +598,28 @@ window.addEventListener("resize", () => {
 function dailySeries() {
   const by = {};
   for (const c of DATA.levels.campaign) {
+    const judged = c.bucket !== "other" && c.platform !== "tiktok";
     for (const d of c.daily) {
-      const o = by[d.date] || (by[d.date] = {meta:0, google:0, tiktok:0, coreSpend:0, coreRev:0});
+      const o = by[d.date] || (by[d.date] = {meta:0, google:0, tiktok:0, coreSpend:0, coreRev:0,
+                                             jSpend:0, ftx:0, nv:0, visits:0});
       if (o[c.platform] != null) o[c.platform] += d.spend || 0;
       if (c.bucket === "core") { o.coreSpend += d.spend || 0; o.coreRev += d.rev7 || 0; }
+      if (judged) { o.jSpend += d.spend || 0; o.ftx += d.ftx || 0; o.nv += d.nv || 0; o.visits += d.visits || 0; }
     }
   }
   const days = Object.keys(by).sort().map(date => ({date, ...by[date],
     roas: by[date].coreSpend > 0 ? by[date].coreRev / by[date].coreSpend : null}));
   // spend-weighted 7-day rolling core ROAS — the line a buyer should read
+  // (+ rolling CAC and new-visitor share for the tile sparklines; per-day ftx is too noisy)
   for (let i = 0; i < days.length; i++) {
-    let s = 0, r = 0;
-    for (let j = Math.max(0, i - 6); j <= i; j++) { s += days[j].coreSpend; r += days[j].coreRev; }
+    let s = 0, r = 0, js = 0, fx = 0, nv = 0, vis = 0;
+    for (let j = Math.max(0, i - 6); j <= i; j++) {
+      s += days[j].coreSpend; r += days[j].coreRev;
+      js += days[j].jSpend; fx += days[j].ftx; nv += days[j].nv; vis += days[j].visits;
+    }
     days[i].roll = i >= 6 && s > 0 ? r / s : null;
+    days[i].cacRoll = i >= 6 && fx > 0 ? js / fx : null;
+    days[i].nvRoll = i >= 6 && vis > 0 ? nv / vis : null;
   }
   return days;
 }
@@ -776,6 +873,7 @@ function renderTable(container) {
   thead.appendChild(trh); table.appendChild(thead);
   const tbody = el("tbody");
   const shown = rows.slice(0, 60);
+  const maxSp = Math.max(...shown.map(e => e.windows[W].spend || 0), 1);
   for (const e of shown) {
     const w = e.windows[W];
     const tr = el("tr");
@@ -786,7 +884,13 @@ function renderTable(container) {
     if (entitySub(e)) { const s = el("div", "muted"); s.style.fontSize = "13px"; s.textContent = entitySub(e); nameTd.appendChild(s); }
     nameTd.title = entityName(e) + (entitySub(e) ? " — " + entitySub(e) : "");
     tr.appendChild(nameTd);
-    tr.appendChild(el("td", "num", fm$(w.spend || 0)));
+    {
+      /* reference-style data bar behind the spend value */
+      const sp = el("td", "num spendcell", fm$(w.spend || 0));
+      const pct = Math.round((w.spend || 0) / maxSp * 100);
+      sp.style.background = `linear-gradient(90deg, var(--wash) ${pct}%, transparent ${pct}%)`;
+      tr.appendChild(sp);
+    }
     const rc = el("td", "num roascell", fmR(w.roas7));
     if (w.roas7 != null && (w.spend || 0) >= 100 && e.bucket === "core" && e.platform !== "tiktok") {
       rc.style.color = w.roas7 >= goal ? "var(--st-good)" : (w.roas7 >= 1.5 ? "inherit" : "var(--st-crit)");
@@ -1242,7 +1346,10 @@ const PAGE_TITLES = {cockpit: "Daily cockpit", pacing: "Pacing & trend", perform
                      creative: "Creative studio", testing: "Testing lab", reference: "Reference", ltv: "LTV economics"};
 function pageHead() {
   const d = el("div", "pagehead");
-  d.appendChild(el("div", "ptitle", PAGE_TITLES[PAGE] || ""));
+  const tw = el("div");
+  tw.appendChild(el("div", "eyebrow", "Lower Cross — Media Pulse"));
+  tw.appendChild(el("div", "ptitle", PAGE_TITLES[PAGE] || ""));
+  d.appendChild(tw);
   d.appendChild(el("div", "pctx", "Data through " + DATA.meta.data_through +
     " · NB 7-day accrual — recent days still maturing"));
   return d;
@@ -1255,12 +1362,29 @@ function spendMixCard() {
   const tot = s0.total_spend_l7 || 1;
   const w = el("div", "widget");
   w.appendChild(el("h3", null, "Spend mix — last 7 days"));
-  const bar = el("div", "mixbar");
+  const wrap = el("div", "donutwrap");
+  /* donut, center total (reference-style); 2px surface gaps between segments */
+  const R = 44, C = 2 * Math.PI * R, SW = 15, gap = 2.5;
+  const svg = sv("svg", {width: 116, height: 116, viewBox: "0 0 116 116", role: "img"});
+  let off = -C / 4;  /* start at 12 o'clock */
   parts.forEach(([label, v, color]) => {
-    const seg = el("div"); seg.style.width = (v / tot * 100) + "%"; seg.style.background = color;
-    seg.title = label + " " + fm$(v); bar.appendChild(seg);
+    const frac = v / tot, len = Math.max(0, frac * C - gap);
+    const arc = sv("circle", {cx: 58, cy: 58, r: R, fill: "none", stroke: color,
+      "stroke-width": SW, "stroke-dasharray": `${len} ${C - len}`,
+      "stroke-dashoffset": -off, "stroke-linecap": "butt"});
+    const t = sv("title", {}); t.textContent = label + " " + fm$(v) + " · " + Math.round(frac * 100) + "%";
+    arc.appendChild(t);
+    svg.appendChild(arc);
+    off += frac * C;
   });
-  w.appendChild(bar);
+  const tv = sv("text", {x: 58, y: 55, "text-anchor": "middle",
+    style: "font:650 17px var(--f-ui); fill:var(--ink-1)"});
+  tv.textContent = fmK(tot);
+  const tl = sv("text", {x: 58, y: 71, "text-anchor": "middle",
+    style: "font:650 10px var(--f-ui); fill:var(--ink-3); letter-spacing:0.06em"});
+  tl.textContent = "L7 SPEND";
+  svg.appendChild(tv); svg.appendChild(tl);
+  wrap.appendChild(svg);
   const leg = el("div", "mixlegend");
   parts.forEach(([label, v, color]) => {
     const r = el("div", "row");
@@ -1269,7 +1393,8 @@ function spendMixCard() {
     r.appendChild(el("span", "v", fm$(v) + " · " + Math.round(v / tot * 100) + "%"));
     leg.appendChild(r);
   });
-  w.appendChild(leg);
+  wrap.appendChild(leg);
+  w.appendChild(wrap);
   return w;
 }
 function goalTrackCard(days) {
@@ -1323,6 +1448,256 @@ function calloutsCard() {
   });
   return w;
 }
+/* ---------- v11: funnel ---------- */
+const fmN = v => v >= 1e6 ? (v / 1e6).toFixed(1) + "M" : v >= 1e4 ? Math.round(v / 1e3) + "K"
+  : v >= 1e3 ? (v / 1e3).toFixed(1) + "K" : Math.round(v).toLocaleString("en-US");
+
+/* Judged funnel only: buckets != other (app/amazon managed separately) and no
+   TikTok (NB deterministic attribution broken). Campaign grain — nv/ftx exist
+   only there. */
+function funnelAgg(plat, win) {
+  const rows = DATA.levels.campaign.filter(c =>
+    c.bucket !== "other" && c.platform !== "tiktok" &&
+    (plat === "all" || c.platform === plat));
+  const sum = f => rows.reduce((a, c) => a + (c.windows[win][f] || 0), 0);
+  return {impr: sum("impressions"), clicks: sum("clicks"), visits: sum("visits"),
+          nv: sum("nv"), txns: sum("txns"), ftx: sum("ftx"), rev: sum("rev7"),
+          spend: sum("spend")};
+}
+
+function funnelCard() {
+  const card = el("div", "card");
+  let plat = "all";
+
+  const build = () => {
+    card.replaceChildren();
+    const head = el("div", "chead");
+    const seg = el("div", "seg");
+    [["all", "All"], ["meta", "Meta"], ["google", "Google"]].forEach(([val, label]) => {
+      const b = el("button", null, label);
+      b.setAttribute("aria-pressed", String(val === plat));
+      b.addEventListener("click", () => { plat = val; build(); });
+      seg.appendChild(b);
+    });
+    head.appendChild(seg);
+    head.appendChild(el("div", "ct", "Funnel"));
+    head.appendChild(el("div", "cs", "Paid traffic to purchase — last 7 days vs prior 7"));
+    card.appendChild(head);
+
+    const cur = funnelAgg(plat, "L7"), prev = funnelAgg(plat, "P7");
+    const stages = [
+      ["Impressions", cur.impr, prev.impr],
+      ["Clicks", cur.clicks, prev.clicks],
+      ["Visits (NB)", cur.visits, prev.visits],
+      ["New visitors", cur.nv, prev.nv],
+      ["Purchases", cur.txns, prev.txns],
+    ];
+    const rate = (o) => ({
+      ctr: o.impr ? o.clicks / o.impr : null,
+      cap: o.clicks ? o.visits / o.clicks : null,
+      nvs: o.visits ? o.nv / o.visits : null,
+      cvr: o.visits ? o.txns / o.visits : null,
+    });
+    const rc = rate(cur), rp = rate(prev);
+    const rates = [
+      ["ctr", "CTR", "creative or delivery", "clicks / impressions"],
+      ["cap", "Click → visit", "tracking or landing experience",
+       "NB-attributed visits / paid clicks — can top 100%: NB visits include view-attributed sessions"],
+      ["nvs", "New-visitor share", "audience overlap — retargeting share creeping up", "new visitors / NB visits"],
+      ["cvr", "Visit → purchase", "site conversion or traffic quality", "NB purchases / NB visits"],
+    ];
+
+    /* biggest WoW leak: largest relative decline past 10% */
+    let leak = null;
+    rates.forEach(([k, label, hint]) => {
+      if (rc[k] == null || !rp[k]) return;
+      const rel = (rc[k] - rp[k]) / rp[k];
+      if (rel < -0.10 && (!leak || rel < leak.rel)) leak = {k, label, hint, rel};
+    });
+    card.appendChild(takeaway(leak
+      ? "Biggest WoW leak: " + leak.label + " down " + Math.round(-leak.rel * 100) +
+        "% vs prior 7 days — look at " + leak.hint + "."
+      : "No funnel stage leaking week-over-week at the 10% threshold.",
+      leak ? (leak.rel < -0.25 ? "bad" : "warn") : "good"));
+
+    const fmPct = (v, k) => v == null ? "–" :
+      (k === "ctr" || k === "cvr" ? (v * 100).toFixed(2) + "%" : Math.round(v * 100) + "%");
+
+    /* tornado: smooth mirrored shape, stage width = share of impressions
+       (floored so the purchase stem stays visible), hairline separators */
+    const n = stages.length, ROWH = 66;
+    const VW = 400, VH = n * 66;                       /* viewBox units; y maps 1:1 to px rows */
+    const cx = VW / 2, maxHW = VW / 2 - 6, floorHW = 9;
+    /* log-scaled widths: paid funnels drop ~99% impressions->clicks, so a linear
+       shape collapses to a stem. The printed counts carry the true magnitudes. */
+    const vmax = Math.max(...stages.map(s => s[1] || 0), 1);
+    const vmin = Math.max(1, Math.min(...stages.map(s => s[1] || 1)));
+    const hw = stages.map(s => {
+      if (!s[1] || vmax <= vmin) return floorHW;
+      const f = (Math.log(s[1]) - Math.log(vmin)) / (Math.log(vmax) - Math.log(vmin));
+      return floorHW + f * (maxHW - floorHW);
+    });
+    const yc = i => i * 66 + 33;
+    const pathFor = scale => {
+      const h = hw.map(v => Math.min(maxHW, v * scale));
+      const pts = [[h[0], 0], ...h.map((v, i) => [v, yc(i)]), [h[n - 1], VH]];
+      let right = `M ${cx + pts[0][0]} ${pts[0][1]}`;
+      for (let i = 1; i < pts.length; i++) {
+        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], my = (y0 + y1) / 2;
+        right += ` C ${cx + x0} ${my}, ${cx + x1} ${my}, ${cx + x1} ${y1}`;
+      }
+      let left = "";
+      for (let i = pts.length - 1; i > 0; i--) {
+        const [x0, y0] = pts[i], [x1, y1] = pts[i - 1], my = (y0 + y1) / 2;
+        left += ` C ${cx - x0} ${my}, ${cx - x1} ${my}, ${cx - x1} ${y1}`;
+      }
+      return right + ` L ${cx - pts[pts.length - 1][0]} ${VH}` + left + " Z";
+    };
+    const grid = el("div", "tfun");
+    grid.style.setProperty("--tfrow", ROWH + "px");
+    const labs = el("div", "tlabs");
+    stages.forEach(([label, v, pv]) => {
+      const t = el("div", "tl");
+      t.appendChild(el("b", null, fmN(v)));
+      t.appendChild(document.createTextNode(label));
+      t.title = label + ": " + Math.round(v).toLocaleString("en-US") +
+        (pv ? " · prior 7d " + Math.round(pv).toLocaleString("en-US") : "");
+      labs.appendChild(t);
+    });
+    grid.appendChild(labs);
+    const svg = sv("svg", {viewBox: `0 0 ${VW} ${VH}`, preserveAspectRatio: "none",
+                           style: `height:${n * ROWH}px`});
+    svg.appendChild(sv("path", {d: pathFor(1.16), fill: "var(--tfun)", opacity: "0.14"}));
+    svg.appendChild(sv("path", {d: pathFor(1.07), fill: "var(--tfun)", opacity: "0.3"}));
+    svg.appendChild(sv("path", {d: pathFor(1), fill: "var(--tfun)"}));
+    for (let i = 1; i < n; i++) {
+      const bw = Math.min(maxHW, (hw[i - 1] + hw[i]) / 2 * 1.07);
+      svg.appendChild(sv("line", {x1: cx - bw, x2: cx + bw, y1: i * 66, y2: i * 66,
+                                  stroke: "var(--surface-1)", "stroke-width": 2}));
+    }
+    grid.appendChild(svg);
+    const drops = el("div", "tdrops");
+    rates.forEach(([k, label2, , tip]) => {
+      const d0 = el("div", "td0" + (leak && leak.k === k ? " leak" : ""));
+      d0.title = tip;
+      const line1 = el("div");
+      line1.appendChild(el("b", null, fmPct(rc[k], k)));
+      line1.appendChild(document.createTextNode(" " + label2));
+      d0.appendChild(line1);
+      if (rc[k] != null && rp[k]) {
+        const rel = (rc[k] - rp[k]) / rp[k];
+        const cls = Math.abs(rel) < 0.03 ? "flat" : rel > 0 ? "up" : "down";
+        const chip = el("span", "rchip " + cls,
+          (cls === "flat" ? "· flat" : (rel > 0 ? "▲ " : "▼ ") + Math.round(Math.abs(rel) * 100) + "%") + " WoW");
+        chip.title = "prior 7 days: " + fmPct(rp[k], k);
+        d0.appendChild(chip);
+      }
+      drops.appendChild(d0);
+    });
+    grid.appendChild(drops);
+    card.appendChild(grid);
+    const cvr2 = cur.txns && cur.ftx ? Math.round(cur.ftx / cur.txns * 100) : null;
+    card.appendChild(el("div", "fsub",
+      fm$(cur.rev) + " NB revenue" + (cur.ftx ? " · " + fmN(cur.ftx) + " first-time customers" +
+      (cvr2 != null ? " (" + cvr2 + "% of purchases)" : "") : "") +
+      " · judged spend only (core+TOF+brand; excludes TikTok and App/Amazon)"));
+  };
+  build();
+  return card;
+}
+
+/* ---------- v11: data integrity ---------- */
+const DH_STATUS = {ok: ["ok", "live"], cache: ["cache", "cached"], config: ["cache", "config fallback"], missing: ["bad", "missing"]};
+
+function integrityStrip() {
+  const I = DATA.integrity;
+  if (!I) return null;
+  const card = el("div", "card");
+  const s = el("div", "dhstrip");
+  s.appendChild(el("span", "dh-label", "Data health"));
+  (I.sources || []).forEach(src => {
+    const it = el("span", "dh-src");
+    const dot = el("span", "dh-dot");
+    const [cls] = DH_STATUS[src.status] || ["bad"];
+    dot.style.background = cls === "ok" ? "var(--st-good)" : cls === "cache" ? "var(--st-warn)" : "var(--st-crit)";
+    it.title = src.label + " — " + (DH_STATUS[src.status] || ["", src.status])[1] +
+      (src.pulled_at ? " · pulled " + src.pulled_at.slice(0, 16).replace("T", " ") + " UTC" : "");
+    it.appendChild(dot);
+    it.appendChild(document.createTextNode(src.label));
+    s.appendChild(it);
+  });
+  (I.divergence || []).forEach(d => {
+    s.appendChild(el("span", "muted", d.label + " self-reports +" + Math.round(d.div * 100) + "% vs NB"));
+  });
+  const a = document.createElement("a");
+  a.href = "reference.html"; a.textContent = "integrity details →";
+  s.appendChild(a);
+  card.appendChild(s);
+  return card;
+}
+
+function integrityCard() {
+  const I = DATA.integrity;
+  if (!I) return null;
+  const card = el("div", "card integ");
+  card.appendChild(el("h2", null, "Data integrity"));
+
+  const tbl = el("table");
+  const thead = el("thead"); const trh = el("tr");
+  ["Source", "Status", "Last pull (UTC)", "Detail"].forEach(h => trh.appendChild(el("th", null, h)));
+  thead.appendChild(trh); tbl.appendChild(thead);
+  const tb = el("tbody");
+  (I.sources || []).forEach(src => {
+    const tr = el("tr");
+    tr.appendChild(el("td", null, src.label));
+    const [cls, word] = DH_STATUS[src.status] || ["bad", src.status];
+    const td2 = el("td"); td2.appendChild(el("span", "ichip " + cls, word)); tr.appendChild(td2);
+    tr.appendChild(el("td", null, src.pulled_at ? src.pulled_at.slice(0, 16).replace("T", " ") : "–"));
+    tr.appendChild(el("td", null, src.detail || ""));
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  card.appendChild(tbl);
+
+  if (I.divergence && I.divergence.length) {
+    const dh = el("h2", null, "Attribution check — what platforms claim vs what NB attributes (core, L7)");
+    dh.style.marginTop = "var(--s4)";
+    card.appendChild(dh);
+    const maxv = Math.max(...I.divergence.map(d => Math.max(d.p_value_l7, d.nb_rev_l7)));
+    I.divergence.forEach(d => {
+      const row = el("div", "divrow");
+      const l1 = el("div", "dl");
+      l1.appendChild(el("span", null, d.label + " platform-reported"));
+      l1.appendChild(el("b", null, fm$(d.p_value_l7) + "  (+" + Math.round(d.div * 100) + "%)"));
+      row.appendChild(l1);
+      const b1 = el("div", "dbar claim"); b1.style.width = (d.p_value_l7 / maxv * 100) + "%"; row.appendChild(b1);
+      const l2 = el("div", "dl");
+      l2.appendChild(el("span", null, d.label + " — Northbeam attributed"));
+      l2.appendChild(el("b", null, fm$(d.nb_rev_l7)));
+      row.appendChild(l2);
+      const b2 = el("div", "dbar nb"); b2.style.width = (d.nb_rev_l7 / maxv * 100) + "%"; row.appendChild(b2);
+      card.appendChild(row);
+    });
+    card.appendChild(el("div", "sub", "Decisions run on Northbeam. Platform numbers are directional only — they double-count and self-attribute."));
+  }
+
+  if (I.excluded && I.excluded.length) {
+    const eh = el("h2", null, "Excluded from judgments — and why");
+    eh.style.marginTop = "var(--s4)";
+    card.appendChild(eh);
+    const ul = el("ul");
+    I.excluded.forEach(x => {
+      const li = el("li");
+      li.appendChild(el("b", null, x.label + ": "));
+      li.appendChild(document.createTextNode(x.reason));
+      ul.appendChild(li);
+    });
+    card.appendChild(ul);
+  }
+  if (I.accrual_note) card.appendChild(el("div", "sub", I.accrual_note));
+  return card;
+}
+
 function ltvPage(app) {
   const L = DATA.ltv;
   if (!L) { app.appendChild(el("div", "card", "LTV data not in payload yet.")); return; }
@@ -1823,24 +2198,18 @@ function render() {
     dTxt = (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs prior 7d";
     dCls = dd >= 0 ? "up" : "down";
   }
+  /* reference-style KPI sparklines: last 14 days, goal line where one exists */
+  const last14 = days.slice(-14);
+  const spk = (vals, goalLine) => {
+    if (vals.filter(v => v != null).length < 2) return null;
+    const d = el("div", "spark");
+    d.appendChild(sparkline(vals, 200, 34, goalLine));
+    return d;
+  };
   const t1 = mk("Core NB ROAS — last 7 days", coreRoas == null ? "–" : coreRoas.toFixed(2), dTxt, dCls,
-    null, coreRoas == null ? "na" : coreRoas >= goal ? "good" : coreRoas >= 1.5 ? "warn" : "bad");
+    spk(last14.map(d => d.roll), goal),
+    coreRoas == null ? "na" : coreRoas >= goal ? "good" : coreRoas >= 1.5 ? "warn" : "bad");
   t1.querySelector(".val").style.color = coreRoas != null && coreRoas >= goal ? "var(--st-good)" : (coreRoas != null && coreRoas < 1.5 ? "var(--st-crit)" : "inherit");
-  {
-    /* progress to goal, tick at goal (track runs to 1.25x goal) */
-    const gb = el("div", "goalbar");
-    const fill = document.createElement("i");
-    const frac = coreRoas == null ? 0 : Math.min(1, coreRoas / (goal * 1.25));
-    fill.style.width = (frac * 100) + "%";
-    fill.style.background = coreRoas == null ? "var(--grid)" :
-      coreRoas >= goal ? "var(--st-good)" : coreRoas >= 1.5 ? "var(--st-warn)" : "var(--st-crit)";
-    gb.appendChild(fill);
-    const tick = el("span", "tick");
-    tick.style.left = (100 / 1.25) + "%";
-    gb.appendChild(tick);
-    gb.title = "Goal " + goal.toFixed(1);
-    t1.appendChild(gb);
-  }
   tiles.appendChild(t1);
   const ydayFromSheet = pacing && pacing.yday && pacing.yday.spend;
   if (ydayFromSheet) {
@@ -1848,12 +2217,14 @@ function render() {
     const dd = plan ? (pacing.yday.spend - plan) / plan : null;
     tiles.appendChild(mk("Spend yesterday (workbook)", fmK(pacing.yday.spend),
       plan ? (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs " + fmK(plan) + " plan" : null,
-      dd != null && Math.abs(dd) > 0.1 ? "down" : "up", null, bandStatus(dd)));
+      dd != null && Math.abs(dd) > 0.1 ? "down" : "up",
+      spk(last14.map(d => d.meta + d.google + d.tiktok)), bandStatus(dd)));
   } else if (s.yday_spend != null) {
     const dd = s.avg7_daily_spend ? (s.yday_spend - s.avg7_daily_spend) / s.avg7_daily_spend : null;
     tiles.appendChild(mk("Spend yesterday (platforms)", fmK(s.yday_spend),
       dd == null ? null : (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs 7-day avg",
-      dd != null && Math.abs(dd) > 0.25 ? "down" : null));
+      dd != null && Math.abs(dd) > 0.25 ? "down" : null,
+      spk(last14.map(d => d.meta + d.google + d.tiktok))));
   }
   if (pacing && pacing.pace != null) {
     const pc = pacing.pace;
@@ -1888,14 +2259,14 @@ function render() {
       (dd == null ? "" : (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs prior 7d · ")
         + (s.new_txns_l7 || 0) + " new customers (NB paid, ex-App/Amazon)",
       dd == null ? null : (dd <= 0 ? "up" : "down"),
-      null, dd == null ? "na" : dd <= 0 ? "good" : dd <= 0.15 ? "warn" : "bad"));
+      spk(last14.map(d => d.cacRoll)), dd == null ? "na" : dd <= 0 ? "good" : dd <= 0.15 ? "warn" : "bad"));
   }
   if (s.new_visit_pct_l7 != null) {
     const dpp = s.new_visit_pct_p7 != null ? (s.new_visit_pct_l7 - s.new_visit_pct_p7) * 100 : null;
     tiles.appendChild(mk("New visitor % — L7", Math.round(s.new_visit_pct_l7 * 100) + "%",
       dpp == null ? "share of NB paid visits" : (dpp >= 0 ? "+" : "") + dpp.toFixed(1) + "pp vs prior 7d",
       dpp == null ? null : (dpp >= 0 ? "up" : "down"),
-      null, dpp == null ? "na" : dpp >= 0 ? "good" : dpp > -3 ? "warn" : "bad"));
+      spk(last14.map(d => d.nvRoll)), dpp == null ? "na" : dpp >= 0 ? "good" : dpp > -3 ? "warn" : "bad"));
   }
   // mix-context tiles live on the pacing page; the cockpit stays one screen
   if (typeof PAGE === "undefined" || PAGE === "pacing") {
@@ -1913,9 +2284,15 @@ function render() {
   }
   if (PAGE === "pacing" || PAGE === "cockpit") app.appendChild(tiles);
 
+
   /* trend */
   const tc = el("div", "card");
-  tc.appendChild(el("h2", null, "30-day trend"));
+  {
+    const ch = el("div", "chead");
+    ch.appendChild(el("div", "ct", "Performance trends"));
+    ch.appendChild(el("div", "cs", "Daily core NB ROAS + 7-day rolling line vs goal · spend stacked by channel · 30 days"));
+    tc.appendChild(ch);
+  }
   {
     const rolls = days.map(d => d.roll).filter(v => v != null);
     const above = rolls.filter(v => v >= goal).length;
@@ -1928,7 +2305,40 @@ function render() {
       above === 0 ? "bad" : above < rolls.length / 2 ? "warn" : "good"));
   }
   tc.appendChild(trendChart(days));
+  {
+    /* reference-style stat row under the chart: L7 totals with WoW deltas */
+    const c7 = funnelAgg("all", "L7"), p7 = funnelAgg("all", "P7");
+    const st = el("div", "chstats");
+    const cell = (lbl, val, cur, prev, upGood = true) => {
+      const d = el("div");
+      d.appendChild(el("div", "cs-l", lbl));
+      const v = el("div", "cs-v", val);
+      if (prev) {
+        const rel = (cur - prev) / prev;
+        if (Math.abs(rel) >= 0.005) {
+          const good = upGood ? rel >= 0 : rel <= 0;
+          v.appendChild(el("span", "delta " + (good ? "up" : "down"),
+            (rel >= 0 ? "▲ " : "▼ ") + Math.abs(Math.round(rel * 100)) + "%"));
+        }
+      }
+      d.appendChild(v);
+      return d;
+    };
+    st.appendChild(cell("Judged spend — L7", fmK(c7.spend), c7.spend, p7.spend, false));
+    st.appendChild(cell("NB revenue — L7", fmK(c7.rev), c7.rev, p7.rev));
+    const ctr = c7.impr ? c7.clicks / c7.impr : null, pctr = p7.impr ? p7.clicks / p7.impr : null;
+    if (ctr != null) st.appendChild(cell("CTR — L7", (ctr * 100).toFixed(2) + "%", ctr, pctr));
+    st.appendChild(cell("Purchases — L7", fmN(c7.txns), c7.txns, p7.txns));
+    tc.appendChild(st);
+  }
   if (PAGE === "pacing") app.appendChild(tc);
+  if (PAGE === "cockpit") {
+    /* hero row: trends beside the funnel, reference layout */
+    const row = el("div", "cockrow");
+    row.appendChild(tc);
+    row.appendChild(funnelCard());
+    app.appendChild(row);
+  }
 
   /* decide today — after the numbers, before allocation */
   if (PAGE === "performance") app.appendChild(dcard);
@@ -1937,6 +2347,7 @@ function render() {
 
   /* channel allocation */
   if (PAGE === "performance") app.appendChild(channelSummary());
+  if (PAGE === "performance") app.appendChild(funnelCard());
 
   /* routine */
   const rc = el("div", "card");
@@ -1968,7 +2379,11 @@ function render() {
     ["Reconcile:", "platform vs NB divergence — decide on NB, use platform for direction only."],
   ]));
   rc.appendChild(rgrid);
-  if (PAGE === "reference") app.appendChild(rc);
+  if (PAGE === "reference") {
+    app.appendChild(rc);
+    const ic = integrityCard();
+    if (ic) app.appendChild(ic);
+  }
 
   /* weekly section */
   const sh = el("div", "section-h");
@@ -1991,6 +2406,8 @@ function render() {
     wrow.appendChild(calloutsCard());
     app.appendChild(wrow);
     app.appendChild(decideMini());
+    const dh = integrityStrip();
+    if (dh) app.appendChild(dh);
     /* nav cards retired — the sidebar owns navigation; no duplicate wayfinding */
   }
   if (PAGE === "ltv") ltvPage(app);
