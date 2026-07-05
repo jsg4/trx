@@ -214,16 +214,30 @@ button.ghost:hover { color:var(--ink-1); }
 .dkid .knm { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:60%; }
 .dkid .kv { margin-left:auto; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-1); }
 
-/* ---- stat tiles: one anatomy — label / value / delta chip ------------- */
-.tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(158px,1fr)); gap:var(--s3); margin-bottom:var(--s4); }
-.tile { position:relative; background:var(--surface-1); border:1px solid var(--border); border-radius:var(--r); padding:var(--s4); box-shadow:var(--shadow); }
-.tile .lbl { font-size:var(--t-cap); color:var(--ink-3); margin-bottom:var(--s2); text-transform:uppercase; letter-spacing:0.08em; font-weight:650; line-height:1.45; min-height:calc(2 * 1.45em); }
-.tile .val { font-family:var(--f-display); font-size:var(--t-kpi); font-weight:700; letter-spacing:-0.02em; line-height:1.1; font-variant-numeric:tabular-nums; }
-.tile .delta { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:100px; font-weight:600; margin-top:var(--s2); font-size:var(--t-sm); background:var(--surface-2); color:var(--ink-2); }
+/* ---- Performance Summary strip: KPIs in one card, divided cells (ref) --- */
+.tiles { display:flex; flex-wrap:wrap; background:var(--surface-1); border:1px solid var(--border);
+  border-radius:var(--r); box-shadow:var(--shadow); margin-bottom:var(--s4); overflow:hidden; }
+.tile { position:relative; flex:1 1 0; min-width:164px; padding:var(--s4) var(--s4) 14px calc(var(--s4) + 6px);
+  border-left:1px solid var(--border); }
+.tile:first-child { border-left:none; }
+/* left status accent bar (the reference's colored tick) */
+.tile::before { content:""; position:absolute; left:0; top:var(--s4); bottom:14px; width:3px;
+  border-radius:0 3px 3px 0; background:var(--ink-3); opacity:0.3; }
+.tile.st-good::before { background:var(--st-good); opacity:1; }
+.tile.st-warn::before { background:var(--st-warn); opacity:1; }
+.tile.st-bad::before  { background:var(--st-crit); opacity:1; }
+.tile-top { display:flex; align-items:flex-start; gap:var(--s2); margin-bottom:6px; min-height:2.7em; }
+.tile .lbl { font-size:var(--t-cap); color:var(--ink-3); text-transform:uppercase; letter-spacing:0.07em;
+  font-weight:650; line-height:1.35; flex:1; }
+.tile .val { font-family:var(--f-display); font-size:29px; font-weight:700; letter-spacing:-0.02em;
+  line-height:1.05; font-variant-numeric:tabular-nums; }
+.tile .delta { display:inline-flex; align-items:center; gap:3px; padding:2px 7px; border-radius:100px;
+  font-weight:650; font-size:var(--t-cap); background:var(--surface-2); color:var(--ink-2); white-space:nowrap; flex:none; }
 .tile .delta.up { background:var(--wash-good); color:var(--delta-good); }
 .tile .delta.down { background:var(--wash-bad); color:var(--delta-bad); }
-.tile .basis { font-size:var(--t-sm); color:var(--ink-3); margin-top:var(--s1); }
-.tile svg { display:block; margin-top:var(--s2); }
+.tile .basis { font-size:var(--t-cap); color:var(--ink-3); margin-top:3px; line-height:1.3; }
+.tile svg { display:block; margin-top:var(--s2); width:100%; }
+@media (max-width:760px) { .tile { flex:1 1 44%; min-width:44%; } .tile:nth-child(odd) { border-left:none; } }
 .sdot { display:none; }
 .goalbar { position:relative; height:4px; border-radius:100px; background:var(--grid); margin-top:var(--s2); overflow:visible; }
 .goalbar > i { display:block; height:100%; border-radius:100px; }
@@ -334,6 +348,27 @@ footer li { margin:3px 0; }
 .rchip.down { color:var(--delta-bad); background:var(--wash-bad); }
 .rchip.flat { color:var(--ink-3); background:var(--wash); }
 .fsub { font-size:var(--t-cap); color:var(--ink-3); margin-top:var(--s3); }
+
+/* ---- v12 vertical purchase funnel -------------------------------------- */
+.funnelcard .chead .srcpill { float:right; margin-left:var(--s3); }
+.srcpill { display:inline-block; font-size:var(--t-cap); font-weight:600; color:var(--ink-3);
+  border:1px solid var(--border); border-radius:99px; padding:2px 10px; white-space:nowrap; }
+.vfun { display:grid; grid-template-columns:118px minmax(0,240px) 176px; gap:0 var(--s3); align-items:start;
+  margin:var(--s2) auto 0; max-width:600px; justify-content:center; }
+.vfun svg { display:block; width:100%; }
+.vfun .vlabs .vl { height:var(--vfrow); display:flex; flex-direction:column; justify-content:center;
+  font-size:var(--t-cap); color:var(--ink-2); line-height:1.2; }
+.vfun .vlabs .vl b { color:var(--ink-1); font-weight:700; font-size:20px; font-variant-numeric:tabular-nums;
+  font-family:var(--f-display); letter-spacing:-0.01em; }
+.vfun .vdrops { padding-top:calc(var(--vfrow) / 2); }
+.vfun .vdrops .vd0 { height:var(--vfrow); display:flex; flex-direction:column; justify-content:center; gap:3px;
+  font-size:var(--t-cap); color:var(--ink-3); line-height:1.2; }
+.vfun .vdrops .vd0 b { color:var(--ink-1); font-weight:650; font-size:var(--t-sm); font-variant-numeric:tabular-nums; }
+.vfun .vdrops .vd0.leak b { color:var(--st-crit); }
+@media (max-width:520px) {
+  .vfun { grid-template-columns:92px minmax(0,1fr) 132px; }
+  .vfun .vlabs .vl b { font-size:17px; }
+}
 
 /* cockpit hero row: trends beside funnel, reference-style */
 .cockrow { display:grid; grid-template-columns:minmax(0,3fr) minmax(0,2fr); gap:var(--s4); margin-bottom:var(--s4); align-items:stretch; }
@@ -1466,146 +1501,115 @@ function funnelAgg(plat, win) {
 }
 
 function funnelCard() {
-  const card = el("div", "card");
-  let plat = "all";
+  const F = DATA.funnel;
+  const card = el("div", "card funnelcard");
+  if (!F || !F.platforms) return card;                 /* hidden if no funnel data */
+  const src = F.source || "google";
+  const plat = F.platforms[src] || {};
+  const L7 = plat.L7 || {}, P7 = plat.P7 || {};
+  const stages = (F.stages || []).map(s => [s.label, +L7[s.key] || 0, +P7[s.key] || 0, s.key]);
+  if (!stages.length) return card;
 
-  const build = () => {
-    card.replaceChildren();
-    const head = el("div", "chead");
-    const seg = el("div", "seg");
-    [["all", "All"], ["meta", "Meta"], ["google", "Google"]].forEach(([val, label]) => {
-      const b = el("button", null, label);
-      b.setAttribute("aria-pressed", String(val === plat));
-      b.addEventListener("click", () => { plat = val; build(); });
-      seg.appendChild(b);
-    });
-    head.appendChild(seg);
-    head.appendChild(el("div", "ct", "Funnel"));
-    head.appendChild(el("div", "cs", "Paid traffic to purchase — last 7 days vs prior 7"));
-    card.appendChild(head);
+  const head = el("div", "chead");
+  if (F.label) head.appendChild(el("span", "srcpill", F.label));
+  head.appendChild(el("div", "ct", "Funnel"));
+  head.appendChild(el("div", "cs", "Clicks to purchase — last 7 days vs prior 7"));
+  card.appendChild(head);
 
-    const cur = funnelAgg(plat, "L7"), prev = funnelAgg(plat, "P7");
-    const stages = [
-      ["Impressions", cur.impr, prev.impr],
-      ["Clicks", cur.clicks, prev.clicks],
-      ["Visits (NB)", cur.visits, prev.visits],
-      ["New visitors", cur.nv, prev.nv],
-      ["Purchases", cur.txns, prev.txns],
-    ];
-    const rate = (o) => ({
-      ctr: o.impr ? o.clicks / o.impr : null,
-      cap: o.clicks ? o.visits / o.clicks : null,
-      nvs: o.visits ? o.nv / o.visits : null,
-      cvr: o.visits ? o.txns / o.visits : null,
-    });
-    const rc = rate(cur), rp = rate(prev);
-    const rates = [
-      ["ctr", "CTR", "creative or delivery", "clicks / impressions"],
-      ["cap", "Click → visit", "tracking or landing experience",
-       "NB-attributed visits / paid clicks — can top 100%: NB visits include view-attributed sessions"],
-      ["nvs", "New-visitor share", "audience overlap — retargeting share creeping up", "new visitors / NB visits"],
-      ["cvr", "Visit → purchase", "site conversion or traffic quality", "NB purchases / NB visits"],
-    ];
+  const L = stages.map(s => s[1]), P = stages.map(s => s[2]);
+  const conv = (arr, i) => arr[i] && arr[i + 1] != null ? arr[i + 1] / arr[i] : null;
 
-    /* biggest WoW leak: largest relative decline past 10% */
-    let leak = null;
-    rates.forEach(([k, label, hint]) => {
-      if (rc[k] == null || !rp[k]) return;
-      const rel = (rc[k] - rp[k]) / rp[k];
-      if (rel < -0.10 && (!leak || rel < leak.rel)) leak = {k, label, hint, rel};
-    });
-    card.appendChild(takeaway(leak
-      ? "Biggest WoW leak: " + leak.label + " down " + Math.round(-leak.rel * 100) +
-        "% vs prior 7 days — look at " + leak.hint + "."
-      : "No funnel stage leaking week-over-week at the 10% threshold.",
-      leak ? (leak.rel < -0.25 ? "bad" : "warn") : "good"));
+  /* biggest week-over-week leak among step conversions */
+  let leak = null;
+  for (let i = 0; i < stages.length - 1; i++) {
+    const c = conv(L, i), p = conv(P, i);
+    if (c == null || !p) continue;
+    const rel = (c - p) / p;
+    if (rel < -0.10 && (!leak || rel < leak.rel)) leak = {i, rel};
+  }
+  card.appendChild(takeaway(leak
+    ? "Biggest WoW leak: " + stages[leak.i][0] + " → " + stages[leak.i + 1][0] + " down " +
+      Math.round(-leak.rel * 100) + "% vs prior 7 days."
+    : "No funnel step leaking week-over-week past 10%.",
+    leak ? (leak.rel < -0.25 ? "bad" : "warn") : "good"));
 
-    const fmPct = (v, k) => v == null ? "–" :
-      (k === "ctr" || k === "cvr" ? (v * 100).toFixed(2) + "%" : Math.round(v * 100) + "%");
+  /* vertical mirrored funnel, log-scaled half-widths (drops are large) */
+  const n = stages.length, ROWH = 74;
+  const VW = 300, VH = n * ROWH;
+  const cx = VW / 2, maxHW = VW / 2 - 8, floorHW = 11;
+  const pos = L.filter(v => v > 0);
+  const vmax = Math.max(...L, 1);
+  const vmin = Math.max(1, pos.length ? Math.min(...pos) : 1);
+  const hw = L.map(v => {
+    if (!v || vmax <= vmin) return floorHW;
+    const f = (Math.log(v) - Math.log(vmin)) / (Math.log(vmax) - Math.log(vmin));
+    return floorHW + f * (maxHW - floorHW);
+  });
+  const yc = i => i * ROWH + ROWH / 2;
+  const pts = [[hw[0], 0], ...hw.map((v, i) => [v, yc(i)]), [hw[n - 1], VH]];
+  let right = `M ${cx + pts[0][0]} ${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], my = (y0 + y1) / 2;
+    right += ` C ${cx + x0} ${my}, ${cx + x1} ${my}, ${cx + x1} ${y1}`;
+  }
+  let left = "";
+  for (let i = pts.length - 1; i > 0; i--) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i - 1], my = (y0 + y1) / 2;
+    left += ` C ${cx - x0} ${my}, ${cx - x1} ${my}, ${cx - x1} ${y1}`;
+  }
+  const dPath = right + ` L ${cx - pts[pts.length - 1][0]} ${VH}` + left + " Z";
 
-    /* tornado: smooth mirrored shape, stage width = share of impressions
-       (floored so the purchase stem stays visible), hairline separators */
-    const n = stages.length, ROWH = 66;
-    const VW = 400, VH = n * 66;                       /* viewBox units; y maps 1:1 to px rows */
-    const cx = VW / 2, maxHW = VW / 2 - 6, floorHW = 9;
-    /* log-scaled widths: paid funnels drop ~99% impressions->clicks, so a linear
-       shape collapses to a stem. The printed counts carry the true magnitudes. */
-    const vmax = Math.max(...stages.map(s => s[1] || 0), 1);
-    const vmin = Math.max(1, Math.min(...stages.map(s => s[1] || 1)));
-    const hw = stages.map(s => {
-      if (!s[1] || vmax <= vmin) return floorHW;
-      const f = (Math.log(s[1]) - Math.log(vmin)) / (Math.log(vmax) - Math.log(vmin));
-      return floorHW + f * (maxHW - floorHW);
-    });
-    const yc = i => i * 66 + 33;
-    const pathFor = scale => {
-      const h = hw.map(v => Math.min(maxHW, v * scale));
-      const pts = [[h[0], 0], ...h.map((v, i) => [v, yc(i)]), [h[n - 1], VH]];
-      let right = `M ${cx + pts[0][0]} ${pts[0][1]}`;
-      for (let i = 1; i < pts.length; i++) {
-        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], my = (y0 + y1) / 2;
-        right += ` C ${cx + x0} ${my}, ${cx + x1} ${my}, ${cx + x1} ${y1}`;
-      }
-      let left = "";
-      for (let i = pts.length - 1; i > 0; i--) {
-        const [x0, y0] = pts[i], [x1, y1] = pts[i - 1], my = (y0 + y1) / 2;
-        left += ` C ${cx - x0} ${my}, ${cx - x1} ${my}, ${cx - x1} ${y1}`;
-      }
-      return right + ` L ${cx - pts[pts.length - 1][0]} ${VH}` + left + " Z";
-    };
-    const grid = el("div", "tfun");
-    grid.style.setProperty("--tfrow", ROWH + "px");
-    const labs = el("div", "tlabs");
-    stages.forEach(([label, v, pv]) => {
-      const t = el("div", "tl");
-      t.appendChild(el("b", null, fmN(v)));
-      t.appendChild(document.createTextNode(label));
-      t.title = label + ": " + Math.round(v).toLocaleString("en-US") +
-        (pv ? " · prior 7d " + Math.round(pv).toLocaleString("en-US") : "");
-      labs.appendChild(t);
-    });
-    grid.appendChild(labs);
-    const svg = sv("svg", {viewBox: `0 0 ${VW} ${VH}`, preserveAspectRatio: "none",
-                           style: `height:${n * ROWH}px`});
-    svg.appendChild(sv("path", {d: pathFor(1.16), fill: "var(--tfun)", opacity: "0.14"}));
-    svg.appendChild(sv("path", {d: pathFor(1.07), fill: "var(--tfun)", opacity: "0.3"}));
-    svg.appendChild(sv("path", {d: pathFor(1), fill: "var(--tfun)"}));
-    for (let i = 1; i < n; i++) {
-      const bw = Math.min(maxHW, (hw[i - 1] + hw[i]) / 2 * 1.07);
-      svg.appendChild(sv("line", {x1: cx - bw, x2: cx + bw, y1: i * 66, y2: i * 66,
-                                  stroke: "var(--surface-1)", "stroke-width": 2}));
+  const grid = el("div", "vfun");
+  grid.style.setProperty("--vfrow", ROWH + "px");
+
+  const labs = el("div", "vlabs");
+  stages.forEach(([label, v, pv]) => {
+    const t = el("div", "vl");
+    t.appendChild(el("b", null, fmN(v)));
+    t.appendChild(document.createTextNode(label));
+    t.title = label + ": " + Math.round(v).toLocaleString("en-US") +
+      (pv ? " · prior 7d " + Math.round(pv).toLocaleString("en-US") : "");
+    labs.appendChild(t);
+  });
+  grid.appendChild(labs);
+
+  const svg = sv("svg", {viewBox: `0 0 ${VW} ${VH}`, preserveAspectRatio: "none", style: `height:${VH}px`});
+  const defs = sv("defs", {});
+  const lg = sv("linearGradient", {id: "vfgrad", x1: "0", y1: "0", x2: "0", y2: "1"});
+  lg.appendChild(sv("stop", {offset: "0%", "stop-color": "var(--fn-2)"}));
+  lg.appendChild(sv("stop", {offset: "55%", "stop-color": "var(--fn-4)"}));
+  lg.appendChild(sv("stop", {offset: "100%", "stop-color": "var(--fn-5)"}));
+  defs.appendChild(lg); svg.appendChild(defs);
+  svg.appendChild(sv("path", {d: dPath, fill: "url(#vfgrad)"}));
+  for (let i = 1; i < n; i++) {
+    const bw = Math.min(maxHW, (hw[i - 1] + hw[i]) / 2);
+    svg.appendChild(sv("line", {x1: cx - bw, x2: cx + bw, y1: i * ROWH, y2: i * ROWH,
+                                stroke: "var(--surface-1)", "stroke-width": 2}));
+  }
+  grid.appendChild(svg);
+
+  const drops = el("div", "vdrops");
+  for (let i = 0; i < n - 1; i++) {
+    const c = conv(L, i), p = conv(P, i);
+    const d0 = el("div", "vd0" + (leak && leak.i === i ? " leak" : ""));
+    const line1 = el("div");
+    line1.appendChild(el("b", null, c == null ? "–" : (c * 100).toFixed(c < 0.1 ? 1 : 0) + "%"));
+    line1.appendChild(document.createTextNode(" " + stages[i][0].toLowerCase() + " → " + stages[i + 1][0].toLowerCase()));
+    d0.appendChild(line1);
+    if (c != null && p) {
+      const rel = (c - p) / p, cls = Math.abs(rel) < 0.03 ? "flat" : rel > 0 ? "up" : "down";
+      const chip = el("span", "rchip " + cls,
+        (cls === "flat" ? "· flat" : (rel > 0 ? "▲ " : "▼ ") + Math.round(Math.abs(rel) * 100) + "%") + " WoW");
+      chip.title = "prior 7 days: " + (p * 100).toFixed(1) + "%";
+      d0.appendChild(chip);
     }
-    grid.appendChild(svg);
-    const drops = el("div", "tdrops");
-    rates.forEach(([k, label2, , tip]) => {
-      const d0 = el("div", "td0" + (leak && leak.k === k ? " leak" : ""));
-      d0.title = tip;
-      const line1 = el("div");
-      line1.appendChild(el("b", null, fmPct(rc[k], k)));
-      line1.appendChild(document.createTextNode(" " + label2));
-      d0.appendChild(line1);
-      if (rc[k] != null && rp[k]) {
-        const rel = (rc[k] - rp[k]) / rp[k];
-        const cls = Math.abs(rel) < 0.03 ? "flat" : rel > 0 ? "up" : "down";
-        const chip = el("span", "rchip " + cls,
-          (cls === "flat" ? "· flat" : (rel > 0 ? "▲ " : "▼ ") + Math.round(Math.abs(rel) * 100) + "%") + " WoW");
-        chip.title = "prior 7 days: " + fmPct(rp[k], k);
-        d0.appendChild(chip);
-      }
-      drops.appendChild(d0);
-    });
-    grid.appendChild(drops);
-    card.appendChild(grid);
-    const cvr2 = cur.txns && cur.ftx ? Math.round(cur.ftx / cur.txns * 100) : null;
-    card.appendChild(el("div", "fsub",
-      fm$(cur.rev) + " NB revenue" + (cur.ftx ? " · " + fmN(cur.ftx) + " first-time customers" +
-      (cvr2 != null ? " (" + cvr2 + "% of purchases)" : "") : "") +
-      " · judged spend only (core+TOF+brand; excludes TikTok and App/Amazon)"));
-  };
-  build();
+    drops.appendChild(d0);
+  }
+  grid.appendChild(drops);
+  card.appendChild(grid);
+  if (F.note) card.appendChild(el("div", "fsub", F.note));
   return card;
 }
-
 /* ---------- v11: data integrity ---------- */
 const DH_STATUS = {ok: ["ok", "live"], cache: ["cache", "cached"], config: ["cache", "config fallback"], missing: ["bad", "missing"]};
 
@@ -2163,24 +2167,23 @@ function render() {
   const days = dailySeries();
   const tiles = el("div", "tiles");
   const mk = (lbl, val, deltaTxt, deltaCls, spark, status) => {
-    const t = el("div", "tile");
-    t.appendChild(el("div", "lbl", lbl));
-    t.appendChild(el("div", "val", val));
+    const t = el("div", "tile" + (status && status !== "na" ? " st-" + status : ""));
+    const top = el("div", "tile-top");
+    top.appendChild(el("div", "lbl", lbl));
+    /* chip carries ONLY the leading signed delta token; the rest is a quiet basis line */
+    let chipTxt = null, basisTxt = deltaTxt || null;
     if (deltaTxt) {
-      /* chip carries only the signed delta; anything after " · " becomes a quiet basis line */
-      let chipTxt = null, basisTxt = deltaTxt;
-      if (/^[+-]/.test(deltaTxt)) {
-        const parts = deltaTxt.split(" · ");
-        chipTxt = parts.shift();
-        basisTxt = parts.join(" · ");
-      }
-      if (chipTxt) {
-        if (/^\+/.test(chipTxt)) chipTxt = "▲ " + chipTxt.slice(1);
-        else if (/^-\d/.test(chipTxt)) chipTxt = "▼ " + chipTxt.slice(1);
-        t.appendChild(el("div", "delta " + (deltaCls || ""), chipTxt));
-      }
-      if (basisTxt) t.appendChild(el("div", "basis", basisTxt));
+      const m = deltaTxt.match(/^([+-][\d.]+(?:%|pp)?)[\s·]*(.*)$/);
+      if (m) { chipTxt = m[1]; basisTxt = m[2] || null; }
     }
+    if (chipTxt) {
+      if (/^\+/.test(chipTxt)) chipTxt = "▲ " + chipTxt.slice(1);
+      else if (/^-\d/.test(chipTxt)) chipTxt = "▼ " + chipTxt.slice(1);
+      top.appendChild(el("div", "delta " + (deltaCls || ""), chipTxt));
+    }
+    t.appendChild(top);
+    t.appendChild(el("div", "val", val));
+    if (basisTxt) t.appendChild(el("div", "basis", basisTxt));
     if (spark) t.appendChild(spark);
     return t;
   };
@@ -2206,7 +2209,7 @@ function render() {
     d.appendChild(sparkline(vals, 200, 34, goalLine));
     return d;
   };
-  const t1 = mk("Core NB ROAS — last 7 days", coreRoas == null ? "–" : coreRoas.toFixed(2), dTxt, dCls,
+  const t1 = mk("Core NB ROAS", coreRoas == null ? "–" : coreRoas.toFixed(2), dTxt, dCls,
     spk(last14.map(d => d.roll), goal),
     coreRoas == null ? "na" : coreRoas >= goal ? "good" : coreRoas >= 1.5 ? "warn" : "bad");
   t1.querySelector(".val").style.color = coreRoas != null && coreRoas >= goal ? "var(--st-good)" : (coreRoas != null && coreRoas < 1.5 ? "var(--st-crit)" : "inherit");
@@ -2215,13 +2218,13 @@ function render() {
   if (ydayFromSheet) {
     const plan = pacing.yday.plan;
     const dd = plan ? (pacing.yday.spend - plan) / plan : null;
-    tiles.appendChild(mk("Spend yesterday (workbook)", fmK(pacing.yday.spend),
+    tiles.appendChild(mk("Spend yesterday", fmK(pacing.yday.spend),
       plan ? (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs " + fmK(plan) + " plan" : null,
       dd != null && Math.abs(dd) > 0.1 ? "down" : "up",
       spk(last14.map(d => d.meta + d.google + d.tiktok)), bandStatus(dd)));
   } else if (s.yday_spend != null) {
     const dd = s.avg7_daily_spend ? (s.yday_spend - s.avg7_daily_spend) / s.avg7_daily_spend : null;
-    tiles.appendChild(mk("Spend yesterday (platforms)", fmK(s.yday_spend),
+    tiles.appendChild(mk("Spend yesterday", fmK(s.yday_spend),
       dd == null ? null : (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs 7-day avg",
       dd != null && Math.abs(dd) > 0.25 ? "down" : null,
       spk(last14.map(d => d.meta + d.google + d.tiktok))));
@@ -2230,7 +2233,7 @@ function render() {
     const pc = pacing.pace;
     const cls = Math.abs(pc - 1) <= 0.1 ? "up" : "down";
     const est = pacing.estimated_days ? ` (${pacing.estimated_days}d est.)` : "";
-    const t = mk("MTD spend vs plan", Math.round(pc * 100) + "%",
+    const t = mk("MTD vs plan", Math.round(pc * 100) + "%",
       fmK(pacing.mtd_spend) + " vs " + fmK(pacing.mtd_plan) + " plan" + est, cls,
       null, bandStatus(pc - 1));
     t.title = pacing.source || "";
@@ -2244,7 +2247,7 @@ function render() {
       : (pacing && pacing.last_mer) ? {...pacing.last_mer, when: pacing.last_mer.date.slice(5).replace("-", "/")} : null;
     if (merRow) {
       const merT = DATA.meta.mer_target || 2.5;
-      const t = mk("Blended MER — " + merRow.when, merRow.mer.toFixed(2),
+      const t = mk("Blended MER", merRow.mer.toFixed(2),
         "rev " + fmK(merRow.rev || 0) + " · target " + merT.toFixed(1) + " · pacing workbook",
         null, null, merRow.mer >= merT ? "good" : merRow.mer >= merT * 0.75 ? "warn" : "bad");
       t.querySelector(".val").style.color = merRow.mer >= merT ? "var(--st-good)"
@@ -2255,7 +2258,7 @@ function render() {
   if (s.cac_new_l7 != null) {
     const dd = s.cac_new_p7 ? (s.cac_new_l7 - s.cac_new_p7) / s.cac_new_p7 : null;
     // lower CAC is better: arrow shows direction, color shows goodness
-    tiles.appendChild(mk("New-customer CAC — L7", fm$(s.cac_new_l7),
+    tiles.appendChild(mk("New-customer CAC", fm$(s.cac_new_l7),
       (dd == null ? "" : (dd >= 0 ? "+" : "") + Math.round(dd * 100) + "% vs prior 7d · ")
         + (s.new_txns_l7 || 0) + " new customers (NB paid, ex-App/Amazon)",
       dd == null ? null : (dd <= 0 ? "up" : "down"),
@@ -2263,7 +2266,7 @@ function render() {
   }
   if (s.new_visit_pct_l7 != null) {
     const dpp = s.new_visit_pct_p7 != null ? (s.new_visit_pct_l7 - s.new_visit_pct_p7) * 100 : null;
-    tiles.appendChild(mk("New visitor % — L7", Math.round(s.new_visit_pct_l7 * 100) + "%",
+    tiles.appendChild(mk("New visitor %", Math.round(s.new_visit_pct_l7 * 100) + "%",
       dpp == null ? "share of NB paid visits" : (dpp >= 0 ? "+" : "") + dpp.toFixed(1) + "pp vs prior 7d",
       dpp == null ? null : (dpp >= 0 ? "up" : "down"),
       spk(last14.map(d => d.nvRoll)), dpp == null ? "na" : dpp >= 0 ? "good" : dpp > -3 ? "warn" : "bad"));
@@ -2276,7 +2279,7 @@ function render() {
       const tsp = tof.reduce((a, c) => a + (c.windows.L7.spend || 0), 0);
       const tmv = tof.reduce((a, c) => a + (c.windows.L7.mv_rev || 0), 0);
       const mvTxt = tsp > 0 && tmv > 0 ? " · MV ROAS " + (tmv / tsp).toFixed(2) : "";
-      tiles.appendChild(mk("TOF / Demand Gen L7", fmK(s.tof_spend_l7),
+      tiles.appendChild(mk("TOF / Demand Gen", fmK(s.tof_spend_l7),
         (s.total_spend_l7 ? Math.round(s.tof_spend_l7 / s.total_spend_l7 * 100) + "% of L7 platform spend" : "") + mvTxt, null));
     }
     tiles.appendChild(mk("Brand L7", fmK(s.brand_spend_l7),
