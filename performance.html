@@ -221,6 +221,17 @@ button.ghost:hover { color:var(--ink-1); }
 .dg-head .dg-t { font-family:var(--f-display); font-size:16px; font-weight:700; letter-spacing:-0.01em; }
 .dg-head .dg-s { font-size:var(--t-cap); color:var(--ink-3); }
 .dgstrip .tiles { margin-bottom:0; }
+/* prominent week-over-week comparison: bold colored delta over a quiet prior */
+.tile .cmp { display:flex; flex-direction:column; gap:0; margin-top:5px; line-height:1.25; }
+.tile .cmp .cmp-d { font-weight:700; font-size:15px; letter-spacing:-0.01em;
+  font-variant-numeric:tabular-nums; white-space:nowrap; }
+.tile .cmp.up .cmp-d { color:var(--delta-good); }
+.tile .cmp.down .cmp-d { color:var(--delta-bad); }
+.tile .cmp.flat .cmp-d { color:var(--ink-2); }
+.tile .cmp .cmp-vs { color:var(--ink-3); font-weight:500; font-size:var(--t-cap); white-space:nowrap; }
+.dgstrip .tile { flex:1 1 196px; min-width:196px; max-width:300px; }
+.dgstrip .tile .spark { margin-top:7px; }
+.dgstrip .tile .basis { margin-top:6px; }
 
 /* ---- Performance Summary strip: KPIs in one card, divided cells (ref) --- */
 .tiles { display:flex; flex-wrap:wrap; background:var(--surface-1); border:1px solid var(--border);
@@ -2122,83 +2133,106 @@ function dailyGuideStrip() {
   head.appendChild(el("div", "dg-s", bits.join(" · ")));
   wrap.appendChild(head);
 
+  const S = g.series || {};
   const tiles = el("div", "tiles");
   const stColor = (st) => st === "good" ? "var(--st-good)" : st === "bad" ? "var(--st-crit)" : "inherit";
-  const pctTok = (x) => (x >= 0 ? "+" : "") + Math.round(x * 100) + "%";
+  const sparkEl = (vals, goal) => {
+    if (!vals || vals.filter(v => v != null).length < 2) return null;
+    const d = el("div", "spark");
+    d.appendChild(sparkline(vals, 200, 34, goal));
+    return d;
+  };
+  // Each tile: label, big value, a PROMINENT week-over-week comparison row
+  // (arrow + delta% + prior value), a 30-day sparkline, then a quiet basis line.
+  // favor = which direction is good: "good" (up=green), "bad", or "flat" (neutral).
   const mkt = (lbl, val, o) => {
     o = o || {};
     const t = el("div", "tile" + (o.status && o.status !== "na" ? " st-" + o.status : ""));
     const top = el("div", "tile-top");
     top.appendChild(el("div", "lbl", lbl));
-    if (o.delta != null) {
-      let d = o.delta;
-      if (/^\+/.test(d)) d = "▲ " + d.slice(1);
-      else if (/^-\d/.test(d)) d = "▼ " + d.slice(1);
-      const chip = el("div", "delta " + (o.deltaCls || ""), d);
-      chip.title = "vs prior 7 days";
-      top.appendChild(chip);
-    }
     t.appendChild(top);
     const v = el("div", "val", val);
     if (o.valColor) v.style.color = o.valColor;
     t.appendChild(v);
+    if (o.wow != null) {
+      const pct = Math.round(o.wow * 100);
+      const cls = o.favor === "good" ? "up" : o.favor === "bad" ? "down" : "flat";
+      const cmp = el("div", "cmp " + cls);
+      cmp.appendChild(el("span", "cmp-d", (pct >= 0 ? "▲ +" + pct : "▼ " + Math.abs(pct)) + "%"));
+      if (o.prior) cmp.appendChild(el("span", "cmp-vs", "vs " + o.prior + " last wk"));
+      t.appendChild(cmp);
+    }
+    const sp = sparkEl(o.spark, o.sparkGoal);
+    if (sp) t.appendChild(sp);
     if (o.basis) t.appendChild(el("div", "basis", o.basis));
     tiles.appendChild(t);
   };
   const revStatus = (l7, goal) => !goal ? "na" : (l7 / goal >= 0.95 ? "good" : l7 / goal >= 0.8 ? "warn" : "bad");
+  const upFavor = (w) => (w == null ? "flat" : w >= 0 ? "good" : "bad");   // higher is better
+  const dnFavor = (w) => (w == null ? "flat" : w <= 0 ? "good" : "bad");   // lower is better
+  const cacStatus = (w) => w == null ? "na" : w <= 0 ? "good" : w <= 0.15 ? "warn" : "bad";
 
   const r = g.revenue;
   if (r) {
     let st = revStatus(r.gear.l7, r.gear.goal_l7);
     mkt("Gear revenue", fmK(r.gear.l7), {
-      delta: r.gear.wow == null ? null : pctTok(r.gear.wow), deltaCls: r.gear.wow >= 0 ? "up" : "down",
+      wow: r.gear.wow, prior: fmK(r.gear.p7), favor: upFavor(r.gear.wow), spark: S.gear_rev,
       basis: "of " + fmK(r.gear.goal_l7) + " goal · yest " + fmK(r.gear.yday),
       status: st, valColor: stColor(st) });
     st = revStatus(r.total.l7, r.total.goal_l7);
     mkt("Total Shopify revenue", fmK(r.total.l7), {
-      delta: r.total.wow == null ? null : pctTok(r.total.wow), deltaCls: r.total.wow >= 0 ? "up" : "down",
+      wow: r.total.wow, prior: fmK(r.total.p7), favor: upFavor(r.total.wow), spark: S.total_rev,
       basis: "of " + fmK(r.total.goal_l7) + " goal · yest " + fmK(r.total.yday),
       status: st, valColor: stColor(st) });
     if (r.mer && r.mer.l7 != null) {
       const mt = r.mer.target || 2.5;
       const st2 = r.mer.l7 >= mt ? "good" : r.mer.l7 >= mt * 0.75 ? "warn" : "bad";
       mkt("Blended MER", r.mer.l7.toFixed(2), {
-        basis: "target " + mt.toFixed(1) + (r.mer.yday != null ? " · yest " + r.mer.yday.toFixed(2) : "") + " · pacing workbook",
+        wow: r.mer.wow, prior: r.mer.p7 != null ? r.mer.p7.toFixed(2) : null, favor: upFavor(r.mer.wow),
+        spark: S.mer, sparkGoal: mt,
+        basis: "target " + mt.toFixed(1) + (r.mer.yday != null ? " · yest " + r.mer.yday.toFixed(2) : ""),
         status: st2, valColor: stColor(st2) });
     }
   }
   const sp = g.spend;
-  if (sp && sp.l7 != null) {
+  if (sp && sp.managed_l7 != null) {
     const ch = (sp.by_channel || []).map(c => c.label + " " + fmK(c.l7)).join(" · ");
-    mkt("Ad spend", fmK(sp.l7), {
-      delta: sp.wow == null ? null : pctTok(sp.wow), deltaCls: sp.wow >= 0 ? "up" : "down",
-      basis: ch + " · core+brand platform" });
+    mkt("Ad spend", fmK(sp.managed_l7), {
+      wow: sp.managed_wow, prior: fmK(sp.managed_p7), favor: "flat", spark: S.managed_spend,
+      basis: ch + " · managed (incl affiliate/trad)" });
   }
   const nc = g.nc;
   if (nc) {
     if (nc.rev_l7 != null)
       mkt("New-customer revenue", fmK(nc.rev_l7), {
-        delta: nc.rev_wow == null ? null : pctTok(nc.rev_wow), deltaCls: nc.rev_wow >= 0 ? "up" : "down",
-        basis: "first-purchase · core+brand · Northbeam paid" });
+        wow: nc.rev_wow, prior: fmK(nc.rev_p7), favor: upFavor(nc.rev_wow), spark: S.nc_rev,
+        basis: "first-purchase · core+brand · Northbeam" });
     if (nc.roas_l7 != null) {
-      const dw = nc.roas_p7 ? (nc.roas_l7 - nc.roas_p7) / nc.roas_p7 : null;
+      const rw = nc.roas_p7 ? (nc.roas_l7 - nc.roas_p7) / nc.roas_p7 : null;
       mkt("New-customer ROAS", nc.roas_l7.toFixed(2), {
-        delta: dw == null ? null : pctTok(dw), deltaCls: dw == null ? "" : dw >= 0 ? "up" : "down",
-        basis: "first-purchase · core+brand · blended goal " + (nc.roas_goal || 2).toFixed(1) });
+        wow: rw, prior: nc.roas_p7 != null ? nc.roas_p7.toFixed(2) : null, favor: upFavor(rw),
+        spark: S.nc_roas, sparkGoal: nc.roas_goal || 2,
+        basis: "first-purchase · core+brand · goal " + (nc.roas_goal || 2).toFixed(1) });
     }
-    if (nc.cac_l7 != null) {
-      const dw = nc.cac_p7 ? (nc.cac_l7 - nc.cac_p7) / nc.cac_p7 : null;
-      mkt("New-customer CAC", fm$(nc.cac_l7), {
-        delta: dw == null ? null : pctTok(dw), deltaCls: dw == null ? "" : dw <= 0 ? "up" : "down",
-        basis: nc.new_txns_l7 + " new customers · core+brand (excl DG)",
-        status: dw == null ? "na" : dw <= 0 ? "good" : dw <= 0.15 ? "warn" : "bad" });
-    }
+  }
+  const c = g.cac;
+  if (c) {
+    if (c.business_l7 != null)
+      mkt("Business CAC", fm$(c.business_l7), {
+        wow: c.business_wow, prior: c.business_p7 != null ? fm$(c.business_p7) : null,
+        favor: dnFavor(c.business_wow), spark: S.biz_cac, status: cacStatus(c.business_wow),
+        basis: c.business_new_txns + " new cust · managed ÷ all NB new (paid-attr)" });
+    if (c.paid_l7 != null)
+      mkt("Paid acquisition CAC", fm$(c.paid_l7), {
+        wow: c.paid_wow, prior: c.paid_p7 != null ? fm$(c.paid_p7) : null,
+        favor: dnFavor(c.paid_wow), spark: S.paid_cac, status: cacStatus(c.paid_wow),
+        basis: c.paid_new_txns + " new cust · Google+Meta, excl Demand Gen" });
   }
   const av = g.aov;
   if (av && av.l7 != null)
     mkt("AOV", fm$(av.l7), {
-      delta: av.wow == null ? null : pctTok(av.wow), deltaCls: "",
-      basis: av.src === "L7 cash" ? "paid-attributed cash · promo weeks compress it" : "account cash avg" });
+      wow: av.wow, prior: av.p7 != null ? fm$(av.p7) : null, favor: "flat", spark: S.aov,
+      basis: av.src === "L7 cash" ? "paid cash · promo weeks compress it" : "account cash avg" });
 
   wrap.appendChild(tiles);
   return wrap;
