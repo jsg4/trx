@@ -2216,18 +2216,11 @@ function dailyGuideStrip() {
     }
   }
   const c = g.cac;
-  if (c) {
-    if (c.business_l7 != null)
-      mkt("Business CAC", fm$(c.business_l7), {
-        wow: c.business_wow, prior: c.business_p7 != null ? fm$(c.business_p7) : null,
-        favor: dnFavor(c.business_wow), spark: S.biz_cac, status: cacStatus(c.business_wow),
-        basis: c.business_new_txns + " new cust · managed ÷ all NB new (paid-attr)" });
-    if (c.paid_l7 != null)
-      mkt("Paid acquisition CAC", fm$(c.paid_l7), {
-        wow: c.paid_wow, prior: c.paid_p7 != null ? fm$(c.paid_p7) : null,
-        favor: dnFavor(c.paid_wow), spark: S.paid_cac, status: cacStatus(c.paid_wow),
-        basis: c.paid_new_txns + " new cust · Google+Meta, excl Demand Gen" });
-  }
+  if (c && c.l7 != null)
+    mkt("New-customer CAC", fm$(c.l7), {
+      wow: c.wow, prior: c.p7 != null ? fm$(c.p7) : null,
+      favor: dnFavor(c.wow), spark: S.cac, status: cacStatus(c.wow),
+      basis: c.new_txns + " new cust · Google+Meta, excl Demand Gen · Northbeam" });
   const av = g.aov;
   if (av && av.l7 != null)
     mkt("AOV", fm$(av.l7), {
