@@ -214,6 +214,14 @@ button.ghost:hover { color:var(--ink-1); }
 .dkid .knm { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:60%; }
 .dkid .kv { margin-left:auto; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-1); }
 
+/* ---- Daily Guide strip (cockpit top) — section head above a .tiles strip --- */
+.dgstrip { margin-bottom:var(--s4); }
+.dg-head { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap;
+  gap:var(--s2); margin-bottom:var(--s2); }
+.dg-head .dg-t { font-family:var(--f-display); font-size:16px; font-weight:700; letter-spacing:-0.01em; }
+.dg-head .dg-s { font-size:var(--t-cap); color:var(--ink-3); }
+.dgstrip .tiles { margin-bottom:0; }
+
 /* ---- Performance Summary strip: KPIs in one card, divided cells (ref) --- */
 .tiles { display:flex; flex-wrap:wrap; background:var(--surface-1); border:1px solid var(--border);
   border-radius:var(--r); box-shadow:var(--shadow); margin-bottom:var(--s4); overflow:hidden; }
@@ -2179,6 +2187,106 @@ function pageNav(cur) {
 }
 
 /* ---------- cockpit builders ---------- */
+/* Daily Guide strip — the at-a-glance morning read at the top of the cockpit.
+   Sheet gear/total revenue + blended MER (vs goals), platform ad spend by
+   channel, and Northbeam new-customer economics + AOV. L7-anchored, WoW deltas,
+   variance-to-goal color where a goal exists. Reads DATA.daily_guide (additive);
+   returns null if the block is absent so the cockpit degrades cleanly. */
+function dailyGuideStrip() {
+  const g = DATA.daily_guide;
+  if (!g) return null;
+  const wrap = el("div", "dgstrip");
+  const head = el("div", "dg-head");
+  head.appendChild(el("div", "dg-t", "Daily guide"));
+  const bits = ["L7 rolling"];
+  const md = (iso) => iso ? iso.slice(5).replace("-", "/") : null;
+  if (g.sheet_through) bits.push("revenue from pacing sheet thru " + md(g.sheet_through));
+  if (g.nb_through) bits.push("new-customer from Northbeam thru " + md(g.nb_through));
+  head.appendChild(el("div", "dg-s", bits.join(" · ")));
+  wrap.appendChild(head);
+
+  const tiles = el("div", "tiles");
+  const stColor = (st) => st === "good" ? "var(--st-good)" : st === "bad" ? "var(--st-crit)" : "inherit";
+  const pctTok = (x) => (x >= 0 ? "+" : "") + Math.round(x * 100) + "%";
+  const mkt = (lbl, val, o) => {
+    o = o || {};
+    const t = el("div", "tile" + (o.status && o.status !== "na" ? " st-" + o.status : ""));
+    const top = el("div", "tile-top");
+    top.appendChild(el("div", "lbl", lbl));
+    if (o.delta != null) {
+      let d = o.delta;
+      if (/^\+/.test(d)) d = "▲ " + d.slice(1);
+      else if (/^-\d/.test(d)) d = "▼ " + d.slice(1);
+      const chip = el("div", "delta " + (o.deltaCls || ""), d);
+      chip.title = "vs prior 7 days";
+      top.appendChild(chip);
+    }
+    t.appendChild(top);
+    const v = el("div", "val", val);
+    if (o.valColor) v.style.color = o.valColor;
+    t.appendChild(v);
+    if (o.basis) t.appendChild(el("div", "basis", o.basis));
+    tiles.appendChild(t);
+  };
+  const revStatus = (l7, goal) => !goal ? "na" : (l7 / goal >= 0.95 ? "good" : l7 / goal >= 0.8 ? "warn" : "bad");
+
+  const r = g.revenue;
+  if (r) {
+    let st = revStatus(r.gear.l7, r.gear.goal_l7);
+    mkt("Gear revenue", fmK(r.gear.l7), {
+      delta: r.gear.wow == null ? null : pctTok(r.gear.wow), deltaCls: r.gear.wow >= 0 ? "up" : "down",
+      basis: "of " + fmK(r.gear.goal_l7) + " goal · yest " + fmK(r.gear.yday),
+      status: st, valColor: stColor(st) });
+    st = revStatus(r.total.l7, r.total.goal_l7);
+    mkt("Total Shopify revenue", fmK(r.total.l7), {
+      delta: r.total.wow == null ? null : pctTok(r.total.wow), deltaCls: r.total.wow >= 0 ? "up" : "down",
+      basis: "of " + fmK(r.total.goal_l7) + " goal · yest " + fmK(r.total.yday),
+      status: st, valColor: stColor(st) });
+    if (r.mer && r.mer.l7 != null) {
+      const mt = r.mer.target || 2.5;
+      const st2 = r.mer.l7 >= mt ? "good" : r.mer.l7 >= mt * 0.75 ? "warn" : "bad";
+      mkt("Blended MER", r.mer.l7.toFixed(2), {
+        basis: "target " + mt.toFixed(1) + (r.mer.yday != null ? " · yest " + r.mer.yday.toFixed(2) : "") + " · pacing workbook",
+        status: st2, valColor: stColor(st2) });
+    }
+  }
+  const sp = g.spend;
+  if (sp && sp.l7 != null) {
+    const ch = (sp.by_channel || []).map(c => c.label + " " + fmK(c.l7)).join(" · ");
+    mkt("Ad spend", fmK(sp.l7), {
+      delta: sp.wow == null ? null : pctTok(sp.wow), deltaCls: sp.wow >= 0 ? "up" : "down",
+      basis: ch + " · core+brand platform" });
+  }
+  const nc = g.nc;
+  if (nc) {
+    if (nc.rev_l7 != null)
+      mkt("New-customer revenue", fmK(nc.rev_l7), {
+        delta: nc.rev_wow == null ? null : pctTok(nc.rev_wow), deltaCls: nc.rev_wow >= 0 ? "up" : "down",
+        basis: "first-purchase · core+brand · Northbeam paid" });
+    if (nc.roas_l7 != null) {
+      const dw = nc.roas_p7 ? (nc.roas_l7 - nc.roas_p7) / nc.roas_p7 : null;
+      mkt("New-customer ROAS", nc.roas_l7.toFixed(2), {
+        delta: dw == null ? null : pctTok(dw), deltaCls: dw == null ? "" : dw >= 0 ? "up" : "down",
+        basis: "first-purchase · core+brand · blended goal " + (nc.roas_goal || 2).toFixed(1) });
+    }
+    if (nc.cac_l7 != null) {
+      const dw = nc.cac_p7 ? (nc.cac_l7 - nc.cac_p7) / nc.cac_p7 : null;
+      mkt("New-customer CAC", fm$(nc.cac_l7), {
+        delta: dw == null ? null : pctTok(dw), deltaCls: dw == null ? "" : dw <= 0 ? "up" : "down",
+        basis: nc.new_txns_l7 + " new customers · core+brand (excl DG)",
+        status: dw == null ? "na" : dw <= 0 ? "good" : dw <= 0.15 ? "warn" : "bad" });
+    }
+  }
+  const av = g.aov;
+  if (av && av.l7 != null)
+    mkt("AOV", fm$(av.l7), {
+      delta: av.wow == null ? null : pctTok(av.wow), deltaCls: "",
+      basis: av.src === "L7 cash" ? "paid-attributed cash · promo weeks compress it" : "account cash avg" });
+
+  wrap.appendChild(tiles);
+  return wrap;
+}
+
 function decideMini() {
   const dec = DATA.insights.decide || {do_now: [], scale: [], watch: []};
   const card = el("div", "card");
@@ -2531,6 +2639,12 @@ function render() {
     dgm.appendChild(document.createTextNode(
       " — counted on NB Clicks + Modeled Views (7D). Toggle off in the sidebar for core-only numbers."));
     app.appendChild(dgm);
+  }
+
+  /* Daily Guide strip — top-of-cockpit at-a-glance (sheet revenue + NB new-customer) */
+  if (PAGE === "cockpit") {
+    const dgs = dailyGuideStrip();
+    if (dgs) app.appendChild(dgs);
   }
 
   const ins = DATA.insights;
