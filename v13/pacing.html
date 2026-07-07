@@ -289,6 +289,34 @@ th { color:var(--ink-3); font-weight:500; font-size:var(--t-cap); text-transform
 th.sorted { color:var(--ink-1); font-weight:650; }
 td { font-variant-numeric:tabular-nums; }
 td.name { max-width:340px; overflow:hidden; text-overflow:ellipsis; text-align:left; }
+/* copyable / expandable ad names (click a name -> code-block popover + copy) */
+.copyname { position:relative; cursor:pointer; }
+td.name.copyname { padding-right:20px; }
+.copyname .copyglyph { position:absolute; right:5px; top:8px; font-size:12px; line-height:1;
+  color:var(--ink-3); opacity:0.4; transition:opacity .12s, color .12s; }
+.copyname:hover .copyglyph { opacity:1; color:var(--st-good); }
+.namepop { position:fixed; z-index:60; width:min(560px,92vw); background:var(--surface-1);
+  border:1px solid var(--border); border-radius:var(--r-s); box-shadow:var(--shadow); padding:12px; }
+.namepop-h { font-size:var(--t-cap); color:var(--ink-3); margin-bottom:7px;
+  text-transform:uppercase; letter-spacing:0.05em; }
+.namepop-box { max-height:230px; overflow:auto; background:var(--wash);
+  border:1px solid var(--grid); border-radius:var(--r-s); padding:9px 11px; }
+.namecode { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px;
+  line-height:1.6; color:var(--ink-2); white-space:pre-wrap; word-break:break-all; user-select:text; }
+.namecode .nsep { color:var(--ink-3); opacity:0.45; }
+.namecode .nfile { color:var(--ink-1); font-weight:700; background:var(--wash-good);
+  border-radius:3px; padding:0 2px; }
+.namepop-row { display:flex; gap:8px; margin-top:11px; }
+.namepop-btn { font:inherit; font-size:13px; font-weight:700; padding:8px 14px; border-radius:var(--r-s);
+  border:none; background:var(--lime); color:var(--pine); cursor:pointer; }
+.namepop-btn:hover { filter:brightness(0.95); }
+.namepop-x { font:inherit; font-size:13px; padding:8px 12px; border-radius:var(--r-s);
+  border:1px solid var(--border); background:transparent; color:var(--ink-2); cursor:pointer; }
+.toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(12px);
+  background:var(--ink-1); color:var(--surface-1); font-size:13px; font-weight:650; padding:9px 17px;
+  border-radius:100px; box-shadow:var(--shadow); opacity:0; pointer-events:none; z-index:70;
+  transition:opacity .16s ease, transform .16s ease; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 td .pdot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
 tr:hover td { background:var(--wash); }
 td.num { font-variant-numeric:tabular-nums; }
@@ -1097,6 +1125,7 @@ function renderTable(container) {
     nameTd.appendChild(document.createTextNode(entityName(e)));
     if (entitySub(e)) { const s = el("div", "muted"); s.style.fontSize = "13px"; s.textContent = entitySub(e); nameTd.appendChild(s); }
     nameTd.title = entityName(e) + (entitySub(e) ? " — " + entitySub(e) : "");
+    copyableName(nameTd, entityName(e));
     tr.appendChild(nameTd);
     {
       /* reference-style data bar behind the spend value */
@@ -1340,6 +1369,7 @@ function creativeHealth() {
     rows.forEach(r => {
       const tr = el("tr");
       const nt = el("td", "name"); nt.style.maxWidth = "230px"; nt.textContent = r.name; nt.title = r.name + " — " + r.campaign;
+      copyableName(nt, r.name);
       tr.appendChild(nt);
       const hk = el("td", "num", Math.round(r.hook * 100) + "%");
       hk.className += r.hook >= 0.3 ? " delta up" : (r.hook < 0.2 ? " delta down" : " num");
@@ -1409,7 +1439,7 @@ function ciList(title, rows, mode) {
   (rows || []).forEach(r => {
     const it = el("div", "ditem");
     const w = el("div", "w", r.name.length > 64 ? r.name.slice(0, 64) + "…" : r.name);
-    w.title = r.name; it.appendChild(w);
+    w.title = r.name; copyableName(w, r.name); it.appendChild(w);
     const bits = [r.angle, r.product !== "Unspecified" ? r.product : null,
       fm$(r.spend_l14) + " L14", "ROAS " + fmR(r.roas_l14),
       r.hook_rate != null ? "hook " + Math.round(r.hook_rate * 100) + "%" : null].filter(Boolean);
@@ -1503,6 +1533,90 @@ function creativeIntelligence() {
     }
   }
   return card;
+}
+
+/* ---------- copyable / expandable names -----------------------------------
+   TRX ad names are 150-200 chars of key-value taxonomy tokens (s-/as-/h-/p-/…)
+   with the actual asset FILE NAME buried mid-string. Click any name to pop a
+   selectable code block — the free-text file-name tokens are highlighted so you
+   can grab them to search — plus a one-click "copy full name". */
+function toast(msg) {
+  let t = document.getElementById("toast");
+  if (!t) { t = el("div", "toast"); t.id = "toast"; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1600);
+}
+function copyText(s) {
+  const done = () => toast("Copied to clipboard");
+  const fallback = () => {
+    const ta = document.createElement("textarea");
+    ta.value = s; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) {}
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(s).then(done, fallback);
+  else fallback();
+}
+// taxonomy keys are a KNOWN small set (s-/as-/h-/p-/c-/o-/lp-/a-/m-/t-/gen-/WL=/…);
+// a token that isn't one of these and isn't a bare format word is a free-text
+// asset/file-name token (e.g. AorB-061526, TSS_TRX_020626_9x16_V2) -> highlight it.
+const _TAXO = /^(s|as|m|h|p|c|t|o|lp|a|gen|wl|whitelist|creative)[-=]/i,
+      _FMT = /^(video|static|image|carousel|gif)$/i;
+function nameCode(fullName) {
+  const code = el("code", "namecode");
+  (fullName || "").split("_").forEach((tok, i) => {
+    if (i) code.appendChild(el("span", "nsep", "_"));
+    const isFile = tok && !_TAXO.test(tok) && !_FMT.test(tok);
+    code.appendChild(el("span", isFile ? "nfile" : null, tok));
+  });
+  return code;
+}
+let _namepop = null;
+function closeNamePop() {
+  if (!_namepop) return;
+  _namepop.remove(); _namepop = null;
+  document.removeEventListener("mousedown", _onDocDown, true);
+  document.removeEventListener("keydown", _onPopKey);
+}
+function _onDocDown(e) { if (_namepop && !_namepop.contains(e.target)) closeNamePop(); }
+function _onPopKey(e) { if (e.key === "Escape") closeNamePop(); }
+function openNamePop(anchor, fullName) {
+  closeNamePop();
+  const pop = el("div", "namepop");
+  pop.appendChild(el("div", "namepop-h", "Full name — select the file name to search, or copy all"));
+  const box = el("div", "namepop-box");
+  box.appendChild(nameCode(fullName));
+  pop.appendChild(box);
+  const row = el("div", "namepop-row");
+  const cbtn = el("button", "namepop-btn", "Copy full name");
+  cbtn.addEventListener("click", (e) => { e.stopPropagation(); copyText(fullName); });
+  const x = el("button", "namepop-x", "Close");
+  x.addEventListener("click", (e) => { e.stopPropagation(); closeNamePop(); });
+  row.appendChild(cbtn); row.appendChild(x);
+  pop.appendChild(row);
+  document.body.appendChild(pop);
+  const r = anchor.getBoundingClientRect();
+  const pw = pop.offsetWidth, ph = pop.offsetHeight;
+  const left = Math.max(8, Math.min(r.left, window.innerWidth - pw - 12));
+  let top = r.bottom + 6;
+  if (top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 6);
+  pop.style.left = left + "px"; pop.style.top = top + "px";
+  _namepop = pop;
+  setTimeout(() => {
+    document.addEventListener("mousedown", _onDocDown, true);
+    document.addEventListener("keydown", _onPopKey);
+  }, 0);
+}
+function copyableName(node, fullName) {
+  if (!fullName) return node;
+  node.classList.add("copyname");
+  if (!node.title) node.title = fullName;          // keep any richer tooltip already set
+  node.appendChild(el("span", "copyglyph", "⧉"));
+  node.addEventListener("click", (e) => { e.stopPropagation(); openNamePop(node, fullName); });
+  return node;
 }
 
 /* ---------- performance detail card (rebuilds in place, no page scroll) ---------- */
@@ -1950,7 +2064,7 @@ function ltvPage(app) {
     rows.forEach(r => {
       const tr = el("tr");
       const nt = el("td", "name"); nt.style.maxWidth = "260px"; nt.style.fontWeight = "600";
-      nt.textContent = r.label; nt.title = r.label; tr.appendChild(nt);
+      nt.textContent = r.label; nt.title = r.label; copyableName(nt, r.label); tr.appendChild(nt);
       tr.appendChild(el("td", "num", fm$(r.spend)));
       tr.appendChild(el("td", "num muted", String(r.ftx)));
       tr.appendChild(el("td", "num", r.cac_ft ? fm$(r.cac_ft) : "–"));
@@ -2122,6 +2236,7 @@ function testingMonitor() {
     const tr = el("tr");
     const nt = el("td", "name"); nt.style.maxWidth = "230px";
     nt.textContent = r.adset_name; nt.title = r.adset_name + " — " + r.campaign_name;
+    copyableName(nt, r.adset_name);
     tr.appendChild(nt);
     tr.appendChild(el("td", "num muted", String(r.ads || "–")));
     tr.appendChild(el("td", "num muted", String(r.days_active)));
