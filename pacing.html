@@ -565,6 +565,16 @@ td.action { text-align:left; white-space:normal; min-width:220px; max-width:330p
 
 /* ---- filters ------------------------------------------------------------- */
 .filters { display:flex; flex-wrap:wrap; gap:var(--s2); align-items:center; margin-bottom:var(--s3); }
+/* ---- delivery (active/inactive) status pills + summary -------------------- */
+.dlvpill { display:inline-block; margin-right:6px; padding:1px 7px; border-radius:100px; font-size:var(--t-cap); font-weight:650; letter-spacing:0.03em; vertical-align:middle; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.dlvpill.dlv-on   { color:var(--st-good); background:var(--wash-good); }
+.dlvpill.dlv-idle { color:var(--st-warn); background:var(--wash-warn); }
+.dlvpill.dlv-off  { color:var(--ink-3); background:var(--wash); }
+.dlvpill.dlv-del  { color:var(--ink-3); background:var(--wash); opacity:0.7; text-decoration:line-through; }
+.dlvpill.dlv-unk  { color:var(--ink-3); background:var(--wash); }
+.dlvsum { font-size:var(--t-sm); margin-bottom:var(--s2); }
+.dlvsum-on  { color:var(--st-good); font-weight:650; }
+.dlvsum-off { color:var(--ink-2); font-weight:650; }
 .seg { display:inline-flex; border:1px solid var(--border); border-radius:var(--r-s); overflow:hidden; background:var(--surface-1); }
 .seg button { background:none; border:none; padding:7px 14px; font:inherit; font-size:14px; color:var(--ink-2); cursor:pointer; border-right:1px solid var(--border); }
 .seg button:last-child { border-right:none; }
@@ -648,6 +658,8 @@ const PAGE = "pacing";
 let winSel = "L7", platSel = PAGE === "creative" ? "meta" : "all",
     levelSel = PAGE === "creative" ? "ad" : "campaign";
 let sortCol = "spend", sortDir = -1, query = "", showZero = false, minRoasOn = false;
+// delivery filter: all | active | inactive. Active = NB status "Active" AND spend>0 in the window.
+let deliverySel = "all";
 // global Demand Gen (TOF) fold-in — persisted so it survives page nav (default: Excluded)
 let inclDG = localStorage.getItem("trx_incl_dg") === "1";
 const ROAS_FILTER = 1.75;  // testing graduation bar — "working" threshold
@@ -962,6 +974,22 @@ function statusBadge(e) {
   if (w.roas7 >= 1.5) return ["b-watch", "Watch"];
   return ["b-fix", "Fix / cut"];
 }
+// --- delivery status (distinct from the performance verdict above) ------------
+// "Active" = the ad's Northbeam config status is Active AND it actually spent in
+// the selected window. Everything else is inactive: Paused/Deleted, or enabled
+// but $0 in the window ("Idle" — on but not delivering).
+function isActive(e) {
+  return (e.status || "") === "Active" && (e.windows[winSel].spend || 0) > 0;
+}
+function deliveryBadge(e) {
+  const st = e.status || "";
+  const spend = e.windows[winSel].spend || 0;
+  if (st === "Active" && spend > 0) return ["dlv-on", "Active"];
+  if (st === "Active")             return ["dlv-idle", "Idle"];    // enabled, $0 in window
+  if (st === "Paused")             return ["dlv-off", "Paused"];
+  if (st === "Deleted")            return ["dlv-del", "Deleted"];
+  return ["dlv-unk", st || "Unknown"];
+}
 function entityName(e) {
   if (levelSel === "campaign") return e.campaign_name || e.campaign_id;
   if (levelSel === "adset") return (e.adset_name || e.adset_id);
@@ -983,9 +1011,27 @@ function renderTable(container) {
     rows = rows.filter(e => (entityName(e) + " " + entitySub(e)).toLowerCase().includes(q));
   }
   const W = winSel;
+  // active/inactive split over the current scope (computed before the delivery filter)
+  const nActive = rows.filter(isActive).length;
+  const nInactive = rows.length - nActive;
+  if (deliverySel === "active") rows = rows.filter(isActive);
+  else if (deliverySel === "inactive") rows = rows.filter(e => !isActive(e));
+  // $0-spend hide applies only in the default (All) view; the Inactive view
+  // intentionally keeps paused/idle rows that had $0 spend in the window.
   const preZero = rows.length;
-  if (!showZero) rows = rows.filter(e => (e.windows[W].spend || 0) > 0);
+  if (!showZero && deliverySel === "all") rows = rows.filter(e => (e.windows[W].spend || 0) > 0);
   const zeroHidden = preZero - rows.length;
+  // active/inactive summary for the current level + platform + search scope
+  {
+    const noun = levelSel === "ad" ? "ads" : levelSel === "adset" ? "ad sets" : "campaigns";
+    const sumEl = el("div", "dlvsum");
+    sumEl.appendChild(el("span", "dlvsum-on", nActive + " active"));
+    sumEl.appendChild(document.createTextNode(" · "));
+    sumEl.appendChild(el("span", "dlvsum-off", nInactive + " inactive"));
+    sumEl.appendChild(document.createTextNode(" " + noun + " "));
+    sumEl.appendChild(el("span", "muted", "(NB status Active + spend in " + W + ")"));
+    container.appendChild(sumEl);
+  }
   // threshold judges on the >=7d window even in the Yesterday view (L1 accrual
   // is too immature to threshold on), same mapping the status badges use
   const preRoas = rows.length;
@@ -1048,9 +1094,18 @@ function renderTable(container) {
     const nameTd = el("td", "name");
     const pd = el("span", "pdot"); pd.style.background = PLAT_COLOR[e.platform] || "var(--s-other)";
     nameTd.appendChild(pd);
+    // delivery pill goes BEFORE the (long, ellipsis-truncated) name so it's always
+    // visible; only inactive rows get one — active rows stay clean.
+    if (!isActive(e)) {
+      const [dc, dl] = deliveryBadge(e);
+      const dp = el("span", "dlvpill " + dc, dl);
+      dp.title = "NB delivery status: " + (e.status || "unknown")
+        + " · " + ((e.windows[W].spend || 0) > 0 ? fm$(e.windows[W].spend) + " spent in " + W : "$0 in " + W);
+      nameTd.appendChild(dp);
+    }
     nameTd.appendChild(document.createTextNode(entityName(e)));
     if (entitySub(e)) { const s = el("div", "muted"); s.style.fontSize = "13px"; s.textContent = entitySub(e); nameTd.appendChild(s); }
-    nameTd.title = entityName(e) + (entitySub(e) ? " — " + entitySub(e) : "");
+    nameTd.title = entityName(e) + (entitySub(e) ? " — " + entitySub(e) : "") + " · NB: " + (e.status || "unknown");
     copyableName(nameTd, entityName(e));
     tr.appendChild(nameTd);
     {
@@ -1575,6 +1630,8 @@ function buildDetail(tcard) {
     id => { winSel = id; rebuild(); }));
   filters.appendChild(mkSeg([["all", "All"], ["meta", "Meta"], ["google", "Google"], ["tiktok", "TikTok"]], platSel,
     id => { platSel = id; rebuild(); }));
+  filters.appendChild(mkSeg([["all", "All"], ["active", "Active"], ["inactive", "Inactive"]], deliverySel,
+    id => { deliverySel = id; rebuild(); }));
   const se = el("input", "search"); se.placeholder = "Search name…"; se.value = query;
   se.addEventListener("input", () => { query = se.value; renderTable(twrap); });
   filters.appendChild(se);
