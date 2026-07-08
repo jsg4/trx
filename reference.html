@@ -2033,7 +2033,8 @@ function ltvPage(app) {
   const L = DATA.ltv;
   if (!L) { app.appendChild(el("div", "card", "LTV data not in payload yet.")); return; }
   const goal = DATA.meta.goal_roas;
-  const a = L.account;
+  // account tiles follow the DG toggle (excl = core+brand, incl = +Demand Gen)
+  const a = (inclDG && L.account_incl) ? L.account_incl : L.account;
   const tiles = el("div", "tiles");
   const mk2 = (lbl, val, sub) => {
     const t = el("div", "tile");
@@ -2084,12 +2085,13 @@ function ltvPage(app) {
     foldRows(Array.from(t.querySelectorAll("tr")).slice(1), 8, wrapd, "campaigns");
     return wrapd;
   };
-  card.appendChild(mkTable(L.channels));
+  // DG channel row + DG campaigns follow the toggle
+  card.appendChild(mkTable(inclDG ? L.channels : L.channels.filter(r => !/Demand Gen/i.test(r.label || ""))));
   app.appendChild(card);
 
   const card2 = el("div", "card");
   card2.appendChild(el("h2", null, "LTV by campaign — 30 days, min $400 / 3 new customers"));
-  card2.appendChild(mkTable(L.campaigns));
+  card2.appendChild(mkTable(inclDG ? L.campaigns : L.campaigns.filter(r => r.bucket !== "tof")));
   app.appendChild(card2);
 
   if (L.recommendations && L.recommendations.length) {
@@ -2323,6 +2325,8 @@ function dailyGuideStrip() {
   wrap.appendChild(head);
 
   const S = g.series || {};
+  // DG toggle: swap in the DG-inclusive variant of each NB new-customer sparkline.
+  const sPick = (base) => (inclDG && S[base + "_incl"]) ? S[base + "_incl"] : S[base];
   const tiles = el("div", "tiles");
   const stColor = (st) => st === "good" ? "var(--st-good)" : st === "bad" ? "var(--st-crit)" : "inherit";
   const sparkEl = (vals, goal) => {
@@ -2385,35 +2389,37 @@ function dailyGuideStrip() {
   }
   const sp = g.spend;
   if (sp && sp.managed_l7 != null) {
-    const ch = (sp.by_channel || []).map(c => c.label + " " + fmK(c.l7)).join(" · ");
+    const chList = (inclDG && sp.by_channel_incl) ? sp.by_channel_incl : sp.by_channel;
+    const ch = (chList || []).map(c => c.label + " " + fmK(c.l7)).join(" · ");
     mkt("Ad spend", fmK(sp.managed_l7), {
       wow: sp.managed_wow, prior: fmK(sp.managed_p7), favor: "flat", spark: S.managed_spend,
       basis: ch + " · managed (incl affiliate/trad)" });
   }
-  const nc = g.nc;
+  const ncScope = inclDG ? "core+brand+DG (DG on Modeled Views)" : "core+brand";
+  const nc = (inclDG && g.nc_incl) ? g.nc_incl : g.nc;
   if (nc) {
     if (nc.rev_l7 != null)
       mkt("New-customer revenue", fmK(nc.rev_l7), {
-        wow: nc.rev_wow, prior: fmK(nc.rev_p7), favor: upFavor(nc.rev_wow), spark: S.nc_rev,
-        basis: "first-purchase · core+brand · Northbeam" });
+        wow: nc.rev_wow, prior: fmK(nc.rev_p7), favor: upFavor(nc.rev_wow), spark: sPick("nc_rev"),
+        basis: "first-purchase · " + ncScope + " · Northbeam" });
     if (nc.roas_l7 != null) {
       const rw = nc.roas_p7 ? (nc.roas_l7 - nc.roas_p7) / nc.roas_p7 : null;
       mkt("New-customer ROAS", nc.roas_l7.toFixed(2), {
         wow: rw, prior: nc.roas_p7 != null ? nc.roas_p7.toFixed(2) : null, favor: upFavor(rw),
-        spark: S.nc_roas, sparkGoal: nc.roas_goal || 2,
-        basis: "first-purchase · core+brand · goal " + (nc.roas_goal || 2).toFixed(1) });
+        spark: sPick("nc_roas"), sparkGoal: nc.roas_goal || 2,
+        basis: "first-purchase · " + ncScope + " · goal " + (nc.roas_goal || 2).toFixed(1) });
     }
   }
-  const c = g.cac;
+  const c = (inclDG && g.cac_incl) ? g.cac_incl : g.cac;
   if (c && c.l7 != null)
     mkt("New-customer CAC", fm$(c.l7), {
       wow: c.wow, prior: c.p7 != null ? fm$(c.p7) : null,
-      favor: dnFavor(c.wow), spark: S.cac, status: cacStatus(c.wow),
-      basis: c.new_txns + " new cust · Google+Meta, excl Demand Gen · Northbeam" });
-  const av = g.aov;
+      favor: dnFavor(c.wow), spark: sPick("cac"), status: cacStatus(c.wow),
+      basis: c.new_txns + " new cust · Google+Meta, " + (inclDG ? "incl Demand Gen" : "excl Demand Gen") + " · Northbeam" });
+  const av = (inclDG && g.aov_incl) ? g.aov_incl : g.aov;
   if (av && av.l7 != null)
     mkt("AOV", fm$(av.l7), {
-      wow: av.wow, prior: av.p7 != null ? fm$(av.p7) : null, favor: "flat", spark: S.aov,
+      wow: av.wow, prior: av.p7 != null ? fm$(av.p7) : null, favor: "flat", spark: sPick("aov"),
       basis: av.src === "L7 cash" ? "paid cash · promo weeks compress it" : "account cash avg" });
 
   wrap.appendChild(tiles);
