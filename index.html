@@ -662,6 +662,15 @@ let sortCol = "spend", sortDir = -1, query = "", showZero = false, minRoasOn = f
 let deliverySel = "all";
 // global Demand Gen (TOF) fold-in — persisted so it survives page nav (default: Excluded)
 let inclDG = localStorage.getItem("trx_incl_dg") === "1";
+// Bucket visibility for ALL performance surfaces. App/Amazon (other) is never a
+// performance surface; Demand Gen (tof) is shown / folded into totals ONLY when
+// the sidebar DG toggle is on. Every row list + spend/perf total routes through
+// this so the toggle applies to all data, not just the headline tiles/chart.
+function bucketVisible(bucket) {
+  if (bucket === "other") return false;
+  if (bucket === "tof") return inclDG;
+  return true; // core, brand
+}
 const ROAS_FILTER = 1.75;  // testing graduation bar — "working" threshold
 const PLAT_COLOR = { meta:"var(--s-meta)", google:"var(--s-google)", tiktok:"var(--s-tiktok)" };
 const PLAT_LABEL = { meta:"Meta", google:"Google", tiktok:"TikTok" };
@@ -1004,7 +1013,7 @@ function renderTable(container) {
   container.replaceChildren();
   const goal = DATA.meta.goal_roas;
   /* App/Amazon: budget managed per the client sheet, performance not judged here */
-  let rows = DATA.levels[levelSel].filter(e => e.bucket !== "other")
+  let rows = DATA.levels[levelSel].filter(e => bucketVisible(e.bucket))
     .filter(e => platSel === "all" || e.platform === platSel);
   if (query) {
     const q = query.toLowerCase();
@@ -1260,7 +1269,7 @@ function channelSummary() {
   });
   table.appendChild(trh);
   /* judged spend only — App/Amazon is managed off the client sheet, not allocated here */
-  const camps = DATA.levels.campaign.filter(c => c.bucket !== "other");
+  const camps = DATA.levels.campaign.filter(c => bucketVisible(c.bucket));
   const totalL7 = camps.reduce((s, c) => s + (c.windows.L7.spend || 0), 0);
   const rowsAgg = [];
   for (const [label, pred] of Object.entries(groups)) {
@@ -1322,7 +1331,7 @@ function channelSummary() {
 function creativeHealth() {
   const goal = DATA.meta.goal_roas;
   const vids = DATA.levels.ad.filter(a => {
-    if (a.platform !== "meta" || a.bucket === "other") return false;
+    if (a.platform !== "meta" || !bucketVisible(a.bucket)) return false;
     if (/static|image|carousel/i.test(a.ad_name || "")) return false;
     const w = a.windows.L7;
     return (w.impressions || 0) >= 5000 && (w.video3s || 0) >= 100;
@@ -1669,10 +1678,12 @@ function pageHead() {
 }
 function spendMixCard() {
   const s0 = DATA.insights.summary;
-  const parts = [["Core", s0.core_spend_l7, "var(--bk-core)"], ["TOF", s0.tof_spend_l7, "var(--bk-tof)"],
+  // DG (TOF) segment follows the sidebar toggle; total recomputed from shown parts
+  const parts = [["Core", s0.core_spend_l7, "var(--bk-core)"],
+                 ...(inclDG ? [["TOF", s0.tof_spend_l7, "var(--bk-tof)"]] : []),
                  ["Brand", s0.brand_spend_l7, "var(--bk-brand)"], ["App/Amazon — managed", s0.other_spend_l7, "var(--bk-other)"]]
     .filter(p => p[1] > 0);
-  const tot = s0.total_spend_l7 || 1;
+  const tot = parts.reduce((a, p) => a + (p[1] || 0), 0) || 1;
   const w = el("div", "widget");
   w.appendChild(el("h3", null, "Spend mix — last 7 days"));
   const wrap = el("div", "donutwrap");
@@ -1770,11 +1781,15 @@ const fmN = v => v >= 1e6 ? (v / 1e6).toFixed(1) + "M" : v >= 1e4 ? Math.round(v
    only there. */
 function funnelAgg(plat, win) {
   const rows = DATA.levels.campaign.filter(c =>
-    c.bucket !== "other" && c.platform !== "tiktok" &&
+    bucketVisible(c.bucket) && c.platform !== "tiktok" &&
     (plat === "all" || c.platform === plat));
   const sum = f => rows.reduce((a, c) => a + (c.windows[win][f] || 0), 0);
+  // DG revenue is judged on Modeled Views, not deterministic — fold mv_rev for
+  // tof rows so an included-DG total never mixes in DG's near-zero det rev7.
+  const rev = rows.reduce((a, c) => a +
+    (c.bucket === "tof" ? (c.windows[win].mv_rev || 0) : (c.windows[win].rev7 || 0)), 0);
   return {impr: sum("impressions"), clicks: sum("clicks"), visits: sum("visits"),
-          nv: sum("nv"), txns: sum("txns"), ftx: sum("ftx"), rev: sum("rev7"),
+          nv: sum("nv"), txns: sum("txns"), ftx: sum("ftx"), rev,
           spend: sum("spend")};
 }
 
